@@ -28,6 +28,13 @@ if torch.cuda.is_available():
     DEVICE = torch.device(cuda_name)
 
 
+# Drop elements from org_list based on target_list
+def drop_elements(org_list, target_list):
+    for k in target_list:
+        org_list.remove(k)
+    return org_list
+
+
 if __name__ == '__main__':
     print(DEVICE, " are using for training and testing.")
     # --------------------Parameter Setting-----------------------
@@ -39,6 +46,7 @@ if __name__ == '__main__':
     num_clients = 30
     rounds = 5
     fraction = 0.9
+    num_global_models = 5
     # Setting parameters
     neural_network = "MLP_Mult"
     # --------------------Logging setting-----------------------
@@ -60,20 +68,43 @@ if __name__ == '__main__':
         partition_data_list = pickle.load(file)
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
-    # --------------Build global model and Select loss function----------------------
-    if neural_network == "MLP":
-        glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
-        loss_fn = nn.BCELoss()  # Binary classification
-    elif neural_network == "MLP_Mult":
-        glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
-        loss_fn = nn.CrossEntropyLoss()  # Muti class classification
-    else:
-        print("Wrong neural network type, exit.")
-        sys.exit()
-    optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
-    glob_model.train()
+    # --------------Build global models and Select loss function----------------------
+    glob_models = []
+    loss_functions = []
+    optimizers = []
+    for i in range(num_global_models):
+        if neural_network == "MLP":
+            glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
+            optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
+            loss_fn = nn.BCELoss()  # Binary classification
+            glob_models.append(glob_model)
+            loss_functions.append(loss_fn)
+            optimizers.append(optimizer)
+
+        elif neural_network == "MLP_Mult":
+            glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
+            optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
+            loss_fn = nn.CrossEntropyLoss()  # Muti class classification
+            glob_models.append(glob_model)
+            loss_functions.append(loss_fn)
+            optimizers.append(optimizer)
+        else:
+            print("Wrong neural network type, exit.")
+            sys.exit()
     # --------------------initialize weight----------------------
-    w_glob = glob_model.state_dict()
+    w_globals = []
+    for i in range(num_global_models):
+        glob_models[i].train()
+        w_glob = glob_models[i].state_dict()
+        w_globals.append(w_glob)
+    # --------------------Random assign clients for each model-----------------------
+    model_clients = []
+    clients_list = list(range(0, num_clients))
+    num_clients_per_model = int(num_clients / num_global_models)
+    for i in range(num_global_models):
+        temp_clients_list = np.random.choice(range(num_clients), num_clients_per_model, replace=False)
+        model_clients.append(temp_clients_list)
+        clients_list = drop_elements(clients_list, temp_clients_list)
     # --------------------Server Training-----------------------
     # Record running time
     start_time = time.time()
@@ -81,45 +112,68 @@ if __name__ == '__main__':
     for iter in range(rounds):
         print("Rounds ", iter, "....")
         Round_time = time.time()
-        w_clients, loss_clients, ac_clients = [], [], []
-        # random select clients based on fraction
-        num_clients_with_fraction = max(int(fraction * num_clients), 1)
-        clients_index = np.random.choice(range(num_clients), num_clients_with_fraction, replace=False)
+        models_w, loss_clients, ac_clients = [], [], []
+        # # random select clients based on fraction
+        # num_clients_with_fraction = max(int(fraction * num_clients), 1)
+        # clients_index = np.random.choice(range(num_clients), num_clients_with_fraction, replace=False)
         temp_client_list = []
-        # Create clients
-        for index in clients_index:
-            # Get clients data
-            (client_X_train, client_y_train) = partition_data_list[index]
-            # process data
-            train_data = CustomDataset(client_X_train, client_y_train, neural_network)
-            train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-            # copy global model
-            temp_local_model = copy.deepcopy(glob_model)
-            # define local optimizer
-            local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
-            # create threads which represents clients
-            client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, client_epochs, neural_network, DEVICE,))
-            temp_client_list.append(client)
-        # run clients simultaneously
-        for client_index in temp_client_list:
-            client_index.start()
-        # wait clients finish
-        for client_index in temp_client_list:
-            local_weights = client_index.join()
-            w_clients.append(copy.deepcopy(local_weights))
+        # train each model
+        for model_index, single_model_clients in enumerate(model_clients):
+            temp_w_clients = []
+            for client_index in single_model_clients:
+                # Get clients data
+                (client_X_train, client_y_train) = partition_data_list[client_index]
+                # process data
+                train_data = CustomDataset(client_X_train, client_y_train, neural_network)
+                train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+                # copy corresponding global model
+                temp_local_model = copy.deepcopy(glob_models[model_index])
+                # define local optimizer
+                local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
+                # create threads which represents clients
+                client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_functions[model_index], train_loader, client_epochs, neural_network, DEVICE,))
+                temp_client_list.append(client)
+            # run clients simultaneously
+            for client_index in temp_client_list:
+                client_index.start()
+            # wait clients finish
+            for client_index in temp_client_list:
+                local_weights = client_index.join()
+                temp_w_clients.append(copy.deepcopy(local_weights))
+            # collect model weights
+            models_w = models_w.append(temp_w_clients)
+
         # Global model weight updates
-        w_glob_last = copy.deepcopy(w_glob)
-        w_glob = FedAvg(w_clients)
-        # Update global model
-        glob_model.load_state_dict(w_glob)
+        w_globals_last = copy.deepcopy(w_globals)
+        # FedAvg for each model
+        for j in range(num_global_models):
+            w_glob = FedAvg(models_w[j])
+            # Update global models
+            glob_models[j].load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
-        round_loss, round_accuracy = utils.test(glob_model, loss_fn, test_loader, neural_network, device=DEVICE)
-        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy, ((time.time() - Round_time) / 60))
+        round_models_loss = []
+        round_models_accuracy = []
+        # Testing all models
+        for j in range(num_global_models):
+            temp_model_round_loss, temp_model_round_accuracy = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+            round_models_loss.append(temp_model_round_loss)
+            round_models_accuracy.append(temp_model_round_accuracy)
+        # find best model
+        best_accuracy_index = round_models_accuracy.index(max(round_models_accuracy))
+        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], ((time.time() - Round_time) / 60))
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
     # --------------------Server Testing-----------------------
     test_time = time.time()
-    loss, accuracy = utils.test(glob_model, loss_fn, test_loader, neural_network, device=DEVICE)
+    server_models_loss = []
+    server_models_accuracy = []
+    # Testing all models
+    for j in range(num_global_models):
+        temp_model_loss, temp_model_accuracy = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+        server_models_loss.append(temp_model_loss)
+        server_models_accuracy.append(temp_model_accuracy)
     server_running_time = ((time.time() - test_time) / 60)
-    logging.info('Global model, Loss %f, Accuracy %f, Total Running time(min): %s', loss, accuracy, server_running_time)
+    # find best model
+    best_server_accuracy_index = server_models_accuracy.index(max(server_models_accuracy))
+    logging.info('Global model, Loss %f, Accuracy %f, Total Running time(min): %s', server_models_loss[best_server_accuracy_index], server_models_accuracy[best_server_accuracy_index], server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)
     print("Finish.")
