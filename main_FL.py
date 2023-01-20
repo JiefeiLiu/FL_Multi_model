@@ -120,9 +120,9 @@ if __name__ == '__main__':
         # # random select clients based on fraction
         # num_clients_with_fraction = max(int(fraction * num_clients), 1)
         # clients_index = np.random.choice(range(num_clients), num_clients_with_fraction, replace=False)
-        temp_client_list = []
         # train each model
         for model_index, single_model_clients in enumerate(model_clients):
+            temp_client_list = []
             temp_w_clients = []
             for client_index in single_model_clients:
                 # Get clients data
