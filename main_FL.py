@@ -116,7 +116,7 @@ if __name__ == '__main__':
     for iter in range(rounds):
         print("Rounds ", iter, "....")
         Round_time = time.time()
-        models_w, loss_clients, ac_clients = [], [], []
+        models_w = []
         # # random select clients based on fraction
         # num_clients_with_fraction = max(int(fraction * num_clients), 1)
         # clients_index = np.random.choice(range(num_clients), num_clients_with_fraction, replace=False)
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                 local_weights = client_index.join()
                 temp_w_clients.append(copy.deepcopy(local_weights))
             # collect model weights
-            models_w = models_w.append(temp_w_clients)
+            models_w.append(temp_w_clients)
 
         # Global model weight updates
         w_globals_last = copy.deepcopy(w_globals)
