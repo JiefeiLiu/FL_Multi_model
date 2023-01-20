@@ -107,8 +107,8 @@ if __name__ == '__main__':
         # print(temp_clients_list)
         model_clients.append(temp_clients_list)
         clients_list = drop_elements(clients_list, temp_clients_list)
-    print(model_clients)
-    sys.exit()
+    # print(model_clients)
+    # sys.exit()
     # --------------------Server Training-----------------------
     # Record running time
     start_time = time.time()
