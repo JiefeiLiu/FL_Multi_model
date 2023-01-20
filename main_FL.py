@@ -111,6 +111,7 @@ if __name__ == '__main__':
     # sys.exit()
     # --------------------Server Training-----------------------
     # Record running time
+    server_training_time = []
     start_time = time.time()
     # for loop for FL around
     for iter in range(rounds):
@@ -164,8 +165,11 @@ if __name__ == '__main__':
             round_models_accuracy.append(temp_model_round_accuracy)
         # find best model
         best_accuracy_index = round_models_accuracy.index(max(round_models_accuracy))
-        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], ((time.time() - Round_time) / 60))
+        round_training_time = (time.time() - Round_time) / 60
+        server_training_time.append(round_training_time)
+        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], round_training_time)
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
+    logging.info('Total training time %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
     server_models_loss = []
