@@ -44,7 +44,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 30
-    rounds = 5
+    rounds = 20
     fraction = 0.9
     num_global_models = 5
     # Setting parameters
@@ -170,14 +170,21 @@ if __name__ == '__main__':
     test_time = time.time()
     server_models_loss = []
     server_models_accuracy = []
+    server_models_f1 = []
+    server_models_precision = []
+    server_models_recall = []
     # Testing all models
     for j in range(num_global_models):
-        temp_model_loss, temp_model_accuracy = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+        temp_model_loss, temp_model_accuracy, temp_model_f1, temp_model_precision, temp_model_recall = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
         server_models_loss.append(temp_model_loss)
         server_models_accuracy.append(temp_model_accuracy)
+        server_models_f1.append(temp_model_f1)
+        server_models_precision.append(temp_model_precision)
+        server_models_recall.append(temp_model_recall)
     server_running_time = ((time.time() - test_time) / 60)
     # find best model
-    best_server_accuracy_index = server_models_accuracy.index(max(server_models_accuracy))
-    logging.info('Global model, Loss %f, Accuracy %f, Total Running time(min): %s', server_models_loss[best_server_accuracy_index], server_models_accuracy[best_server_accuracy_index], server_running_time)
+    best_model_index = server_models_accuracy.index(max(server_models_f1))
+    print('Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s', server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_running_time)
+    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_models_precision[best_model_index], server_models_recall[best_model_index], server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)
     print("Finish.")

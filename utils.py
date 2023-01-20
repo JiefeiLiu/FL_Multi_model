@@ -104,9 +104,9 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
             '''Attach true label'''
             act_values = target.tolist()
             all_true_values.extend(act_values)
-    accuracy = get_performance(all_pred_values, all_true_values, nn_type)
+    accuracy, f1, precision, recall = get_performance(all_pred_values, all_true_values, nn_type)
     losses = loss/len(test_loader)
-    return losses, accuracy
+    return losses, accuracy, f1, precision, recall
 
 
 # Get model performance
@@ -132,7 +132,7 @@ def get_performance(y_pred, y_test, nn_type):
     print('Precision =', precision)
     print('Recall =', recall)
     print('F1 =', f1)
-    return accuracy
+    return accuracy, f1, precision, recall
 
 
 # -----------------------------------
