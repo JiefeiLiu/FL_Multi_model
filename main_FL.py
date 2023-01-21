@@ -160,7 +160,7 @@ if __name__ == '__main__':
         round_models_accuracy = []
         # Testing all models
         for j in range(num_global_models):
-            temp_model_round_loss, temp_model_round_accuracy = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+            temp_model_round_loss, temp_model_round_accuracy, _, _, _ = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
             round_models_loss.append(temp_model_round_loss)
             round_models_accuracy.append(temp_model_round_accuracy)
         # find best model
