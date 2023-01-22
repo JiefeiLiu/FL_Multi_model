@@ -187,7 +187,7 @@ if __name__ == '__main__':
         server_models_recall.append(temp_model_recall)
     server_running_time = ((time.time() - test_time) / 60)
     # find best model
-    best_model_index = server_models_accuracy.index(max(server_models_f1))
+    best_model_index = server_models_f1.index(max(server_models_f1))
     print('Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s', server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_running_time)
     logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_models_precision[best_model_index], server_models_recall[best_model_index], server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)
