@@ -109,6 +109,87 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
     return losses, accuracy, f1, precision, recall
 
 
+'''
+Testing the multi-model
+    input parameter: 
+        models: copy of the models
+        loss_fn: loss function 
+        test_loader: processed data with Dataloader
+        epochs: local client epochs
+        device: run by device
+    output: 
+        the local model weight 
+'''
+
+
+def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
+    loss_recording = []
+    ture_recording = []
+    pred_recording = []
+    for model in models:
+        model.to(device)
+        # test the model
+        model.eval()
+        y_pred_list = []
+        all_true_values = []
+        all_pred_values = []
+        loss = 0.0
+        print("Test the model")
+        with torch.no_grad():
+            for data, target in test_loader:
+                data, target = data.to(device), target.to(device)
+                output = model(data)
+                if nn_type == "MLP":
+                    '''Attach Binary classification label'''
+                    y_pred_tag = torch.round(output)
+                    y_pred_tensor = y_pred_tag.flatten()
+                    y_pred_np_int = y_pred_tensor.type(torch.float32)
+                    pred_values = y_pred_np_int.tolist()
+                    all_pred_values.extend(pred_values)
+                    loss += loss_fn(output, target.reshape(-1, 1)).item()  # Binary classification
+                elif nn_type == "MLP_Mult":
+                    '''Attach Muti class classification label'''
+                    if device == "cpu":
+                        _, predictions = torch.max(output, 1)
+                    else:
+                        _, predictions = torch.max(output.cpu(), 1)
+                    all_pred_values.extend(predictions)
+                    loss = loss_fn(output, target).item()  # Muti class classification
+                else:
+                    print("Wrong neural network type, exit.")
+                    sys.exit()
+
+                '''Attach true label'''
+                act_values = target.tolist()
+                all_true_values.extend(act_values)
+            # save predictions
+            pred_recording.append(all_pred_values)
+            ture_recording.append(all_true_values)
+        loss_recording.append(loss/len(test_loader))
+    # combine model predictions, ground truth, and loss
+    final_prediction = com_prediction(pred_recording)  # combine prediction
+    final_true = ture_recording[0] # find one of the ground truth
+    final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
+    accuracy, f1, precision, recall = get_performance(final_prediction, final_true, nn_type)
+    return final_loss, accuracy, f1, precision, recall
+
+
+# Combine model predictions
+def com_prediction(preds):
+    res = []
+    for i in range(len(preds[0])):
+        temp_list = []
+        for j in range(len(preds)):
+            temp_list.append(preds[j][i])
+        res.append(most_frequent(temp_list))
+    return res
+
+
+# Program to find most frequent element in a list
+def most_frequent(List):
+    return max(set(List), key=List.count)
+
+
 # Get model performance
 def get_performance(y_pred, y_test, nn_type):
     accuracy = metrics.accuracy_score(y_test, y_pred)
@@ -151,17 +232,19 @@ def make_dir(path, dir_name):
 
 
 if __name__ == '__main__':
-    data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/partition.pkl"
     # hyper-parameters
-    epochs = 5
+    epochs = 50
     learning_rate = 0.01
     batch_size = 64
     # Setting parameters
     neural_network = "MLP_Mult"
 
     # -------------------load datasets----------------------
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2017_data(data_dir)
-
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
+    # (x_train_un_bin, x_test, y_train_un_bin, y_test_bin) = data_preprocessing.regenerate_data(data_path, 23)
     num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
     print(num_examples)
 
@@ -196,5 +279,5 @@ if __name__ == '__main__':
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     model.load_state_dict(copy.deepcopy(model_weights))
-    loss, accuracy = test(model, loss_fn, test_loader, neural_network, device=DEVICE)
+    loss, accuracy, f1, precision, recall = test(model, loss_fn, test_loader, neural_network, device=DEVICE)
     print("---Testing time: %s minutes. ---" % ((time.time() - test_time) / 60))
