@@ -178,13 +178,15 @@ if __name__ == '__main__':
     server_models_precision = []
     server_models_recall = []
     # Testing all models
-    for j in range(num_global_models):
-        temp_model_loss, temp_model_accuracy, temp_model_f1, temp_model_precision, temp_model_recall = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
-        server_models_loss.append(temp_model_loss)
-        server_models_accuracy.append(temp_model_accuracy)
-        server_models_f1.append(temp_model_f1)
-        server_models_precision.append(temp_model_precision)
-        server_models_recall.append(temp_model_recall)
+    # for j in range(num_global_models):
+    #     temp_model_loss, temp_model_accuracy, temp_model_f1, temp_model_precision, temp_model_recall = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+    #     server_models_loss.append(temp_model_loss)
+    #     server_models_accuracy.append(temp_model_accuracy)
+    #     server_models_f1.append(temp_model_f1)
+    #     server_models_precision.append(temp_model_precision)
+    #     server_models_recall.append(temp_model_recall)
+    model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
+        glob_models, loss_functions, test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
     # find best model
     best_model_index = server_models_f1.index(max(server_models_f1))

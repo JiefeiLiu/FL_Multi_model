@@ -122,11 +122,12 @@ Testing the multi-model
 '''
 
 
-def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
+def multi_model_test(models, loss_fns, test_loader, nn_type, device="cpu"):
     loss_recording = []
     ture_recording = []
     pred_recording = []
-    for model in models:
+    for index, model in enumerate(models):
+        loss_fn = loss_fns[index]
         model.to(device)
         # test the model
         model.eval()
