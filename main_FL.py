@@ -172,11 +172,11 @@ if __name__ == '__main__':
     logging.info('Total training time %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
-    server_models_loss = []
-    server_models_accuracy = []
-    server_models_f1 = []
-    server_models_precision = []
-    server_models_recall = []
+    # server_models_loss = []
+    # server_models_accuracy = []
+    # server_models_f1 = []
+    # server_models_precision = []
+    # server_models_recall = []
     # Testing all models
     # for j in range(num_global_models):
     #     temp_model_loss, temp_model_accuracy, temp_model_f1, temp_model_precision, temp_model_recall = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
@@ -185,12 +185,12 @@ if __name__ == '__main__':
     #     server_models_f1.append(temp_model_f1)
     #     server_models_precision.append(temp_model_precision)
     #     server_models_recall.append(temp_model_recall)
+    # # find best model
+    # best_model_index = server_models_f1.index(max(server_models_f1))
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
         glob_models, loss_functions, test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
-    # find best model
-    best_model_index = server_models_f1.index(max(server_models_f1))
-    print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_running_time))
-    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', server_models_loss[best_model_index], server_models_accuracy[best_model_index], server_models_f1[best_model_index], server_models_precision[best_model_index], server_models_recall[best_model_index], server_running_time)
+    print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (model_loss, model_accuracy, model_f1, server_running_time))
+    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', model_loss, model_accuracy, model_f1, model_precision, model_recall, server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)
     print("Finish.")
