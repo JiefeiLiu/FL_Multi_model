@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # Server hyperparameter setting
     num_clients = 30
     rounds = 20
-    fraction = 0.9
+    fraction = 1.0
     num_global_models = 5
     # Setting parameters
     neural_network = "MLP_Mult"
