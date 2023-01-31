@@ -320,18 +320,34 @@ def partition_ex_imbal_equ(X: np.ndarray, y: np.ndarray, num_partitions: int, lo
     return res
 
 
+def random_client_selection(num_global_models, clients_list, low_boundary, high_boundary):
+    model_clients = []
+    for i in range(num_global_models):
+        temp_clients_list = np.random.choice(clients_list, random.randint(low_boundary, high_boundary), replace=False)
+        model_clients.append(temp_clients_list)
+    return model_clients
+
+
 if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
     data_path = "../CICDDoS2019/"
     partition_num = 30
     start_time = time.time()
-    (X_train, y_train), _ = read_2019_data(data_path)
-    partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num, percentage_normal_traffic=60)
-    # Open a file and use dump()
-    with open('partition.pkl', 'wb') as file:
-        # A new file will be created
-        pickle.dump(partitioned_data, file)
-    #
+    # -------------------- Normal data partition ----------------------------
+    # Split train set into partitions and randomly use one for training.
+    # partition_id = np.random.choice(partition_num)
+    # (X_train, y_train) = partition_unbal_equ(X_train, y_train, partition_num)[partition_id]
+    # print("The shape of partition data")
+    # print("The shape of X: ", len(X_train), len(X_train[0]))
+    # print("The shape of y: ", len(y_train))
+    # -------------------- Extreme data partition ----------------------------
+    # (X_train, y_train), _ = read_2019_data(data_path)
+    # partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num, percentage_normal_traffic=60)
+    # # Open a file and use dump()
+    # with open('partition.pkl', 'wb') as file:
+    #     # A new file will be created
+    #     pickle.dump(partitioned_data, file)
+    # ---------------------Verify data partition-----------------------------
     # # Open the file in binary mode
     # with open('partition.pkl', 'rb') as file:
     #     # Call load method to deserialze
@@ -344,15 +360,20 @@ if __name__ == "__main__":
     #     print("train label:", unique_train)
     #     print("train count:", counts_train)
     #     print()
-    plot_stacked_bar(partitioned_data)
+    # ---------------------Plot data partition-----------------------------
+    # plot_stacked_bar(partitioned_data)
 
-    # Split train set into partitions and randomly use one for training.
-    # partition_id = np.random.choice(partition_num)
-    # partition_unbal_unequ(X_train, y_train, partition_num)
-    # (X_train, y_train) = partition_unbal_equ(X_train, y_train, partition_num)[partition_id]
-    # print("The shape of partition data")
-    # print("The shape of X: ", len(X_train), len(X_train[0]))
-    # print("The shape of y: ", len(y_train))
-
+    # ----------------------Generate random sampling----------------------------
+    num_clients = 30
+    num_global_models = 5
+    clients_list = list(range(0, num_clients))
+    low = int(num_clients / num_global_models)
+    high = 10
+    model_client_list = random_client_selection(num_global_models, clients_list, low, high)
+    # Open a file and use dump()
+    with open('client_selection_list.pkl', 'wb') as file:
+        # A new file will be created
+        pickle.dump(model_client_list, file)
+    print(model_client_list)
     # print(constrained_sum_sample_pos(10, 500))
     print("--- %s seconds ---" % (time.time() - start_time))

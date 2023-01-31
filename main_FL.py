@@ -108,13 +108,20 @@ if __name__ == '__main__':
     #     model_clients.append(temp_clients_list)
     #     clients_list = drop_elements(clients_list, temp_clients_list)
     # --------------------Random assign clients for each model with clients overlapping-----------------------
-    model_clients = []
-    clients_list = list(range(0, num_clients))
-    # num_clients_per_model = random.randint(int(num_clients / num_global_models), num_clients)
-    for i in range(num_global_models):
-        temp_clients_list = np.random.choice(clients_list, random.randint(int(num_clients / num_global_models), num_clients), replace=False)
-        model_clients.append(temp_clients_list)
+    # model_clients = []
+    # clients_list = list(range(0, num_clients))
+    # # num_clients_per_model = random.randint(int(num_clients / num_global_models), num_clients)
+    # for i in range(num_global_models):
+    #     temp_clients_list = np.random.choice(clients_list, random.randint(int(num_clients / num_global_models), num_clients), replace=False)
+    #     model_clients.append(temp_clients_list)
+    # ___________________Load Random clients selection___________________
     # print(model_clients)
+    client_selection_pickle_dir = "client_selection_list.pkl"
+    # Load client selection list
+    with open(client_selection_pickle_dir, 'rb') as file:
+        # Call load method to deserialze
+        model_clients = pickle.load(file)
+
     # sys.exit()
     # --------------------Server Training-----------------------
     # Record running time
@@ -176,7 +183,7 @@ if __name__ == '__main__':
         server_training_time.append(round_training_time)
         logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], round_training_time)
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
-    logging.info('Total training time %s', sum(server_training_time))
+    logging.info('Total training time(min) %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
     # server_models_loss = []
