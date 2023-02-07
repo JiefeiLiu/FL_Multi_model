@@ -107,5 +107,5 @@ def regenerate_data(pickle_dir, client_index):
 
 
 if __name__ == '__main__':
-    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/partition.pkl"
+    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     regenerate_data(data_path, 17)

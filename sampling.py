@@ -374,9 +374,9 @@ if __name__ == "__main__":
     # with open('client_selection_list.pkl', 'wb') as file:
     #     # A new file will be created
     #     pickle.dump(model_client_list, file)
-    with open('client_selection_list.pkl', 'rb') as file:
-        # Call load method to deserialze
-        model_client_list = pickle.load(file)
-    print(model_client_list)
+    # with open('client_selection_list.pkl', 'rb') as file:
+    #     # Call load method to deserialze
+    #     model_client_list = pickle.load(file)
+    # print(model_client_list)
     # print(constrained_sum_sample_pos(10, 500))
     print("--- %s seconds ---" % (time.time() - start_time))
