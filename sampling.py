@@ -364,16 +364,19 @@ if __name__ == "__main__":
     # plot_stacked_bar(partitioned_data)
 
     # ----------------------Generate random sampling----------------------------
-    num_clients = 30
-    num_global_models = 5
-    clients_list = list(range(0, num_clients))
-    low = int(num_clients / num_global_models)
-    high = 10
-    model_client_list = random_client_selection(num_global_models, clients_list, low, high)
-    # Open a file and use dump()
-    with open('client_selection_list.pkl', 'wb') as file:
-        # A new file will be created
-        pickle.dump(model_client_list, file)
+    # num_clients = 30
+    # num_global_models = 5
+    # clients_list = list(range(0, num_clients))
+    # low = int(num_clients / num_global_models)
+    # high = 10
+    # model_client_list = random_client_selection(num_global_models, clients_list, low, high)
+    # # Open a file and use dump()
+    # with open('client_selection_list.pkl', 'wb') as file:
+    #     # A new file will be created
+    #     pickle.dump(model_client_list, file)
+    with open('client_selection_list.pkl', 'rb') as file:
+        # Call load method to deserialze
+        model_client_list = pickle.load(file)
     print(model_client_list)
     # print(constrained_sum_sample_pos(10, 500))
     print("--- %s seconds ---" % (time.time() - start_time))

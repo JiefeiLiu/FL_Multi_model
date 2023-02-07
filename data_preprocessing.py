@@ -52,6 +52,22 @@ def read_2017_data(path):
     return (X_train, y_train), (X_test, y_test)
 
 
+def read_data_from_pickle(pickle_dir, client_index):
+    # Load partitioned data
+    with open(pickle_dir, 'rb') as file:
+        # Call load method to deserialze
+        partition_data_list = pickle.load(file)
+    (client_X_train, client_y_train) = partition_data_list[client_index]
+    # Verify
+    unique, counts = np.unique(client_y_train, return_counts=True)
+    print("Client data distribution:", dict(zip(unique, counts)))
+
+    X_train, X_test, y_train, y_test = train_test_split(client_X_train, client_y_train, test_size=0.2, random_state=1, shuffle=True)
+
+    return X_train, X_test, y_train, y_test
+
+
+
 # -----------------------------------
 # regenerate data
 def regenerate_data(pickle_dir, client_index):
@@ -74,7 +90,7 @@ def regenerate_data(pickle_dir, client_index):
     res_df = pd.DataFrame()
     for label in unique:
         temp_data = df[df['label'] == label]
-        sample_data = temp_data.sample(n=min(counts))
+        sample_data = temp_data.sample(n=min(counts), replace=False, )
         res_df = pd.concat([res_df, sample_data])
 
     # convert back to nd array
@@ -92,4 +108,4 @@ def regenerate_data(pickle_dir, client_index):
 
 if __name__ == '__main__':
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/partition.pkl"
-    regenerate_data(data_path, 23)
+    regenerate_data(data_path, 17)
