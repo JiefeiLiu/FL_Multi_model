@@ -62,9 +62,9 @@ def read_data_from_pickle(pickle_dir, client_index):
     unique, counts = np.unique(client_y_train, return_counts=True)
     print("Client data distribution:", dict(zip(unique, counts)))
 
-    X_train, X_test, y_train, y_test = train_test_split(client_X_train, client_y_train, test_size=0.2, random_state=1, shuffle=True)
+    # X_train, X_test, y_train, y_test = train_test_split(client_X_train, client_y_train, test_size=0.2, random_state=1, shuffle=True)
 
-    return X_train, X_test, y_train, y_test
+    return client_X_train, client_y_train
 
 
 
@@ -99,11 +99,29 @@ def regenerate_data(pickle_dir, client_index):
 
     # Verify
     unique, counts = np.unique(new_y, return_counts=True)
-    print("New client data distribution:", dict(zip(unique, counts)))
+    print("New client training data distribution:", dict(zip(unique, counts)))
 
-    X_train, X_test, y_train, y_test = train_test_split(new_X, new_y, test_size=0.2, random_state=1, shuffle=True)
+    # X_train, X_test, y_train, y_test = train_test_split(new_X, new_y, test_size=0.2, random_state=1, shuffle=True)
 
-    return X_train, X_test, y_train, y_test
+    return new_X, new_y
+
+
+# extract the corresponding testing data based on the class
+def testing_data_extraction(data_path, label):
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = read_2019_data(data_path)
+    un_label = np.unique(label)
+    # convert to df
+    df = pd.DataFrame(x_test)
+    df["label"] = y_test_bin
+    # extract testing based on label
+    new_df = df[df['label'].isin(un_label)]
+    # convert back to nd array
+    new_testing_X = new_df.iloc[:, :-1].to_numpy()
+    new_testing_y = new_df.iloc[:, -1].to_numpy()
+    # Verify
+    unique, counts = np.unique(new_testing_y, return_counts=True)
+    print("New client testing data distribution:", dict(zip(unique, counts)))
+    return new_testing_X, new_testing_y
 
 
 if __name__ == '__main__':

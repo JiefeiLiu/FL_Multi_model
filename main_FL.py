@@ -61,11 +61,11 @@ if __name__ == '__main__':
     num_classes = 11
     print("Loading data...")
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
-    partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
+    # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
     # Load partitioned data
-    # with open(pickle_dir, 'rb') as file:
-    #     # Call load method to deserialze
-    #     partition_data_list = pickle.load(file)
+    with open(pickle_dir, 'rb') as file:
+        # Call load method to deserialze
+        partition_data_list = pickle.load(file)
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     # --------------Build global models and Select loss function----------------------

@@ -50,7 +50,8 @@ def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, device="cpu"
             optimizer.step()
             epoch_loss += loss.item()
         losses.append(epoch_loss / len(train_loader))
-        print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
+        if e % 5 == 0:
+            print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
     return model.state_dict()
 
 
@@ -235,7 +236,7 @@ def make_dir(path, dir_name):
 if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/partition.pkl"
+    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     # hyper-parameters
     epochs = 50
     learning_rate = 0.01
@@ -244,8 +245,9 @@ if __name__ == '__main__':
     neural_network = "MLP_Mult"
     # -------------------load datasets----------------------
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
-    # (x_train_un_bin, x_test, y_train_un_bin, y_test_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
-    (x_train_un_bin, x_test, y_train_un_bin, y_test_bin) = data_preprocessing.regenerate_data(data_path, 17)
+    # (x_train_un_bin, y_train_un_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
+    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, 17)
+    x_test, y_test_bin = data_preprocessing.testing_data_extraction(data_dir, y_train_un_bin)
     num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
     print(num_examples)
 
