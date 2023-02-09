@@ -47,6 +47,7 @@ if __name__ == '__main__':
     rounds = 20
     fraction = 1.0
     num_global_models = 5
+    num_clients_per_model = 9
     # Setting parameters
     neural_network = "MLP_Mult"
     # --------------------Logging setting-----------------------
@@ -57,7 +58,7 @@ if __name__ == '__main__':
     # --------------------Data Loading-----------------------
     # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_8_high_8.pkl"
+    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     num_classes = 11
     print("Loading data...")
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
@@ -107,22 +108,6 @@ if __name__ == '__main__':
     #     # print(temp_clients_list)
     #     model_clients.append(temp_clients_list)
     #     clients_list = drop_elements(clients_list, temp_clients_list)
-    # --------------------Random assign clients for each model with clients overlapping-----------------------
-    # model_clients = []
-    # clients_list = list(range(0, num_clients))
-    # # num_clients_per_model = random.randint(int(num_clients / num_global_models), num_clients)
-    # for i in range(num_global_models):
-    #     temp_clients_list = np.random.choice(clients_list, random.randint(int(num_clients / num_global_models), num_clients), replace=False)
-    #     model_clients.append(temp_clients_list)
-    # ___________________Load Random clients selection___________________
-    # print(model_clients)
-    client_selection_pickle_dir = "client_selection_list.pkl"
-    # Load client selection list
-    with open(client_selection_pickle_dir, 'rb') as file:
-        # Call load method to deserialze
-        model_clients = pickle.load(file)
-
-    # sys.exit()
     # --------------------Server Training-----------------------
     # Record running time
     server_training_time = []
@@ -132,13 +117,14 @@ if __name__ == '__main__':
         print("Rounds ", iter, "....")
         Round_time = time.time()
         models_w = []
-        # # random select clients based on fraction
-        # num_clients_with_fraction = max(int(fraction * num_clients), 1)
-        # clients_index = np.random.choice(range(num_clients), num_clients_with_fraction, replace=False)
         # train each model
-        for model_index, single_model_clients in enumerate(model_clients):
+        for model_index, single_model in enumerate(glob_models):
             temp_client_list = []
             temp_w_clients = []
+            '''
+            Dynamic select clients for each model per round 
+            '''
+            single_model_clients = np.random.choice(range(num_clients), num_clients_per_model, replace=False)
             for client_index in single_model_clients:
                 # Get clients data
                 (client_X_train, client_y_train) = partition_data_list[client_index]
