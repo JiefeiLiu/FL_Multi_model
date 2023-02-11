@@ -246,7 +246,7 @@ if __name__ == '__main__':
     # -------------------load datasets----------------------
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
     # (x_train_un_bin, y_train_un_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
-    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, 17)
+    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, 25)
     x_test, y_test_bin = data_preprocessing.testing_data_extraction(data_dir, y_train_un_bin)
     num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
     print(num_examples)

@@ -61,11 +61,9 @@ def read_data_from_pickle(pickle_dir, client_index):
     # Verify
     unique, counts = np.unique(client_y_train, return_counts=True)
     print("Client data distribution:", dict(zip(unique, counts)))
-
     # X_train, X_test, y_train, y_test = train_test_split(client_X_train, client_y_train, test_size=0.2, random_state=1, shuffle=True)
 
     return client_X_train, client_y_train
-
 
 
 # -----------------------------------
