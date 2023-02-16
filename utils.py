@@ -2,11 +2,13 @@ import os
 import time
 import sys
 import copy
+import math
+import numpy as np
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from sklearn import metrics
-
+from sklearn.metrics.pairwise import cosine_similarity
 import models
 import data_preprocessing
 from data_utils import CustomDataset
@@ -89,7 +91,7 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
                 y_pred_np_int = y_pred_tensor.type(torch.float32)
                 pred_values = y_pred_np_int.tolist()
                 all_pred_values.extend(pred_values)
-                loss += loss_fn(output, target.reshape(-1, 1)).item()      # Binary classification
+                loss += loss_fn(output, target.reshape(-1, 1)).item()  # Binary classification
             elif nn_type == "MLP_Mult":
                 '''Attach Muti class classification label'''
                 if device == "cpu":
@@ -97,7 +99,7 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
                 else:
                     _, predictions = torch.max(output.cpu(), 1)
                 all_pred_values.extend(predictions)
-                loss = loss_fn(output, target).item()                   # Muti class classification
+                loss = loss_fn(output, target).item()  # Muti class classification
             else:
                 print("Wrong neural network type, exit.")
                 sys.exit()
@@ -106,7 +108,7 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
             act_values = target.tolist()
             all_true_values.extend(act_values)
     accuracy, f1, precision, recall = get_performance(all_pred_values, all_true_values, nn_type)
-    losses = loss/len(test_loader)
+    losses = loss / len(test_loader)
     return losses, accuracy, f1, precision, recall
 
 
@@ -167,10 +169,10 @@ def multi_model_test(models, loss_fns, test_loader, nn_type, device="cpu"):
             # save predictions
             pred_recording.append(all_pred_values)
             ture_recording.append(all_true_values)
-        loss_recording.append(loss/len(test_loader))
+        loss_recording.append(loss / len(test_loader))
     # combine model predictions, ground truth, and loss
     final_prediction = com_prediction(pred_recording)  # combine prediction
-    final_true = ture_recording[0] # find one of the ground truth
+    final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
     accuracy, f1, precision, recall = get_performance(final_prediction, final_true, nn_type)
     return final_loss, accuracy, f1, precision, recall
@@ -233,6 +235,46 @@ def make_dir(path, dir_name):
         sys.exit(0)
 
 
+def csm_matrix(A, B):
+    num = np.dot(A, B.T)
+    p1 = np.sqrt(np.sum(A ** 2, axis=1))[:, np.newaxis]
+    p2 = np.sqrt(np.sum(B ** 2, axis=1))[np.newaxis, :]
+    return num / (p1 * p2)
+
+
+def csm_list(A, B):
+    return np.dot(A, B)/(np.linalg.norm(A)*np.linalg.norm(B))
+
+
+def model_sim(A, B):
+    # define
+    sim_list = []
+    # Convert OrderedDict to dict
+    A_dict = dict(A)
+    B_dict = dict(B)
+    keys_A = A_dict.keys()
+    keys_B = B_dict.keys()
+    if keys_A == keys_B:
+        for key in keys_A:
+            # print(key)
+            temp_A = A_dict[key].numpy()
+            # print(temp_A)
+            temp_B = B_dict[key].numpy()
+            # print(temp_B)
+            if "bias" in key:
+                sim_list.append(csm_list(temp_A, temp_B))
+            elif "weight" in key:
+                sim_list.append(csm_matrix(temp_A, temp_B))
+            else:
+                print("Un-known model parameters.")
+                sys.exit()
+    else:
+        print("Two model are not consistent.")
+        sys.exit()
+
+    return sim_list
+
+
 if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
@@ -241,13 +283,18 @@ if __name__ == '__main__':
     epochs = 50
     learning_rate = 0.01
     batch_size = 64
+    single_client_index = 6
     # Setting parameters
     neural_network = "MLP_Mult"
+    # -------------------Create folder for model----------------------
+    curr_path = os.getcwd()
+    make_dir(curr_path, "models")
     # -------------------load datasets----------------------
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
     # (x_train_un_bin, y_train_un_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
-    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, 25)
+    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, single_client_index)
     x_test, y_test_bin = data_preprocessing.testing_data_extraction(data_dir, y_train_un_bin)
+    # (_, _), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
     num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
     print(num_examples)
 
@@ -276,7 +323,9 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
     model_weights = train(model, optimizer, loss_fn, train_loader, epochs, neural_network, device=DEVICE)
     print("---Training time: %s minutes. ---" % ((time.time() - train_time) / 60))
-
+    # save model
+    saving_model_name = "models/model_client_" + str(single_client_index) + ".pth"
+    torch.save(copy.deepcopy(model_weights), saving_model_name)
     # -------------------Testing model----------------------
     test_time = time.time()
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
