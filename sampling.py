@@ -220,7 +220,7 @@ def plot_stacked_bar(partition_data, number_class=11):
     # plt.title("Clients' data distribution")
     plt.ylabel("Clients")
     plt.xlabel("Class distribution")
-    plt.savefig("Partition_class_distribution.pdf")
+    plt.savefig("Partition_class_distribution_eq_bal.pdf")
     # plt.show()
     pass
 
@@ -330,13 +330,17 @@ def random_client_selection(num_global_models, clients_list, low_boundary, high_
 
 if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
-    data_path = "../CICDDoS2019/"
+    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     partition_num = 30
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
     # Split train set into partitions and randomly use one for training.
-    # partition_id = np.random.choice(partition_num)
-    # (X_train, y_train) = partition_unbal_equ(X_train, y_train, partition_num)[partition_id]
+    (X_train, y_train), _ = read_2019_data(data_path)
+    partitioned_data = partition_bal_equ(X_train, y_train, partition_num)
+    # Open a file and use dump()
+    with open('partition_equal_balance.pkl', 'wb') as file:
+        # A new file will be created
+        pickle.dump(partitioned_data, file)
     # print("The shape of partition data")
     # print("The shape of X: ", len(X_train), len(X_train[0]))
     # print("The shape of y: ", len(y_train))
@@ -361,7 +365,7 @@ if __name__ == "__main__":
     #     print("train count:", counts_train)
     #     print()
     # ---------------------Plot data partition-----------------------------
-    # plot_stacked_bar(partitioned_data)
+    plot_stacked_bar(partitioned_data)
 
     # ----------------------Generate random sampling----------------------------
     # num_clients = 30

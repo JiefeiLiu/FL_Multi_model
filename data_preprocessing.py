@@ -128,13 +128,14 @@ def testing_data_extraction(data_path, label):
 if __name__ == '__main__':
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     # regenerate_data(data_path, 17)
-    A = torch.load("models/model_client_6.pth")
-    B = torch.load("models/model_client_25.pth")
+    # A = torch.load("models/model_client_6.pth")
+    # B = torch.load("models/model_client_25.pth")
     # A = {"A": torch.tensor([[1, 1, 2],
     #                         [2, 2, 2],
     #                         [2, 1, 3]])}
     # B = {"A": torch.tensor([[1, 1, 2],
     #                         [2, 2, 2]])}
-    print(utils.model_sim(A, B))
+    # print(utils.cosine_similarity_element_wise(A, B))
+    utils.similarity_finder("models/")
     # print(utils.csm(A, B))
     # print(cosine_similarity(A, B))
