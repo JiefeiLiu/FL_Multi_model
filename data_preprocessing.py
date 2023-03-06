@@ -1,3 +1,6 @@
+import random
+import sys
+
 import numpy as np
 import pandas as pd
 import pickle
@@ -125,9 +128,39 @@ def testing_data_extraction(data_path, label):
     return new_testing_X, new_testing_y
 
 
+# Randomly drop the class for centralized scenario
+def preprocess_data_with_random_drop_class(data_path, missing_class):
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = read_2019_data(data_path)
+    # Verify
+    unique, counts = np.unique(y_train_un_bin, return_counts=True)
+    print("Original label distribution", dict(zip(unique, counts)))
+    # random drop label
+    drop_class = random.sample(list(unique[1:]), missing_class)
+    print("Dropped class: ", drop_class)
+    new_unique = list(filter(lambda x: x not in drop_class, unique))
+    # convert training and testing to df
+    df_train = pd.DataFrame(x_train_un_bin)
+    df_train["label"] = y_train_un_bin
+    df_test = pd.DataFrame(x_test)
+    df_test["label"] = y_test_bin
+    # extract testing based on label
+    new_df_train = df_train[df_train['label'].isin(new_unique)]
+    new_df_test = df_test[df_test['label'].isin(new_unique)]
+    # convert back to nd array
+    new_train_X = new_df_train.iloc[:, :-1].to_numpy()
+    new_train_y = new_df_train.iloc[:, -1].to_numpy()
+    new_testing_X = new_df_test.iloc[:, :-1].to_numpy()
+    new_testing_y = new_df_test.iloc[:, -1].to_numpy()
+    # Verify
+    unique, counts = np.unique(new_testing_y, return_counts=True)
+    print("New client testing data distribution:", dict(zip(unique, counts)))
+    return (new_train_X, new_train_y), (new_testing_X, new_testing_y)
+
+
 if __name__ == '__main__':
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     # regenerate_data(data_path, 17)
+    # -------------------Model Similarity----------------------
     # A = torch.load("models/model_client_6.pth")
     # B = torch.load("models/model_client_25.pth")
     # A = {"A": torch.tensor([[1, 1, 2],
@@ -136,6 +169,6 @@ if __name__ == '__main__':
     # B = {"A": torch.tensor([[1, 1, 2],
     #                         [2, 2, 2]])}
     # print(utils.cosine_similarity_element_wise(A, B))
-    utils.similarity_finder("models/")
+    utils.similarity_finder("models/2_class_imbalance/")
     # print(utils.csm(A, B))
     # print(cosine_similarity(A, B))

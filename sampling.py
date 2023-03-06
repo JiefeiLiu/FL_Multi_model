@@ -200,7 +200,7 @@ def regenerate_list(data_list, label_index, number_class=11):
 
 
 # plot horizontal stacked bar chart
-def plot_stacked_bar(partition_data, number_class=11):
+def plot_stacked_bar(partition_data, saving_path, saving_name, number_class=11):
     stat = []
     for i in range(len(partition_data)):
         (X_train, y_train) = partition_data[i]
@@ -220,7 +220,7 @@ def plot_stacked_bar(partition_data, number_class=11):
     # plt.title("Clients' data distribution")
     plt.ylabel("Clients")
     plt.xlabel("Class distribution")
-    plt.savefig("Partition_class_distribution_eq_bal.pdf")
+    plt.savefig(saving_path + saving_name)
     # plt.show()
     pass
 
@@ -328,29 +328,142 @@ def random_client_selection(num_global_models, clients_list, low_boundary, high_
     return model_clients
 
 
+# partition the imbalance data into extreme case and balance
+def partition_ex_imbal_equ_testing(X: np.ndarray, y: np.ndarray, num_partitions: int, number_of_attack_classes=2):
+    # define the return variable
+    res = []
+    # define the size of dataset for each client
+    client_size = 100000 * (number_of_attack_classes + 1)
+    # Convert np array to df
+    df = pd.DataFrame(X)
+    df['label'] = y
+    # extract labels
+    unique_train, counts_train = np.unique(y, return_counts=True)
+    data_label = list(unique_train)
+    # extract normal traffic flow
+    normal_traffic = df[df['label'] == 0.0]
+    # Extract the attack traffic flow
+    attack_flow = df[df['label'] > 0.0]
+
+    # partition the normal traffic to clients
+    # for loop for number of partitions
+    for i in range(num_partitions):
+        # define the clients data
+        clients_data_df = pd.DataFrame()
+        # generate the random number around percentage of normal traffic
+        client_normal_traffic_percentage = (random.randint(30, 35)) / 100
+        normal_partition_size = int(client_size * client_normal_traffic_percentage)
+        client_normal_traffic = normal_traffic.sample(normal_partition_size)
+        # Assign the normal traffic to clients data
+        clients_data_df = pd.concat([clients_data_df, client_normal_traffic])
+        # Remove the assigned normal traffic from original
+        normal_traffic.drop(client_normal_traffic.index)
+        # Get the labels from attack data
+        attack_label = [*set(attack_flow['label'].tolist())]
+        # get remain dataset size
+        attack_partition_size = client_size - normal_partition_size
+        # random sample classes for client
+        random_label = random.sample(attack_label, number_of_attack_classes)
+        # random sample the size of classes for each client
+        label_size_list = constrained_sum_sample_pos(len(random_label), attack_partition_size)
+        # label_size_list = [100000] * number_of_attack_classes
+        # if the sample size greater than the original size of current size, assign all current class and collect the remain
+        remain_size = 0
+        # for each client sample the corresponding classes of attack data
+        for j in range(len(random_label)):
+            # Get the target class data from attack traffic flow
+            temp_class_flow = attack_flow[attack_flow['label'] == random_label[j]]
+            # Sample the attack flow
+            try:
+                # if the sampling data less than original data
+                temp_class_sample_flow = temp_class_flow.sample(label_size_list[j])
+                # Assign attack sample to client data
+                clients_data_df = pd.concat([clients_data_df, temp_class_sample_flow])
+                # remove the assigned data from original attack flow
+                attack_flow.drop(temp_class_sample_flow.index)
+            except:
+                # # if the sample data greater than original data
+                # # assign all current data
+                # clients_data_df = pd.concat([clients_data_df, temp_class_flow])
+                # # remove the assigned data from original attack flow
+                # attack_flow.drop(temp_class_flow.index)
+                # remain_size = remain_size + (label_size_list[j] - temp_class_flow.shape[0])
+                continue
+        # # if we current client does not reach the target size
+        # while remain_size > 0:
+        #     # continue sample another class data
+        #     # Get the labels from attack data
+        #     attack_label = [*set(attack_flow['label'].tolist())]
+        #     # random pick a class
+        #     random_label_remain = random.sample(attack_label, 1)
+        #     # Get the target class data from attack traffic flow
+        #     temp_class_flow = attack_flow[attack_flow['label'] == random_label_remain[0]]
+        #     try:
+        #         # if the sampling data less than original data
+        #         temp_class_sample_flow = temp_class_flow.sample(100000)
+        #         # Assign attack sample to client data
+        #         clients_data_df = pd.concat([clients_data_df, temp_class_sample_flow])
+        #         # remove the assigned data from original attack flow
+        #         attack_flow.drop(temp_class_sample_flow.index)
+        #     except:
+        #         # # if the sample data greater than original data
+        #         # # assign all current data
+        #         # clients_data_df = pd.concat([clients_data_df, temp_class_flow])
+        #         # # remove the assigned data from original attack flow
+        #         # attack_flow.drop(temp_class_flow.index)
+        #         # remain_size = remain_size - temp_class_flow.shape[0]
+        #         continue
+        # convert the client data df to np
+        X_client = clients_data_df.iloc[:, :-1].to_numpy()
+        y_client = clients_data_df.iloc[:, -1].to_numpy()
+        res.append((X_client, y_client))
+    return res
+
+
+def verify_class_distribution(pickle_path):
+    with open(pickle_path, 'rb') as file:
+        # Call load method to deserialze
+        partitioned_data = pickle.load(file)
+    for client_index in range(len(partitioned_data)):
+        (temp_X, temp_y) = partitioned_data[client_index]
+        # Verify
+        unique_train, counts_train = np.unique(temp_y, return_counts=True)
+        print("Client " + str(client_index) + " train shape", dict(zip(unique_train, counts_train)))
+    pass
+
+
 if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    pickle_saving_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/"
     partition_num = 30
+    num_attacks_range = [2, 2]
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
     # Split train set into partitions and randomly use one for training.
-    (X_train, y_train), _ = read_2019_data(data_path)
-    partitioned_data = partition_bal_equ(X_train, y_train, partition_num)
-    # Open a file and use dump()
-    with open('partition_equal_balance.pkl', 'wb') as file:
-        # A new file will be created
-        pickle.dump(partitioned_data, file)
+    # (X_train, y_train), _ = read_2019_data(data_path)
+    # partitioned_data = partition_bal_equ(X_train, y_train, partition_num)
+    # # Open a file and use dump()
+    # with open('partition_equal_balance.pkl', 'wb') as file:
+    #     # A new file will be created
+    #     pickle.dump(partitioned_data, file)
     # print("The shape of partition data")
     # print("The shape of X: ", len(X_train), len(X_train[0]))
     # print("The shape of y: ", len(y_train))
     # -------------------- Extreme data partition ----------------------------
-    # (X_train, y_train), _ = read_2019_data(data_path)
-    # partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num, percentage_normal_traffic=60)
-    # # Open a file and use dump()
-    # with open('partition.pkl', 'wb') as file:
-    #     # A new file will be created
-    #     pickle.dump(partitioned_data, file)
+    (X_train, y_train), _ = read_2019_data(data_path)
+    # -------------------- Extreme data partition testing ----------------------------
+    partitioned_data = partition_ex_imbal_equ_testing(X_train, y_train, partition_num, number_of_attack_classes=num_attacks_range[0])
+    save_file_name = pickle_saving_path + "partition_attacks_" + str(num_attacks_range[0]) + "_imbalance.pkl"
+    # -------------------- Extreme data partition regular ----------------------------
+    # partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
+    #                                           low_bound_of_classes=num_attacks_range[0],
+    #                                           high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)    # Open a file and use dump()
+    # save_file_name = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_" + str(num_attacks_range[0]) + "_high_" + str(num_attacks_range[1]) + ".pkl"
+    # -------------------- Save Extreme data partition ----------------------------
+    with open(save_file_name, 'wb') as file:
+        # A new file will be created
+        pickle.dump(partitioned_data, file)
     # ---------------------Verify data partition-----------------------------
     # # Open the file in binary mode
     # with open('partition.pkl', 'rb') as file:
@@ -365,7 +478,11 @@ if __name__ == "__main__":
     #     print("train count:", counts_train)
     #     print()
     # ---------------------Plot data partition-----------------------------
-    plot_stacked_bar(partitioned_data)
+    plot_name = "Partition_class_distribution_2attacks_imbalance_testing.pdf"
+    plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
+    # ---------------------verify data partition-----------------------------
+    verify_class_distribution(save_file_name)
+
 
     # ----------------------Generate random sampling----------------------------
     # num_clients = 30

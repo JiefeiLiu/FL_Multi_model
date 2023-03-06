@@ -111,6 +111,7 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
             all_true_values.extend(act_values)
     accuracy, f1, precision, recall = get_performance(all_pred_values, all_true_values, nn_type)
     losses = loss / len(test_loader)
+    print("Loss = ", losses)
     return losses, accuracy, f1, precision, recall
 
 
@@ -266,78 +267,105 @@ def cosine_similarity_element_wise(A, B):
     return np.dot(x, y)/(norm(y)*norm(y))
 
 
+def cosine_similarity_last_layer(A, B):
+    # Convert OrderedDict to dict
+    A_dict = dict(A)
+    B_dict = dict(B)
+    keys_A = list(A_dict.keys())
+    keys_B = list(B_dict.keys())
+    x = []
+    y = []
+    # convert last layer and bias to be a linear array
+    try:
+        x = np.concatenate((x, A_dict[keys_A[-2]].numpy()), axis=None)
+        # x = np.concatenate((x, A_dict[keys_A[-1]].numpy()), axis=None)
+        y = np.concatenate((y, B_dict[keys_B[-2]].numpy()), axis=None)
+        # y = np.concatenate((y, B_dict[keys_B[-1]].numpy()), axis=None)
+    except:
+        x = np.concatenate((x, A_dict[keys_A[-2]]), axis=None)
+        y = np.concatenate((y, B_dict[keys_B[-2]]), axis=None)
+
+    return np.dot(x, y) / (norm(y) * norm(y))
+
+
 def similarity_finder(folder_path):
     # define a list for store similarity
     res = []
     for i in range(30):
         temp_res = []
-        model_A = torch.load("models/model_client_" + str(i) + ".pth")
+        model_A = torch.load(folder_path + "model_client_" + str(i) + ".pth")
         for j in range(30):
-            model_B = torch.load("models/model_client_" + str(j) + ".pth")
-            temp_res.append(cosine_similarity_element_wise(model_A, model_B))
+            model_B = torch.load(folder_path + "model_client_" + str(j) + ".pth")
+            temp_res.append(cosine_similarity_last_layer(model_A, model_B))
         res.append(temp_res)
     df = pd.DataFrame(res)
-    df.to_csv("models/ex_imbalance_similarity.csv")
+    df.to_csv(folder_path + "ex_imbalance_last_layer_weight_similarity.csv")
     print(df)
     pass
-
 
 
 if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_equal_balance.pkl"
+    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     # hyper-parameters
     epochs = 50
     learning_rate = 0.01
     batch_size = 64
-    single_client_index = 15
-    # Setting parameters
-    neural_network = "MLP_Mult"
-    # -------------------Create folder for model----------------------
-    curr_path = os.getcwd()
-    make_dir(curr_path, "models")
-    # -------------------load datasets----------------------
-    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
-    # (x_train_un_bin, y_train_un_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
-    (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, single_client_index)
-    x_test, y_test_bin = data_preprocessing.testing_data_extraction(data_dir, y_train_un_bin)
-    # (_, _), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
-    num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
-    print(num_examples)
+    # create df for results recording
+    res_list = []
+    for i in range(30):
+        single_client_index = i
+        # Setting parameters
+        neural_network = "MLP_Mult"
+        # -------------------Create folder for model----------------------
+        curr_path = os.getcwd()
+        make_dir(curr_path, "models")
+        # -------------------load datasets----------------------
+        # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
+        # (x_train_un_bin, y_train_un_bin) = data_preprocessing.read_data_from_pickle(data_path, 17)
+        (x_train_un_bin, y_train_un_bin) = data_preprocessing.regenerate_data(data_path, single_client_index)
+        x_test, y_test_bin = data_preprocessing.testing_data_extraction(data_dir, y_train_un_bin)
+        # (_, _), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
+        num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
+        print(num_examples)
 
-    # check to use GPU or not
-    use_cuda = torch.cuda.is_available()
-    DEVICE = torch.device("cuda:0" if use_cuda else "cpu")
-    print(DEVICE, "are using for training and testing.")
+        # check to use GPU or not
+        use_cuda = torch.cuda.is_available()
+        DEVICE = torch.device("cuda:0" if use_cuda else "cpu")
+        print(DEVICE, "are using for training and testing.")
 
-    # -------------------Set model----------------------
-    # Model, Optimizer, Loss func
-    '''Select the different loss function for binary or muti class classification'''
-    if neural_network == "MLP":
-        model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
-        loss_fn = nn.BCELoss()  # Binary classification
-    elif neural_network == "MLP_Mult":
-        model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=11).to(DEVICE)
-        loss_fn = nn.CrossEntropyLoss()  # Muti class classification
-    else:
-        print("Wrong neural network type, exit.")
-        sys.exit()
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+        # -------------------Set model----------------------
+        # Model, Optimizer, Loss func
+        '''Select the different loss function for binary or muti class classification'''
+        if neural_network == "MLP":
+            model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
+            loss_fn = nn.BCELoss()  # Binary classification
+        elif neural_network == "MLP_Mult":
+            model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=11).to(DEVICE)
+            loss_fn = nn.CrossEntropyLoss()  # Muti class classification
+        else:
+            print("Wrong neural network type, exit.")
+            sys.exit()
+        optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    # -------------------Training model----------------------
-    train_time = time.time()
-    train_data = CustomDataset(x_train_un_bin, y_train_un_bin, neural_network)
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-    model_weights = train(model, optimizer, loss_fn, train_loader, epochs, neural_network, device=DEVICE)
-    print("---Training time: %s minutes. ---" % ((time.time() - train_time) / 60))
-    # save model
-    saving_model_name = "models/model_client_" + str(single_client_index) + ".pth"
-    torch.save(copy.deepcopy(model_weights), saving_model_name)
-    # -------------------Testing model----------------------
-    test_time = time.time()
-    test_data = CustomDataset(x_test, y_test_bin, neural_network)
-    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
-    model.load_state_dict(copy.deepcopy(model_weights))
-    loss, accuracy, f1, precision, recall = test(model, loss_fn, test_loader, neural_network, device=DEVICE)
-    print("---Testing time: %s minutes. ---" % ((time.time() - test_time) / 60))
+        # -------------------Training model----------------------
+        train_time = time.time()
+        train_data = CustomDataset(x_train_un_bin, y_train_un_bin, neural_network)
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
+        model_weights = train(model, optimizer, loss_fn, train_loader, epochs, neural_network, device=DEVICE)
+        training_time = (time.time() - train_time) / 60
+        print("---Training time: %s minutes. ---" % training_time)
+        # save model
+        saving_model_name = "models/model_client_" + str(single_client_index) + ".pth"
+        torch.save(copy.deepcopy(model_weights), saving_model_name)
+        # -------------------Testing model----------------------
+        test_time = time.time()
+        test_data = CustomDataset(x_test, y_test_bin, neural_network)
+        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+        model.load_state_dict(copy.deepcopy(model_weights))
+        loss, accuracy, f1, precision, recall = test(model, loss_fn, test_loader, neural_network, device=DEVICE)
+        res_list.append([accuracy, f1, precision, recall, loss, training_time])
+        print("---Testing time: %s minutes. ---" % ((time.time() - test_time) / 60))
+    res_df = pd.DataFrame(res_list, columns=['accuracy', 'f1', 'precision', 'recall', 'loss', 'training_time'])
+    res_df.to_csv("models/clients_data_res.csv")
