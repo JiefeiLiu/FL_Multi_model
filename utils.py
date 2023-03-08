@@ -10,6 +10,9 @@ from torch import nn
 from torch.utils.data import DataLoader
 from numpy.linalg import norm
 from sklearn import metrics
+from scipy.spatial.distance import cdist
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 import models
 import data_preprocessing
@@ -29,7 +32,7 @@ Training the model
 '''
 
 
-def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, device="cpu"):
+def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index, device="cpu"):
     print("Train the Client model")
     model.train()
     model.to(device)
@@ -56,7 +59,7 @@ def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, device="cpu"
         losses.append(epoch_loss / len(train_loader))
         if e % 5 == 0:
             print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
-    return model.state_dict()
+    return model.state_dict(), client_index
 
 
 '''
@@ -128,12 +131,11 @@ Testing the multi-model
 '''
 
 
-def multi_model_test(models, loss_fns, test_loader, nn_type, device="cpu"):
+def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
     loss_recording = []
     ture_recording = []
     pred_recording = []
     for index, model in enumerate(models):
-        loss_fn = loss_fns[index]
         model.to(device)
         # test the model
         model.eval()
@@ -302,6 +304,70 @@ def similarity_finder(folder_path):
     df.to_csv(folder_path + "ex_imbalance_last_layer_weight_similarity.csv")
     print(df)
     pass
+
+
+# search dict values and return the key
+def dict_search(my_dict, target, alart=True):
+    key_list = list(my_dict.keys())
+    val_list = list(my_dict.values())
+    res = []
+    init_index = 0
+    # find the row position of target
+    for index, temp_list in enumerate(val_list):
+        if target in temp_list:
+            res.append(index)
+    # check if target appear more than once
+    if len(res) == 1:
+        return key_list[res[0]]
+    elif len(res) == 0:
+        if alart:
+            print("Client " + str(target) + " identified as new client, use init global model.")
+        return init_index
+    else:
+        print("Error: client " + str(target) + " used more then once.")
+        sys.exit()
+
+
+def find_best_k(data):
+    K_value_range = [1, 10]
+    K = range(K_value_range[0], K_value_range[1])
+
+    dist_points_from_cluster_center = []
+    for no_of_clusters in K:
+        k_model = KMeans(n_clusters=no_of_clusters, algorithm="lloyd")
+        k_model.fit(data)
+        dist_points_from_cluster_center.append(k_model.inertia_)
+
+    plt.plot(K, dist_points_from_cluster_center, 'bx-')
+    plt.xlabel('Values of K')
+    plt.ylabel('Distortion')
+    plt.title('The Elbow Method using Distortion')
+    plt.show()
+
+    def calc_distance(x1, y1, a, b, c):
+        d = abs((a * x1 + b * y1 + c)) / (math.sqrt(a * a + b * b))
+        return d
+
+    a = dist_points_from_cluster_center[0] - dist_points_from_cluster_center[8]
+    b = K[8] - K[0]
+    c1 = K[0] * dist_points_from_cluster_center[8]
+    c2 = K[8] + dist_points_from_cluster_center[0]
+    c = c1 - c2
+
+    distance_of_points_from_line = []
+    for k in range(9):
+        distance_of_points_from_line.append(calc_distance(K[k], dist_points_from_cluster_center[k], a, b, c))
+
+    return distance_of_points_from_line.index(max(distance_of_points_from_line)) + 1
+
+
+def record_clients_clustering(model_clients_record, current_clients_index, current_labels, num_clusters):
+    model_clients_record.clear()
+    for i in range(num_clusters):
+        temp_index = [j for j in range(len(current_labels)) if current_labels[j] == i]
+        temp_clients_index = [current_clients_index[k] for k in temp_index]
+        model_clients_record[i+1] = temp_clients_index
+    return model_clients_record
 
 
 if __name__ == '__main__':

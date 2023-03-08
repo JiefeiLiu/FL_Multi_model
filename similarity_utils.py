@@ -24,6 +24,23 @@ def weight_changes_cal(global_weight, client_weight):
     return weight_changes_res
 
 
+def weight_changes_of_last_layer_cal(global_weight, client_weight):
+    # Convert OrderedDict to dict
+    global_dict = dict(global_weight)
+    client_dict = dict(client_weight)
+    global_keys = list(global_dict.keys())
+    local_keys = list(client_dict.keys())
+    if global_keys == local_keys:
+        temp_last_layer_weight = np.subtract(client_dict[local_keys[-2]].numpy(), global_dict[global_keys[-2]].numpy())
+        temp_last_layer_bias = np.subtract(client_dict[local_keys[-1]].numpy(), global_dict[global_keys[-1]].numpy())
+        res = np.concatenate((temp_last_layer_weight, temp_last_layer_bias), axis=None)
+    else:
+        print("global model and local model are inconsistent.")
+        sys.exit()
+    return res
+
+
+
 def weight_changes_utils():
     # read recording from pickle
     with open('global_weight_records_imbalance.pkl', 'rb') as file:
@@ -52,6 +69,27 @@ def weight_changes_utils():
     return weight_changes  # [Rounds][clients]
 
 
+'''
+helper function to calculate the weight change of last layer for each local model
+input: trained client index, clients weight, global models, dict mapping between local and global model 
+output: nd array (each row represent the last layer + bias of a client)
+'''
+def weight_changes_of_last_layer(clients_index, clients_weights, global_models, my_dict):
+    res = []
+    for index, value in enumerate(clients_index):
+        matched_global_model_index = utils.dict_search(my_dict, value, alart=False)
+        # print(type(matched_global_model_index))
+        try:
+            matched_global_model = global_models[matched_global_model_index]
+        except:
+            print("global model index is not int: ", matched_global_model_index)
+            sys.exit()
+        client_weight = clients_weights.get(value)
+        temp_weight_change_of_last_layer = weight_changes_of_last_layer_cal(matched_global_model.state_dict(), client_weight)
+        res.append(temp_weight_change_of_last_layer.tolist())
+    return np.array(res)
+
+
 # calculate the similarity of weight changes for all clients
 def pairwise_sim(weight_changes):
     sim_res = []
@@ -62,6 +100,7 @@ def pairwise_sim(weight_changes):
         for j in range(len(weight_changes[i])):
             temp_client_sim = []
             for k in range(len(weight_changes[i])):
+                # calculate the cosine similarity of last layer
                 temp_client_sim.append(utils.cosine_similarity_last_layer(weight_changes[i][j], weight_changes[i][k]))
             temp_round_sim.append(temp_client_sim)
         sim_res.append(temp_round_sim)

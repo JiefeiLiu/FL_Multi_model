@@ -23,11 +23,13 @@ def func(n1, n2):
 
 if __name__ == '__main__':
     thread_list = []
-    for i in range(10):
+    for i in range(3):
         thread = CustomThread(target=func, args=(5, 3,))
         thread_list.append(thread)
     for i in thread_list:
         i.start()
     for i in thread_list:
-        print(i.join())
+        a = i.join()
+        print(a[1])
+        # print(b)
         print()

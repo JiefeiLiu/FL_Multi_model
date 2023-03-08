@@ -12,12 +12,14 @@ from torch import nn
 from torch.utils.data import DataLoader
 
 import utils
+import similarity_utils
 import models
 import sampling
 import data_preprocessing
 from data_utils import CustomDataset
 from multi_threading import CustomThread
-from aggregation_functions import FedAvg
+from aggregation_functions import FedAvg, Multi_model_FedAvg
+from sklearn.cluster import KMeans
 
 
 # Set cuda
@@ -40,6 +42,10 @@ if __name__ == '__main__':
     fraction = 1.0
     # Setting parameters
     neural_network = "MLP_Mult"
+    # a list to store global models
+    global_models = []
+    # a dict to store temp {global models : [temp clients index]}
+    global_model_to_clients_recording = {}
     # --------------------Data Loading-----------------------
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2_imbalance.pkl"
@@ -61,18 +67,19 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     # --------------Build global model and Select loss function----------------------
     if neural_network == "MLP":
-        glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
+        init_glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
         loss_fn = nn.BCELoss()  # Binary classification
     elif neural_network == "MLP_Mult":
-        glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
+        init_glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
         loss_fn = nn.CrossEntropyLoss()  # Muti class classification
     else:
         print("Wrong neural network type, exit.")
         sys.exit()
-    optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
-    glob_model.train()
+    optimizer = torch.optim.SGD(init_glob_model.parameters(), lr=learning_rate)
+    init_glob_model.train()
+    global_models.append(init_glob_model)
     # --------------initialize weight----------------------
-    w_glob = glob_model.state_dict()
+    w_glob = global_models[0].state_dict()
     global_weight_record = []
     clients_weight_record = []
     # --------------------Server Training-----------------------
@@ -82,51 +89,71 @@ if __name__ == '__main__':
     for iter in range(rounds):
         print("Rounds ", iter, "....")
         Round_time = time.time()
-        w_clients, loss_clients, ac_clients = [], [], []
+        w_clients = {}
         temp_client_list = []
+        temp_client_list_index = []
         for index in range(num_clients):
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
             # process data
             train_data = CustomDataset(client_X_train, client_y_train, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-            # copy global model
-            temp_local_model = copy.deepcopy(glob_model)
+            # copy the global model based on the previous round aggregated global model, if it is first round use
+            # init global model
+            temp_global_model_index = utils.dict_search(global_model_to_clients_recording, index)
+            temp_local_model = copy.deepcopy(global_models[temp_global_model_index])
             # define local optimizer
             local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(
-            temp_local_model, local_optimizer, loss_fn, train_loader, client_epochs, neural_network, DEVICE,))
+            temp_local_model, local_optimizer, loss_fn, train_loader, client_epochs, neural_network, index, DEVICE,))
             temp_client_list.append(client)
+            temp_client_list_index.append(index)
         # run clients simultaneously
-        for client_index in temp_client_list:
-            client_index.start()
+        for client_thread_index in temp_client_list:
+            client_thread_index.start()
         # wait clients finish
-        for client_index in temp_client_list:
-            local_weights = client_index.join()
-            w_clients.append(copy.deepcopy(local_weights))
+        for client_thread_index in temp_client_list:
+            local_weights, client_index = client_thread_index.join()
+            w_clients[client_index] = copy.deepcopy(local_weights)
+
+        # --------------------Find similar clients and aggregate to multiple global models --------------------
+        # calculate the weight change of last layer for each client
+        clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording)
+        # Find the best K for clustering
+        # best_k = utils.find_best_k(clients_last_layer)
+        best_k = 5
+        print("Found the best k", best_k)
+        # Use Kmeans clustering the clients
+        k_means = KMeans(n_clusters=best_k, random_state=0).fit(clients_last_layer)
+        labels = k_means.labels_
+        # record the similar clients
+        global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording, temp_client_list_index, labels, best_k)
+        # -------------------- Aggregate to global models --------------------
+        global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
+        print("Generated ", str(len(global_models) - 1), " Global models")
         # Global model weight updates
-        global_weight_record.append(copy.deepcopy(w_glob))
-        clients_weight_record.append(copy.deepcopy(w_clients))
-        w_glob = FedAvg(w_clients)
+        # global_weight_record.append(copy.deepcopy(w_glob))
+        # clients_weight_record.append(copy.deepcopy(w_clients))
+        # w_glob = FedAvg(w_clients)
         # Update global model
-        glob_model.load_state_dict(w_glob)
+        # glob_model.load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
-        round_loss, round_accuracy, f1, precision, recall = utils.test(glob_model, loss_fn, test_loader, neural_network, device=DEVICE)
+        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
         print('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s' % (iter, round_loss, round_accuracy,
                      ((time.time() - Round_time) / 60)))
     # --------------------Save Records-----------------------
     # save records
-    with open('global_weight_records_imbalance.pkl', 'wb') as file:
-    # A new file will be created
-        pickle.dump(global_weight_record, file)
-    with open('client_weight_records_imbalance.pkl', 'wb') as file:
-    # A new file will be created
-        pickle.dump(clients_weight_record, file)
+    # with open('global_weight_records_imbalance.pkl', 'wb') as file:
+    # # A new file will be created
+    #     pickle.dump(global_weight_record, file)
+    # with open('client_weight_records_imbalance.pkl', 'wb') as file:
+    # # A new file will be created
+    #     pickle.dump(clients_weight_record, file)
     # print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
     # --------------------Server Testing-----------------------
     test_time = time.time()
-    loss, accuracy, f1, precision, recall = utils.test(glob_model, loss_fn, test_loader, neural_network, device=DEVICE)
+    loss, accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (loss, accuracy, f1, server_running_time))
     # print("---Server testing time: %s minutes. ---" % server_running_time)

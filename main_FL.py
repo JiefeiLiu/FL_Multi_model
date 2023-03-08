@@ -202,7 +202,7 @@ if __name__ == '__main__':
     # # find best model
     # best_model_index = server_models_f1.index(max(server_models_f1))
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
-        glob_models, loss_functions, test_loader, neural_network, device=DEVICE)
+        glob_models, loss_functions[0], test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (model_loss, model_accuracy, model_f1, server_running_time))
     logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', model_loss, model_accuracy, model_f1, model_precision, model_recall, server_running_time)
