@@ -328,7 +328,7 @@ def dict_search(my_dict, target, alart=True):
         sys.exit()
 
 
-def find_best_k(data):
+def find_best_k(data, round_num):
     K_value_range = [1, 10]
     K = range(K_value_range[0], K_value_range[1])
 
@@ -341,8 +341,12 @@ def find_best_k(data):
     plt.plot(K, dist_points_from_cluster_center, 'bx-')
     plt.xlabel('Values of K')
     plt.ylabel('Distortion')
-    plt.title('The Elbow Method using Distortion')
+    plt.title("The Elbow Method using Distortion of round " + str(round_num))
     plt.show()
+    curr_path = os.getcwd()
+    make_dir(curr_path, "K_plot")
+    plot_saving_path = curr_path + "/K_plot/Elbow Method of round " + str(round_num) + ".pdf"
+    plt.savefig(plot_saving_path)
 
     def calc_distance(x1, y1, a, b, c):
         d = abs((a * x1 + b * y1 + c)) / (math.sqrt(a * a + b * b))
@@ -358,7 +362,9 @@ def find_best_k(data):
     for k in range(9):
         distance_of_points_from_line.append(calc_distance(K[k], dist_points_from_cluster_center[k], a, b, c))
 
-    return distance_of_points_from_line.index(max(distance_of_points_from_line)) + 1
+    best_k = distance_of_points_from_line.index(max(distance_of_points_from_line)) + 1
+    print("Found the best k", best_k)
+    return best_k
 
 
 def record_clients_clustering(model_clients_record, current_clients_index, current_labels, num_clusters):

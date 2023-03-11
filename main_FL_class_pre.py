@@ -121,9 +121,8 @@ if __name__ == '__main__':
         # calculate the weight change of last layer for each client
         clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording)
         # Find the best K for clustering
-        # best_k = utils.find_best_k(clients_last_layer)
+        utils.find_best_k(clients_last_layer, iter)
         best_k = 5
-        print("Found the best k", best_k)
         # Use Kmeans clustering the clients
         k_means = KMeans(n_clusters=best_k, random_state=0).fit(clients_last_layer)
         labels = k_means.labels_
