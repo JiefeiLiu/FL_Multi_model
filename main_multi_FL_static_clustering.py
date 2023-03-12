@@ -62,7 +62,6 @@ if __name__ == '__main__':
     log_name = "log_file/" + "FL" + "_static_clustering_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
-    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     num_classes = 11
