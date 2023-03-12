@@ -47,9 +47,8 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 30
-    rounds = 20
+    rounds = 10
     fraction = 1.0
-    num_global_models = 5
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models, 0 index is init global model
