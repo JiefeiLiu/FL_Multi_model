@@ -157,7 +157,7 @@ if __name__ == '__main__':
                 client_index.start()
             # wait clients finish
             for client_index in temp_client_list:
-                local_weights = client_index.join()
+                local_weights, client_index = client_index.join()
                 temp_w_clients.append(copy.deepcopy(local_weights))
             # collect model weights
             models_w.append(temp_w_clients)

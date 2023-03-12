@@ -56,14 +56,14 @@ if __name__ == '__main__':
     with open(pickle_dir, 'rb') as file:
         # Call load method to deserialze
         partition_data_list = pickle.load(file)
-    # extract subset of training data
-    testing_label = []
-    for i in range(num_clients):
-        (temp_test_x, temp_test_y) = partition_data_list[i]
-        testing_label = np.concatenate([testing_label, temp_test_y])
-    # extract corresponding testing data
-    new_testing_x, new_testing_y = data_preprocessing.testing_data_extraction(data_dir, testing_label)
-    test_data = CustomDataset(new_testing_x, new_testing_y, neural_network)
+    # # extract subset of training data
+    # testing_label = []
+    # for i in range(num_clients):
+    #     (temp_test_x, temp_test_y) = partition_data_list[i]
+    #     testing_label = np.concatenate([testing_label, temp_test_y])
+    # # extract corresponding testing data
+    # new_testing_x, new_testing_y = data_preprocessing.testing_data_extraction(data_dir, testing_label)
+    test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     # --------------Build global model and Select loss function----------------------
     if neural_network == "MLP":
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(init_glob_model.parameters(), lr=learning_rate)
     init_glob_model.train()
     global_models.append(init_glob_model)
-    # --------------initialize weight----------------------
+    # --------------initialize record----------------------
     w_glob = global_models[0].state_dict()
     global_weight_record = []
     clients_weight_record = []
@@ -119,7 +119,7 @@ if __name__ == '__main__':
 
         # --------------------Find similar clients and aggregate to multiple global models --------------------
         # calculate the weight change of last layer for each client
-        clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording)
+        clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording, DEVICE)
         # Find the best K for clustering
         utils.find_best_k(clients_last_layer, iter)
         best_k = 5
@@ -131,12 +131,9 @@ if __name__ == '__main__':
         # -------------------- Aggregate to global models --------------------
         global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
-        # Global model weight updates
+        # Record model weight updates
         # global_weight_record.append(copy.deepcopy(w_glob))
         # clients_weight_record.append(copy.deepcopy(w_clients))
-        # w_glob = FedAvg(w_clients)
-        # Update global model
-        # glob_model.load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
         round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
         print('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s' % (iter, round_loss, round_accuracy,
@@ -149,7 +146,8 @@ if __name__ == '__main__':
     # with open('client_weight_records_imbalance.pkl', 'wb') as file:
     # # A new file will be created
     #     pickle.dump(clients_weight_record, file)
-    # print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
+    # --------------------Server running time-----------------------
+    print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
     # --------------------Server Testing-----------------------
     test_time = time.time()
     loss, accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
