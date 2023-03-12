@@ -99,10 +99,10 @@ if __name__ == '__main__':
         Round_time = time.time()
         w_clients = {}
         # models_w = []
+        temp_client_list = []
         temp_client_list_index = []
         # train each model
         for index in range(num_clients):
-            temp_client_list = []
             temp_w_clients = []
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
