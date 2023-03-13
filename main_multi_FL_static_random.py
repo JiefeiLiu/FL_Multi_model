@@ -150,7 +150,7 @@ if __name__ == '__main__':
                 # define local optimizer
                 local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
                 # create threads which represents clients
-                client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_functions[model_index], train_loader, client_epochs, neural_network, DEVICE,))
+                client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_functions[model_index], train_loader, client_epochs, neural_network, client_index, DEVICE,))
                 temp_client_list.append(client)
             # run clients simultaneously
             for client_index in temp_client_list:

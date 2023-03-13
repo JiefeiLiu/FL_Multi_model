@@ -61,6 +61,8 @@ if __name__ == '__main__':
     log_name = "log_file/" + "FL" + "_static_clustering_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
+    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     num_classes = 11
@@ -120,15 +122,15 @@ if __name__ == '__main__':
             else:
                 temp_local_epoch = client_epochs
             # create threads which represents clients
-            client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, DEVICE,))
+            client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
             temp_client_list.append(client)
             temp_client_list_index.append(index)
         # run clients simultaneously
-        for client_index in temp_client_list:
-            client_index.start()
+        for client_thread_index in temp_client_list:
+            client_thread_index.start()
         # wait clients finish
-        for client_index in temp_client_list:
-            local_weights, client_index = client_index.join()
+        for client_thread_index in temp_client_list:
+            local_weights, client_index = client_thread_index.join()
             w_clients[client_index] = copy.deepcopy(local_weights)
         # -----------------Find similar clients and aggregate to multiple global models for first round-----------------
         if iter == 0:

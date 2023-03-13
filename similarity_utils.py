@@ -82,6 +82,10 @@ output: nd array (each row represent the last layer + bias of a client)
 '''
 def weight_changes_of_last_layer(clients_index, clients_weights, global_models, my_dict, device):
     res = []
+    # print(type(clients_weights))
+    # print(clients_weights.keys())
+    # print(type(global_models))
+    # sys.exit()
     for index, value in enumerate(clients_index):
         matched_global_model_index = utils.dict_search(my_dict, value, alart=False)
         # print(type(matched_global_model_index))
