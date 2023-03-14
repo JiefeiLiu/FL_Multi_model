@@ -7,6 +7,9 @@ import pickle
 import pandas as pd
 import numpy as np
 import torch
+from typing import List
+from sklearn.cluster import KMeans
+
 import utils
 import openpyxl
 
@@ -93,7 +96,7 @@ def weight_changes_utils(file_path, similarity_for_all_rounds=True):
         with open(global_client_clustering_res, 'rb') as file:
             # A new file will be created
             global_model_client_clustering_res = pickle.load(file)
-        print(global_model_client_clustering_res)
+        print("Clustering results from testing: ", global_model_client_clustering_res)
         # print(global_weight_record)
         # print(client_weight_record[0])
         temp_clients_weight_change = []
@@ -146,15 +149,38 @@ def pairwise_sim(weight_changes):
     return sim_res
 
 
+def last_layer_extraction_for_clustering(weight_changes_of_clients):
+    # print(len(weight_changes_of_clients[0]))
+    data = []
+    for client_weight in weight_changes_of_clients[0]:
+        keys = list(client_weight.keys())
+        data.append(np.concatenate((client_weight[keys[-2]], client_weight[keys[-1]]), axis=None))
+    return np.array(data)
+
+
 if __name__ == "__main__":
     # -------------------- Similarity Calculation between rounds --------------------
     file_path = "testing_weight_records/"
     weight_changes = weight_changes_utils(file_path, similarity_for_all_rounds=False)
-    round_sim = pairwise_sim(weight_changes)
-    # print(len(round_sim[0][0]))
-    # Save the results into excel
-    with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
-        for i in range(len(round_sim)):
-            df = pd.DataFrame(round_sim[i])
-            sheet_name = 'Round ' + str(i)
-            df.to_excel(writer, sheet_name=sheet_name)
+    # -------------------- Clustering clients --------------------
+    clients_rep = last_layer_extraction_for_clustering(weight_changes)
+    utils.find_best_k(clients_rep, 0)
+    best_k = 5
+    # Use Kmeans clustering the clients
+    k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_rep)
+    labels = k_means.labels_
+    # record the similar clients
+    global_model_to_clients_recording = {}
+    temp_client_list_index = range(30)
+    global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
+                                                                        temp_client_list_index, labels, best_k)
+    print("Clients distribution: ", global_model_to_clients_recording)
+    # -------------------- Cosine Similarity Calculation --------------------
+    # round_sim = pairwise_sim(weight_changes)
+    # # print(len(round_sim[0][0]))
+    # # Save the results into excel
+    # with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
+    #     for i in range(len(round_sim)):
+    #         df = pd.DataFrame(round_sim[i])
+    #         sheet_name = 'Round ' + str(i)
+    #         df.to_excel(writer, sheet_name=sheet_name)
