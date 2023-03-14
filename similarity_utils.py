@@ -1,3 +1,4 @@
+import io
 import os
 import time
 import sys
@@ -46,30 +47,58 @@ def weight_changes_of_last_layer_cal(global_weight, client_weight, device):
     return res
 
 
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
 
-def weight_changes_utils():
-    # read recording from pickle
-    with open('global_weight_records_imbalance.pkl', 'rb') as file:
-        # A new file will be created
-        global_weight_record = pickle.load(file)
-    with open('client_weight_records_imbalance.pkl', 'rb') as file:
-        # A new file will be created
-        client_weight_record = pickle.load(file)
 
-    # global recoding for different [rounds]
-    # print(global_weight_record[0].keys())
-
-    # clients weight recoding for [rounds][client_index]
-    # print((client_weight_record[0][0].keys()))
-
-    # Calculate the weight change of each client
+def weight_changes_utils(file_path, similarity_for_all_rounds=True):
     weight_changes = []
-    # for loop go over round
-    for i in range(len(global_weight_record)):
+    if similarity_for_all_rounds:
+        with open('global_weight_records_imbalance.pkl', 'rb') as file:
+            # A new file will be created
+            global_weight_record = pickle.load(file)
+        with open('client_weight_records_imbalance.pkl', 'rb') as file:
+            # A new file will be created
+            client_weight_record = pickle.load(file)
+        # global recoding for different [rounds]
+        # print(global_weight_record[0].keys())
+
+        # clients weight recoding for [rounds][client_index]
+        # print((client_weight_record[0][0].keys()))
+
+        # Calculate the weight change of each client
+        # for loop go over round
+        for i in range(len(global_weight_record)):
+            temp_clients_weight_change = []
+            # for loop go over clients
+            for j in range(len(client_weight_record[i])):
+                temp_single_client_weight_change = weight_changes_cal(global_weight_record[i], client_weight_record[i][j])
+                temp_clients_weight_change.append(temp_single_client_weight_change)
+            weight_changes.append(temp_clients_weight_change)
+    else:
+        global_model_record_path = file_path + "static_init_global_weight_records_imbalance.pkl"
+        clients_model_record_path = file_path + "static_first_round_client_weight_records_imbalance.pkl"
+        global_client_clustering_res = file_path + "static_first_round_global_to_clients.pkl"
+        # read recording from pickle
+        with open(global_model_record_path, 'rb') as file:
+            # A new file will be created
+            global_weight_record = CPU_Unpickler(file).load()
+        with open(clients_model_record_path, 'rb') as file:
+            # A new file will be created
+            client_weight_record = CPU_Unpickler(file).load()
+        with open(global_client_clustering_res, 'rb') as file:
+            # A new file will be created
+            global_model_client_clustering_res = pickle.load(file)
+        print(global_model_client_clustering_res)
+        # print(global_weight_record)
+        # print(client_weight_record[0])
         temp_clients_weight_change = []
-        # for loop go over clients
-        for j in range(len(client_weight_record[i])):
-            temp_single_client_weight_change = weight_changes_cal(global_weight_record[i], client_weight_record[i][j])
+        for i in range(len(client_weight_record)):
+            temp_single_client_weight_change = weight_changes_cal(global_weight_record.state_dict(), client_weight_record[i])
             temp_clients_weight_change.append(temp_single_client_weight_change)
         weight_changes.append(temp_clients_weight_change)
     return weight_changes  # [Rounds][clients]
@@ -118,11 +147,13 @@ def pairwise_sim(weight_changes):
 
 
 if __name__ == "__main__":
-    weight_changes = weight_changes_utils()
+    # -------------------- Similarity Calculation between rounds --------------------
+    file_path = "testing_weight_records/"
+    weight_changes = weight_changes_utils(file_path, similarity_for_all_rounds=False)
     round_sim = pairwise_sim(weight_changes)
     # print(len(round_sim[0][0]))
     # Save the results into excel
-    with pd.ExcelWriter("sim_log/" + "ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
+    with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
         for i in range(len(round_sim)):
             df = pd.DataFrame(round_sim[i])
             sheet_name = 'Round ' + str(i)

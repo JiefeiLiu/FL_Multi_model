@@ -117,10 +117,10 @@ if __name__ == '__main__':
             # define local optimizer
             local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
             # Set the different local epochs for first round
-            if iter == 0:
-                temp_local_epoch = client_epochs * 5
-            else:
-                temp_local_epoch = client_epochs
+            # if iter == 0:
+            #     temp_local_epoch = client_epochs * 5
+            # else:
+            #     temp_local_epoch = client_epochs
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
             temp_client_list.append(client)
