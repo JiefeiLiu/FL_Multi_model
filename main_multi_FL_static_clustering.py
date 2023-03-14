@@ -149,7 +149,22 @@ if __name__ == '__main__':
             global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
                                                                                 temp_client_list_index, labels, best_k)
             print("Clients distribution: ", global_model_to_clients_recording)
-            logging.info('Clients distribution: ', global_model_to_clients_recording)
+            logging.info('Clients distribution: %s', global_model_to_clients_recording)
+        # --------------------Save Temp Records-----------------------
+        # save records
+        curr_path = os.getcwd()
+        utils.make_dir(curr_path, "testing_weight_records")
+        records_saving_path = curr_path + "/testing_weight_records/"
+        with open(records_saving_path + 'static_init_global_weight_records_imbalance.pkl', 'wb') as file:
+            # A new file will be created
+            pickle.dump(init_glob_model, file)
+        with open(records_saving_path + 'static_first_round_client_weight_records_imbalance.pkl', 'wb') as file:
+            # A new file will be created
+            pickle.dump(w_clients, file)
+        with open(records_saving_path + 'static_first_round_global_to_clients.pkl', 'wb') as file:
+            # A new file will be created
+            pickle.dump(global_model_to_clients_recording, file)
+        sys.exit()
         # -------------------- Aggregate to global models --------------------
         global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
@@ -161,15 +176,18 @@ if __name__ == '__main__':
         round_training_time = (time.time() - Round_time) / 60
         server_training_time.append(round_training_time)
         logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy, round_training_time)
-    # --------------------Save Records-----------------------
+    # --------------------Save All Records-----------------------
     # save records
-    with open('static_global_weight_records_imbalance.pkl', 'wb') as file:
+    curr_path = os.getcwd()
+    utils.make_dir(curr_path, "weight_records")
+    records_saving_path = curr_path + "/weight_records/"
+    with open(records_saving_path + 'static_global_weight_records_imbalance.pkl', 'wb') as file:
     # A new file will be created
         pickle.dump(global_weight_record, file)
-    with open('static_client_weight_records_imbalance.pkl', 'wb') as file:
+    with open(records_saving_path + 'static_client_weight_records_imbalance.pkl', 'wb') as file:
     # A new file will be created
         pickle.dump(clients_weight_record, file)
-    with open('static_global_to_clients.pkl', 'wb') as file:
+    with open(records_saving_path + 'static_global_to_clients.pkl', 'wb') as file:
     # A new file will be created
         pickle.dump(global_model_to_clients_recording, file)
     # --------------------Server running time-----------------------
