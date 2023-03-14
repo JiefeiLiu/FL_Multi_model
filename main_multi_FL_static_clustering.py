@@ -120,7 +120,7 @@ if __name__ == '__main__':
             # if iter == 0:
             #     temp_local_epoch = client_epochs * 5
             # else:
-            #     temp_local_epoch = client_epochs
+            temp_local_epoch = client_epochs
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
             temp_client_list.append(client)
