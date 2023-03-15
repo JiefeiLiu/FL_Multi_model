@@ -21,6 +21,8 @@ from data_utils import CustomDataset
 from multi_threading import CustomThread
 from aggregation_functions import FedAvg
 from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
+
 
 
 # Set cuda
@@ -142,10 +144,15 @@ if __name__ == '__main__':
             # Find the best K for clustering
             utils.find_best_k(clients_last_layer, iter)
             best_k = 5
-            # Use Kmeans clustering the clients
-            k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
-            labels = k_means.labels_
-            # record the similar clients
+            # _____________________ Kmeans Clustering ____________________
+            # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
+            # labels = k_means.labels_
+            # _____________________ Spectral Clustering ____________________
+            # compute the similarity matrix of clients last layer
+            similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
+            Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
+            labels = Spectral.labels_
+            # _____________________ Record the similar clients ____________________
             global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
                                                                                 temp_client_list_index, labels, best_k)
             print("Clients distribution: ", global_model_to_clients_recording)
@@ -164,7 +171,7 @@ if __name__ == '__main__':
         with open(records_saving_path + 'static_first_round_global_to_clients.pkl', 'wb') as file:
             # A new file will be created
             pickle.dump(global_model_to_clients_recording, file)
-        sys.exit()
+        # sys.exit()
         # -------------------- Aggregate to global models --------------------
         global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")

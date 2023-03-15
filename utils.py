@@ -287,7 +287,18 @@ def cosine_similarity_last_layer(A, B):
         x = np.concatenate((x, A_dict[keys_A[-2]]), axis=None)
         y = np.concatenate((y, B_dict[keys_B[-2]]), axis=None)
 
-    return np.dot(x, y) / (norm(y) * norm(y))
+    return np.dot(x, y) / (norm(x) * norm(y))
+
+
+# compute the similarity matrix, return np array
+def cosine_similarity_matrix(data):
+    res_matrix = []
+    for i in range(len(data)):
+        temp_sim = []
+        for j in range(len(data)):
+            temp_sim.append(np.dot(data[i], data[j]) / (norm(data[i]) * norm(data[j])))
+        res_matrix.append(temp_sim)
+    return np.array(res_matrix)
 
 
 def similarity_finder(folder_path):

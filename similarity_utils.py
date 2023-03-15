@@ -8,7 +8,9 @@ import pandas as pd
 import numpy as np
 import torch
 from typing import List
+import sklearn
 from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
 
 import utils
 import openpyxl
@@ -162,25 +164,37 @@ if __name__ == "__main__":
     # -------------------- Similarity Calculation between rounds --------------------
     file_path = "testing_weight_records/"
     weight_changes = weight_changes_utils(file_path, similarity_for_all_rounds=False)
+    # -------------------- Cosine Similarity Calculation --------------------
+    # calculate the similarity of last layer
+    round_sim = pairwise_sim(weight_changes)
+    # Save the results into excel
+    # with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
+    #     for i in range(len(round_sim)):
+    #         df = pd.DataFrame(round_sim[i])
+    #         sheet_name = 'Round ' + str(i)
+    #         df.to_excel(writer, sheet_name=sheet_name)
+    # sys.exit()
     # -------------------- Clustering clients --------------------
+    # Extract last layer representation for each client
     clients_rep = last_layer_extraction_for_clustering(weight_changes)
+    # Find best K
     utils.find_best_k(clients_rep, 0)
     best_k = 5
+    # _____________________ Kmeans Clustering ____________________
     # Use Kmeans clustering the clients
-    k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_rep)
-    labels = k_means.labels_
+    # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_rep)
+    # labels = k_means.labels_
+    # _____________________ Spectral Clustering ____________________
+    sim_matrix = np.array(round_sim[0])
+    # print(sim_matrix.shape)
+    # print(sklearn.utils.validation.check_symmetric(sim_matrix))
+    # sys.exit()
+    Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(sim_matrix)
+    labels = Spectral.labels_
     # record the similar clients
     global_model_to_clients_recording = {}
     temp_client_list_index = range(30)
     global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
                                                                         temp_client_list_index, labels, best_k)
     print("Clients distribution: ", global_model_to_clients_recording)
-    # -------------------- Cosine Similarity Calculation --------------------
-    # round_sim = pairwise_sim(weight_changes)
-    # # print(len(round_sim[0][0]))
-    # # Save the results into excel
-    # with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
-    #     for i in range(len(round_sim)):
-    #         df = pd.DataFrame(round_sim[i])
-    #         sheet_name = 'Round ' + str(i)
-    #         df.to_excel(writer, sheet_name=sheet_name)
+
