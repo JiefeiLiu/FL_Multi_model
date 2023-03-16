@@ -49,7 +49,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 30
-    rounds = 10
+    rounds = 5
     fraction = 1.0
     # Setting parameters
     neural_network = "MLP_Mult"
