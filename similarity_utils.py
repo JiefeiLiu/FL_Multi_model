@@ -11,6 +11,7 @@ from typing import List
 import sklearn
 from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
+from sklearn.cluster import AgglomerativeClustering
 
 import utils
 import openpyxl
@@ -186,11 +187,11 @@ if __name__ == "__main__":
     # labels = k_means.labels_
     # _____________________ Spectral Clustering ____________________
     sim_matrix = np.array(round_sim[0])
-    # print(sim_matrix.shape)
-    # print(sklearn.utils.validation.check_symmetric(sim_matrix))
-    # sys.exit()
     Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(sim_matrix)
     labels = Spectral.labels_
+    # # _____________________ Agglomerative Clustering ____________________
+    # Agg_clustering = AgglomerativeClustering(n_clusters=best_k).fit(clients_rep)
+    # labels = Agg_clustering.labels_
     # record the similar clients
     global_model_to_clients_recording = {}
     temp_client_list_index = range(30)
