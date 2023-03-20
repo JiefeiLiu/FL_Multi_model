@@ -23,12 +23,10 @@ from aggregation_functions import FedAvg
 from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
 
-
-
 # Set cuda
 DEVICE = torch.device("cpu")
 if torch.cuda.is_available():
-    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
+    cuda_num = random.randint(0, (torch.cuda.device_count() - 1))
     cuda_name = "cuda:" + str(cuda_num)
     DEVICE = torch.device(cuda_name)
 
@@ -60,7 +58,9 @@ if __name__ == '__main__':
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
-    log_name = "log_file/" + "FL" + "_static_clustering_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
+    log_name = "log_file/" + "FL" + "_static_clustering_NN_" + neural_network + "_clients_" + str(
+        num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(
+        fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
@@ -124,7 +124,8 @@ if __name__ == '__main__':
             # else:
             temp_local_epoch = client_epochs
             # create threads which represents clients
-            client = CustomThread(target=utils.train, args=(temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
+            client = CustomThread(target=utils.train, args=(
+            temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
             temp_client_list.append(client)
             temp_client_list_index.append(index)
         # run clients simultaneously
@@ -153,8 +154,32 @@ if __name__ == '__main__':
             Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
             labels = Spectral.labels_
             # _____________________ Record the similar clients ____________________
-            global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
-                                                                                temp_client_list_index, labels, best_k)
+            # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
+            #                                                                     temp_client_list_index, labels, best_k)
+            global_model_to_clients_recording = {
+                1: [0, 11],
+                2: [1, 2],
+                3: [3],
+                4: [4, 9, 25],
+                5: [5],
+                6: [6],
+                7: [7],
+                8: [10, 22],
+                9: [12],
+                10: [13, 23],
+                11: [14],
+                12: [15, 18],
+                13: [16],
+                14: [17],
+                15: [19],
+                16: [20],
+                17: [21],
+                18: [24],
+                19: [26],
+                20: [27],
+                21: [28],
+                22: [29],
+            }
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
@@ -173,29 +198,33 @@ if __name__ == '__main__':
             pickle.dump(global_model_to_clients_recording, file)
         # sys.exit()
         # -------------------- Aggregate to global models --------------------
-        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
+        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
+                                                                 w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates
         global_weight_record.append(copy.deepcopy(global_models))
         clients_weight_record.append(copy.deepcopy(w_clients))
         # --------------------Server Round Testing-----------------------
-        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
+        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn,
+                                                                                   test_loader, neural_network,
+                                                                                   device=DEVICE)
         round_training_time = (time.time() - Round_time) / 60
         server_training_time.append(round_training_time)
-        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy, round_training_time)
+        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy,
+                     round_training_time)
     # --------------------Save All Records-----------------------
     # save records
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "weight_records")
     records_saving_path = curr_path + "/weight_records/"
     with open(records_saving_path + 'static_global_weight_records_imbalance.pkl', 'wb') as file:
-    # A new file will be created
+        # A new file will be created
         pickle.dump(global_weight_record, file)
     with open(records_saving_path + 'static_client_weight_records_imbalance.pkl', 'wb') as file:
-    # A new file will be created
+        # A new file will be created
         pickle.dump(clients_weight_record, file)
     with open(records_saving_path + 'static_global_to_clients.pkl', 'wb') as file:
-    # A new file will be created
+        # A new file will be created
         pickle.dump(global_model_to_clients_recording, file)
     # --------------------Server running time-----------------------
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
@@ -205,7 +234,9 @@ if __name__ == '__main__':
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
         global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
-    print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (model_loss, model_accuracy, model_f1, server_running_time))
-    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s', model_loss, model_accuracy, model_f1, model_precision, model_recall, server_running_time)
+    print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
+    model_loss, model_accuracy, model_f1, server_running_time))
+    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s',
+                 model_loss, model_accuracy, model_f1, model_precision, model_recall, server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)
     print("Finish.")

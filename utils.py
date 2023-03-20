@@ -266,7 +266,7 @@ def cosine_similarity_element_wise(A, B):
     else:
         print("Two model are not consistent.")
         sys.exit()
-    return np.dot(x, y)/(norm(y)*norm(y))
+    return np.dot(x, y)/(norm(x)*norm(y))
 
 
 def cosine_similarity_last_layer(A, B):
@@ -339,8 +339,8 @@ def dict_search(my_dict, target, alart=True):
         sys.exit()
 
 
-def find_best_k(data, round_num):
-    K_value_range = [1, 10]
+def find_best_k(data, round_num, max_K=10):
+    K_value_range = [1, max_K]
     K = range(K_value_range[0], K_value_range[1])
 
     dist_points_from_cluster_center = []

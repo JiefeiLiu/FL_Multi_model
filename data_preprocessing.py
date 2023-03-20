@@ -169,6 +169,6 @@ if __name__ == '__main__':
     # B = {"A": torch.tensor([[1, 1, 2],
     #                         [2, 2, 2]])}
     # print(utils.cosine_similarity_element_wise(A, B))
-    utils.similarity_finder("models/2_class_imbalance/")
+    utils.similarity_finder("models/Ex_imbalance/")
     # print(utils.csm(A, B))
     # print(cosine_similarity(A, B))

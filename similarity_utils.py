@@ -179,8 +179,8 @@ if __name__ == "__main__":
     # Extract last layer representation for each client
     clients_rep = last_layer_extraction_for_clustering(weight_changes)
     # Find best K
-    utils.find_best_k(clients_rep, 0)
-    best_k = 5
+    utils.find_best_k(clients_rep, 0, max_K=30)
+    best_k = 22
     # _____________________ Kmeans Clustering ____________________
     # Use Kmeans clustering the clients
     # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_rep)
