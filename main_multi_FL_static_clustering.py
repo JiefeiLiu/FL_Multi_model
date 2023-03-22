@@ -226,6 +226,10 @@ if __name__ == '__main__':
     with open(records_saving_path + 'static_global_to_clients.pkl', 'wb') as file:
         # A new file will be created
         pickle.dump(global_model_to_clients_recording, file)
+    # save result global models
+    for i in range(len(global_models)):
+        temp_saving_name = records_saving_path + "static_global_model_" + str(i) + ".pt"
+        torch.save(global_models[i], temp_saving_name)
     # --------------------Server running time-----------------------
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
     logging.info('Total training time(min) %s', sum(server_training_time))
