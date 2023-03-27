@@ -55,6 +55,7 @@ if __name__ == '__main__':
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
     global_model_to_clients_recording = {}
+    global_model_to_clients_recording_for_aggregation = {}
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
@@ -156,6 +157,7 @@ if __name__ == '__main__':
             # _____________________ Record the similar clients ____________________
             # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
             #                                                                     temp_client_list_index, labels, best_k)
+            # Select the model with high similarity without overlapping
             global_model_to_clients_recording = {
                 1: [0, 11],
                 2: [1, 2],
@@ -179,7 +181,35 @@ if __name__ == '__main__':
                 20: [27],
                 21: [28],
                 22: [29],
+                23: [8],
             }
+            # Select the model with high similarity with overlapping
+            global_model_to_clients_recording_for_aggregation = {
+                1: [0, 11],
+                2: [1, 2, 7, 13, 17, 23, 29],
+                3: [3, 4, 9, 15, 18, 19, 25, 28],
+                4: [4, 9, 25, 3, 15, 18, 19, 25, 28],
+                5: [5],
+                6: [6, 24, 26],
+                7: [7, 1, 2, 13, 17, 23, 29],
+                8: [10, 22],
+                9: [12],
+                10: [13, 23, 1, 2, 7, 16, 17, 29],
+                11: [14],
+                12: [15, 18, 3, 4, 9, 17, 19, 25, 28],
+                13: [16, 13],
+                14: [17, 1, 2, 7, 13, 15, 18, 23, 29],
+                15: [19, 3, 4, 9, 15, 18, 25, 28],
+                16: [20],
+                17: [21],
+                18: [24, 6, 26],
+                19: [26, 6, 24],
+                20: [27, 16],
+                21: [28, 3, 4, 9, 15, 18, 19, 25],
+                22: [29, 1, 2, 7, 13, 17, 23],
+                23: [8],
+            }
+
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
@@ -198,7 +228,7 @@ if __name__ == '__main__':
             pickle.dump(global_model_to_clients_recording, file)
         # sys.exit()
         # -------------------- Aggregate to global models --------------------
-        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
+        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation,
                                                                  w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates

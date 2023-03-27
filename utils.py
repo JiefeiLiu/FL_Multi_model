@@ -175,7 +175,7 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
             pred_recording.append(all_pred_values)
             ture_recording.append(all_true_values)
         loss_recording.append(loss / len(test_loader))
-    # combine model predictions, ground truth, and loss
+    # combine model predictions by majority voting, ground truth, and loss
     final_prediction = com_prediction(pred_recording)  # combine prediction
     final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
