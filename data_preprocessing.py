@@ -157,6 +157,29 @@ def preprocess_data_with_random_drop_class(data_path, missing_class):
     return (new_train_X, new_train_y), (new_testing_X, new_testing_y)
 
 
+# Generate samples differ with existing class for training data
+def noise_generator(x_sample, y_sample, existing_x, existing_y):
+    uni_existing_labels, existing_label_counts = np.unique(existing_y, return_counts=True)
+    df_sample = pd.DataFrame(x_sample)
+    df_sample['label'] = y_sample
+
+    # filter out the existing labels
+    df_sample_filtered_out = df_sample[~df_sample['label'].isin(uni_existing_labels)]
+    x_sample_np = df_sample_filtered_out.iloc[:, :-1].to_numpy()
+    y_sample_np = df_sample_filtered_out.iloc[:, -1].to_numpy()
+    X_train, X_test, y_train, y_test = train_test_split(x_sample_np, y_sample_np, test_size=min(existing_label_counts), stratify=y_sample_np, shuffle=True, random_state=1)
+    new_x = np.concatenate((existing_x, X_test), axis=0)
+    # Generate new label y
+    generate_new_y = [11] * len(y_test)
+    new_y = np.concatenate((existing_y, generate_new_y), axis=0)
+
+    # Verify
+    unique, counts = np.unique(new_y, return_counts=True)
+    print("New client training data with noise distribution:", dict(zip(unique, counts)))
+
+    return new_x, new_y
+
+
 if __name__ == '__main__':
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     # regenerate_data(data_path, 17)

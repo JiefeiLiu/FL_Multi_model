@@ -55,7 +55,7 @@ if __name__ == '__main__':
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
     global_model_to_clients_recording = {}
-    global_model_to_clients_recording_for_aggregation = {}
+    # global_model_to_clients_recording_for_aggregation = {}
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    num_classes = 11
+    num_classes = 12
     print("Loading data...")
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
     # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
@@ -111,6 +111,8 @@ if __name__ == '__main__':
             temp_w_clients = []
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
+            x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin, client_X_train,
+                                                                          client_y_train)
             # process data
             train_data = CustomDataset(client_X_train, client_y_train, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -183,32 +185,32 @@ if __name__ == '__main__':
                 22: [29],
                 23: [8],
             }
-            # Select the model with high similarity with overlapping
-            global_model_to_clients_recording_for_aggregation = {
-                1: [0, 11],
-                2: [1, 2, 7, 13, 17, 23, 29],
-                3: [3, 4, 9, 15, 18, 19, 25, 28],
-                4: [4, 9, 25, 3, 15, 18, 19, 25, 28],
-                5: [5],
-                6: [6, 24, 26],
-                7: [7, 1, 2, 13, 17, 23, 29],
-                8: [10, 22],
-                9: [12],
-                10: [13, 23, 1, 2, 7, 16, 17, 29],
-                11: [14],
-                12: [15, 18, 3, 4, 9, 17, 19, 25, 28],
-                13: [16, 13],
-                14: [17, 1, 2, 7, 13, 15, 18, 23, 29],
-                15: [19, 3, 4, 9, 15, 18, 25, 28],
-                16: [20],
-                17: [21],
-                18: [24, 6, 26],
-                19: [26, 6, 24],
-                20: [27, 16],
-                21: [28, 3, 4, 9, 15, 18, 19, 25],
-                22: [29, 1, 2, 7, 13, 17, 23],
-                23: [8],
-            }
+            # # Select the model with high similarity with overlapping
+            # global_model_to_clients_recording_for_aggregation = {
+            #     1: [0, 11],
+            #     2: [1, 2, 7, 13, 17, 23, 29],
+            #     3: [3, 4, 9, 15, 18, 19, 25, 28],
+            #     4: [4, 9, 25, 3, 15, 18, 19, 25, 28],
+            #     5: [5],
+            #     6: [6, 24, 26],
+            #     7: [7, 1, 2, 13, 17, 23, 29],
+            #     8: [10, 22],
+            #     9: [12],
+            #     10: [13, 23, 1, 2, 7, 16, 17, 29],
+            #     11: [14],
+            #     12: [15, 18, 3, 4, 9, 17, 19, 25, 28],
+            #     13: [16, 13],
+            #     14: [17, 1, 2, 7, 13, 15, 18, 23, 29],
+            #     15: [19, 3, 4, 9, 15, 18, 25, 28],
+            #     16: [20],
+            #     17: [21],
+            #     18: [24, 6, 26],
+            #     19: [26, 6, 24],
+            #     20: [27, 16],
+            #     21: [28, 3, 4, 9, 15, 18, 19, 25],
+            #     22: [29, 1, 2, 7, 13, 17, 23],
+            #     23: [8],
+            # }
 
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
@@ -228,7 +230,7 @@ if __name__ == '__main__':
             pickle.dump(global_model_to_clients_recording, file)
         # sys.exit()
         # -------------------- Aggregate to global models --------------------
-        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation,
+        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
                                                                  w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates

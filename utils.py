@@ -440,7 +440,7 @@ if __name__ == '__main__':
         training_time = (time.time() - train_time) / 60
         print("---Training time: %s minutes. ---" % training_time)
         # save model
-        saving_model_name = "models/model_client_" + str(single_client_index) + ".pth"
+        saving_model_name = "models/model_client_" + str(single_client_index) + ".pt"
         torch.save(copy.deepcopy(model_weights), saving_model_name)
         # -------------------Testing model----------------------
         test_time = time.time()
