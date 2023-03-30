@@ -114,7 +114,7 @@ if __name__ == '__main__':
             x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin, client_X_train,
                                                                           client_y_train)
             # process data
-            train_data = CustomDataset(client_X_train, client_y_train, neural_network)
+            train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
             # copy corresponding global model
             temp_global_model_index = utils.dict_search(global_model_to_clients_recording, index)

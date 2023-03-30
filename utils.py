@@ -59,7 +59,7 @@ def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index
         losses.append(epoch_loss / len(train_loader))
         if e % 5 == 0:
             print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
-    return model.state_dict(), client_index
+    return model, client_index
 
 
 '''
