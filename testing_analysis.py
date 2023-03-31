@@ -167,7 +167,7 @@ if __name__ == '__main__':
     global_models = []
     for i in range(22):
         temp_global_model_name = model_path + "static_global_model_" + str(i) + ".pt"
-        global_models.append(torch.load(temp_global_model_name, map_location=torch.device('cpu')))
+        global_models.append(torch.load(temp_global_model_name, map_location=DEVICE))
     print("Number of global models read: ", len(global_models))
     # sys.exit()
     # --------------------Train client models-----------------------
