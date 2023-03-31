@@ -30,12 +30,13 @@ def most_frequent(List):
 
 
 # Combine model predictions if 11 is the most label then find the next most frequent element
-def com_prediction_with_rule(preds):
+def com_prediction_with_rule(preds, confs):
     res = []
     for i in range(len(preds[0])):
         temp_list = []
         for j in range(len(preds)):
-            temp_list.append(preds[j][i].item())
+            if confs[j][i].item() > 0.85:
+                temp_list.append(preds[j][i].item())
         # Remove elements which has 11
         temp_list = list(filter((11).__ne__, temp_list))
         res.append(most_frequent(temp_list))
@@ -123,22 +124,20 @@ def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu"):
     conf_recording_np = np.array(conf_recording)
     conf_recording_np = conf_recording_np.transpose()
     # majority voting function
-    voting = com_prediction_with_rule(pred_recording)
+    voting = com_prediction_with_rule(pred_recording, conf_recording)
     # for i in range(len(ture_recording)):
     #     print(ture_recording[i])
 
     # for i in range(len(ture_recording[0])):
     #     # print("Get predictions: ", len(pred_recording_np[i]))
     #     unique, counts = np.unique(pred_recording_np[i], return_counts=True)
-    #     print("Predict: ", list(zip(pred_recording_np[i], conf_recording_np[i])), " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
-    #     # print("Predict: ", pred_recording_np[i], " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
+    #     # print("Predict: ", list(zip(pred_recording_np[i], conf_recording_np[i])), " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
+    #     print("Predict: ", pred_recording_np[i], " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
 
     final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
     accuracy, f1, precision, recall = utils.get_performance(voting, final_true, nn_type)
     return final_loss, accuracy, f1, precision, recall
-
-
 
 
 # Save layer weight change into CSV
@@ -227,7 +226,10 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
     # Testing global models
-    model_loss, model_accuracy, model_f1, model_precision, model_recall = single_test_compare(global_models[1:], loss_fn, test_loader, neural_network)
+    # single_test_compare(global_models[1:], loss_fn, test_loader, neural_network)
+    model_loss, model_accuracy, model_f1, model_precision, model_recall = single_test_compare(global_models[1:],
+                                                                                              loss_fn, test_loader,
+                                                                                              neural_network)
     # single_test_compare(client_models, loss_fn, test_loader, neural_network)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
