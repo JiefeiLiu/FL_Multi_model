@@ -116,6 +116,7 @@ def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu"):
             pred_recording.append(all_pred_values)
             conf_recording.append(all_conf_values)
             ture_recording.append(all_true_values)
+        loss_recording.append(loss / len(test_loader))
     # print predictions and label for each model
     pred_recording_np = np.array(pred_recording)
     pred_recording_np = pred_recording_np.transpose()
