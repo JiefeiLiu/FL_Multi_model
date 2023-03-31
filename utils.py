@@ -135,6 +135,7 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
     loss_recording = []
     ture_recording = []
     pred_recording = []
+    conf_recording = []
     for index, model in enumerate(models):
         model.to(device)
         # test the model
@@ -142,6 +143,7 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
         y_pred_list = []
         all_true_values = []
         all_pred_values = []
+        all_conf_values = []
         loss = 0.0
         print("Test the model")
         with torch.no_grad():
@@ -159,10 +161,11 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
                 elif nn_type == "MLP_Mult":
                     '''Attach Muti class classification label'''
                     if device == "cpu":
-                        _, predictions = torch.max(output, 1)
+                        conf, predictions = torch.max(output, 1)
                     else:
-                        _, predictions = torch.max(output.cpu(), 1)
+                        conf, predictions = torch.max(output.cpu(), 1)
                     all_pred_values.extend(predictions)
+                    all_conf_values.extend(conf)
                     loss = loss_fn(output, target).item()  # Muti class classification
                 else:
                     print("Wrong neural network type, exit.")
@@ -173,13 +176,14 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu"):
                 all_true_values.extend(act_values)
             # save predictions
             pred_recording.append(all_pred_values)
+            conf_recording.append(all_conf_values)
             ture_recording.append(all_true_values)
         loss_recording.append(loss / len(test_loader))
     # combine model predictions by majority voting, ground truth, and loss
-    final_prediction = com_prediction(pred_recording)  # combine prediction
+    voting = com_prediction_with_rule(pred_recording, conf_recording)  # combine prediction
     final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
-    accuracy, f1, precision, recall = get_performance(final_prediction, final_true, nn_type)
+    accuracy, f1, precision, recall = get_performance(voting, final_true, nn_type)
     return final_loss, accuracy, f1, precision, recall
 
 
@@ -191,6 +195,28 @@ def com_prediction(preds):
         for j in range(len(preds)):
             temp_list.append(preds[j][i])
         res.append(most_frequent(temp_list))
+    return res
+
+
+# Combine model predictions if 11 is the most label then find the next most frequent element
+def com_prediction_with_rule(preds, confs):
+    res = []
+    for i in range(len(preds[0])):
+        try:
+            temp_list = []
+            for j in range(len(preds)):
+                if confs[j][i].item() > 0.85:
+                    temp_list.append(preds[j][i].item())
+            # Remove elements which has 11
+            temp_list = list(filter((11).__ne__, temp_list))
+            res.append(most_frequent(temp_list))
+        except:
+            temp_list = []
+            for j in range(len(preds)):
+                temp_list.append(preds[j][i].item())
+            # Remove elements which has 11
+            temp_list = list(filter((11).__ne__, temp_list))
+            res.append(most_frequent(temp_list))
     return res
 
 
