@@ -35,7 +35,7 @@ def com_prediction_with_rule(preds, confs):
     for i in range(len(preds[0])):
         temp_list = []
         for j in range(len(preds)):
-            if confs[j][i].item() > 0.85:
+            if confs[j][i].item() > 0.8:
                 temp_list.append(preds[j][i].item())
         # Remove elements which has 11
         temp_list = list(filter((11).__ne__, temp_list))
