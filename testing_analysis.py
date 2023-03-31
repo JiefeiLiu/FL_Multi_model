@@ -33,13 +33,21 @@ def most_frequent(List):
 def com_prediction_with_rule(preds, confs):
     res = []
     for i in range(len(preds[0])):
-        temp_list = []
-        for j in range(len(preds)):
-            if confs[j][i].item() > 0.7:
+        try:
+            temp_list = []
+            for j in range(len(preds)):
+                if confs[j][i].item() > 0.85:
+                    temp_list.append(preds[j][i].item())
+            # Remove elements which has 11
+            temp_list = list(filter((11).__ne__, temp_list))
+            res.append(most_frequent(temp_list))
+        except:
+            temp_list = []
+            for j in range(len(preds)):
                 temp_list.append(preds[j][i].item())
-        # Remove elements which has 11
-        temp_list = list(filter((11).__ne__, temp_list))
-        res.append(most_frequent(temp_list))
+            # Remove elements which has 11
+            temp_list = list(filter((11).__ne__, temp_list))
+            res.append(most_frequent(temp_list))
     return res
 
 
