@@ -169,33 +169,33 @@ if __name__ == "__main__":
     # calculate the similarity of last layer
     round_sim = pairwise_sim(weight_changes)
     # Save the results into excel
-    # with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity.xlsx") as writer:
-    #     for i in range(len(round_sim)):
-    #         df = pd.DataFrame(round_sim[i])
-    #         sheet_name = 'Round ' + str(i)
-    #         df.to_excel(writer, sheet_name=sheet_name)
+    with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity_with_noise.xlsx") as writer:
+        for i in range(len(round_sim)):
+            df = pd.DataFrame(round_sim[i])
+            sheet_name = 'Round ' + str(i)
+            df.to_excel(writer, sheet_name=sheet_name)
     # sys.exit()
     # -------------------- Clustering clients --------------------
     # Extract last layer representation for each client
-    clients_rep = last_layer_extraction_for_clustering(weight_changes)
-    # Find best K
-    utils.find_best_k(clients_rep, 0, max_K=30)
-    best_k = 22
+    # clients_rep = last_layer_extraction_for_clustering(weight_changes)
+    # # Find best K
+    # utils.find_best_k(clients_rep, 0, max_K=30)
+    # best_k = 22
     # _____________________ Kmeans Clustering ____________________
     # Use Kmeans clustering the clients
     # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_rep)
     # labels = k_means.labels_
     # _____________________ Spectral Clustering ____________________
-    sim_matrix = np.array(round_sim[0])
-    Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(sim_matrix)
-    labels = Spectral.labels_
+    # sim_matrix = np.array(round_sim[0])
+    # Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(sim_matrix)
+    # labels = Spectral.labels_
     # # _____________________ Agglomerative Clustering ____________________
     # Agg_clustering = AgglomerativeClustering(n_clusters=best_k).fit(clients_rep)
     # labels = Agg_clustering.labels_
     # record the similar clients
-    global_model_to_clients_recording = {}
-    temp_client_list_index = range(30)
-    global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
-                                                                        temp_client_list_index, labels, best_k)
-    print("Clients distribution: ", global_model_to_clients_recording)
+    # global_model_to_clients_recording = {}
+    # temp_client_list_index = range(30)
+    # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
+    #                                                                     temp_client_list_index, labels, best_k)
+    # print("Clients distribution: ", global_model_to_clients_recording)
 
