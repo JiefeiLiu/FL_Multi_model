@@ -67,7 +67,7 @@ if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
+    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2_imbalance.pkl"
     num_classes = 12
     print("Loading data...")
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
@@ -162,28 +162,28 @@ if __name__ == '__main__':
             # Select the model with high similarity without overlapping
             global_model_to_clients_recording = {
                 1: [0, 11],
-                2: [1, 2],
-                3: [3],
-                4: [4, 9, 25],
+                2: [1, 4],
+                3: [2],
+                4: [3, 26],
                 5: [5],
-                6: [6],
-                7: [7],
-                8: [10, 22],
-                9: [12],
-                10: [13, 23],
-                11: [14],
-                12: [15, 18],
-                13: [16],
-                14: [17],
-                15: [19],
-                16: [20],
-                17: [21],
-                18: [24],
-                19: [26],
-                20: [27],
-                21: [28],
-                22: [29],
-                23: [8],
+                6: [6, 25],
+                7: [7, 17],
+                8: [8],
+                9: [9],
+                10: [10],
+                11: [12],
+                12: [13],
+                13: [14],
+                14: [15],
+                15: [16, 28],
+                16: [18],
+                17: [19],
+                18: [20],
+                19: [21, 23],
+                20: [22],
+                21: [24],
+                22: [27],
+                23: [29],
             }
             # # Select the model with high similarity with overlapping
             # global_model_to_clients_recording_for_aggregation = {
