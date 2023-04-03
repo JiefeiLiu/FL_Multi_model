@@ -147,7 +147,7 @@ if __name__ == '__main__':
                                                                                DEVICE)
             # Find the best K for clustering
             utils.find_best_k(clients_last_layer, iter)
-            best_k = 5
+            best_k = 22
             # _____________________ Kmeans Clustering ____________________
             # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
             # labels = k_means.labels_
@@ -157,35 +157,35 @@ if __name__ == '__main__':
             Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
             labels = Spectral.labels_
             # _____________________ Record the similar clients ____________________
-            # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
-            #                                                                     temp_client_list_index, labels, best_k)
-            # Select the model with high similarity without overlapping
-            global_model_to_clients_recording = {
-                1: [0, 11],
-                2: [1, 4],
-                3: [2],
-                4: [3, 26],
-                5: [5],
-                6: [6, 25],
-                7: [7, 17],
-                8: [8],
-                9: [9],
-                10: [10],
-                11: [12],
-                12: [13],
-                13: [14],
-                14: [15],
-                15: [16, 28],
-                16: [18],
-                17: [19],
-                18: [20],
-                19: [21, 23],
-                20: [22],
-                21: [24],
-                22: [27],
-                23: [29],
-            }
-            # # Select the model with high similarity with overlapping
+            global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
+                                                                                temp_client_list_index, labels, best_k)
+            # # Manually Select the model with high similarity without overlapping
+            # global_model_to_clients_recording = {
+            #     1: [0, 11],
+            #     2: [1, 4],
+            #     3: [2],
+            #     4: [3, 26],
+            #     5: [5],
+            #     6: [6, 25],
+            #     7: [7, 17],
+            #     8: [8],
+            #     9: [9],
+            #     10: [10],
+            #     11: [12],
+            #     12: [13],
+            #     13: [14],
+            #     14: [15],
+            #     15: [16, 28],
+            #     16: [18],
+            #     17: [19],
+            #     18: [20],
+            #     19: [21, 23],
+            #     20: [22],
+            #     21: [24],
+            #     22: [27],
+            #     23: [29],
+            # }
+            # # Manually Select the model with high similarity with overlapping
             # global_model_to_clients_recording_for_aggregation = {
             #     1: [0, 11],
             #     2: [1, 2, 7, 13, 17, 23, 29],
