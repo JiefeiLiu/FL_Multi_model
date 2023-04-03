@@ -147,7 +147,7 @@ if __name__ == '__main__':
                                                                                DEVICE)
             # Find the best K for clustering
             utils.find_best_k(clients_last_layer, iter)
-            best_k = 22
+            best_k = 23
             # _____________________ Kmeans Clustering ____________________
             # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
             # labels = k_means.labels_
