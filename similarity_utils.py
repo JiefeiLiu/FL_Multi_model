@@ -169,11 +169,11 @@ if __name__ == "__main__":
     # calculate the similarity of last layer
     round_sim = pairwise_sim(weight_changes)
     # Save the results into excel
-    with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity_with_noise.xlsx") as writer:
-        for i in range(len(round_sim)):
-            df = pd.DataFrame(round_sim[i])
-            sheet_name = 'Round ' + str(i)
-            df.to_excel(writer, sheet_name=sheet_name)
+    # with pd.ExcelWriter("sim_log/" + "Static_testing_ex_imbalance_data_imbalance_last_layer_weight_change_similarity_with_noise.xlsx") as writer:
+    #     for i in range(len(round_sim)):
+    #         df = pd.DataFrame(round_sim[i])
+    #         sheet_name = 'Round ' + str(i)
+    #         df.to_excel(writer, sheet_name=sheet_name)
     # sys.exit()
     # -------------------- Clustering clients --------------------
     # Extract last layer representation for each client
@@ -198,4 +198,6 @@ if __name__ == "__main__":
     # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
     #                                                                     temp_client_list_index, labels, best_k)
     # print("Clients distribution: ", global_model_to_clients_recording)
-
+    # _____________________ Ideal way to cluster ____________________
+    # sim_matrix = np.array(round_sim[0])
+    # print("Clustering results from writing: ", utils.overlapping_group_clients_from_sim_matrix(sim_matrix, range(30)))

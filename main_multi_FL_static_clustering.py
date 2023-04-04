@@ -145,21 +145,22 @@ if __name__ == '__main__':
                                                                                global_models,
                                                                                global_model_to_clients_recording,
                                                                                DEVICE)
-            # Find the best K for clustering
-            utils.find_best_k(clients_last_layer, iter)
-            best_k = 23
+            # Calculate weight similarity matrix
+            similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
+            # _____________________ Find the best K for clustering _____________________
+            # utils.find_best_k(clients_last_layer, iter)
+            # best_k = 23
             # _____________________ Kmeans Clustering ____________________
             # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
             # labels = k_means.labels_
             # _____________________ Spectral Clustering ____________________
             # compute the similarity matrix of clients last layer
-            similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
-            Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
-            labels = Spectral.labels_
-            # _____________________ Record the similar clients ____________________
-            global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
-                                                                                temp_client_list_index, labels, best_k)
-            # # Manually Select the model with high similarity without overlapping
+            # Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
+            # labels = Spectral.labels_
+            # _____________________ matching cluster results to global model recording ____________________
+            # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
+            #                                                                     temp_client_list_index, labels, best_k)
+            # ___________________ Manually Select the model with high similarity without overlapping ___________________
             # global_model_to_clients_recording = {
             #     1: [0, 11],
             #     2: [1, 4],
@@ -185,7 +186,7 @@ if __name__ == '__main__':
             #     22: [27],
             #     23: [29],
             # }
-            # # Manually Select the model with high similarity with overlapping
+            # _____________________ Manually Select the model with high similarity with overlapping ____________________
             # global_model_to_clients_recording_for_aggregation = {
             #     1: [0, 11],
             #     2: [1, 2, 7, 13, 17, 23, 29],
@@ -211,7 +212,8 @@ if __name__ == '__main__':
             #     22: [29, 1, 2, 7, 13, 17, 23],
             #     23: [8],
             # }
-
+            # _____________________ Group the clients from script _____________________
+            global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
