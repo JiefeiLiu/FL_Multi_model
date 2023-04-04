@@ -413,6 +413,57 @@ def record_clients_clustering(model_clients_record, current_clients_index, curre
     return model_clients_record
 
 
+# Find the optimized groups based on the similarity matrix (None overlapping selection)
+def group_clients_from_sim_matrix(sim_matrix, clients_list):
+    # define res dict
+    res = {}
+    model_index = 1
+    used_clients = []
+    # Get number of clients
+    num_clients = len(clients_list)
+    for client_index in range(num_clients):
+        temp_client_sim = sim_matrix[client_index]
+        # get element index which sim value is > 0.8
+        similar_client_index = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.8]
+        # remove used client index
+        similar_client_index = [i for i in similar_client_index if i not in used_clients]
+        if similar_client_index:
+            # Assign client index to global models
+            res[model_index] = similar_client_index
+            model_index += 1
+        # recording used clients index
+        used_clients = used_clients + similar_client_index
+    return res
+
+
+# Find the optimized groups based on the similarity matrix (overlapping selection)
+def overlapping_group_clients_from_sim_matrix(sim_matrix, clients_list):
+    # define res dict
+    res = {}
+    model_index = 1
+    used_clients = []
+    # Get number of clients
+    num_clients = len(clients_list)
+    for client_index in range(num_clients):
+        temp_client_sim = sim_matrix[client_index]
+        # get element index which sim value is > 0.8
+        similar_client_index = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.8]
+        # get the element index which sim value is > 0.5
+        overlapping_client_selection = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.5]
+        # remove existing similar client index from overlapping client selection
+        overlapping_client_selection = [i for i in overlapping_client_selection if i not in similar_client_index]
+        # remove used client index
+        similar_client_index = [i for i in similar_client_index if i not in used_clients]
+        if similar_client_index:
+            # Assign client index to global models
+            res[model_index] = similar_client_index + overlapping_client_selection
+            model_index += 1
+        # recording used clients index
+        used_clients = used_clients + similar_client_index
+    return res
+
+
+
 if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
