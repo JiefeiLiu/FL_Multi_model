@@ -209,14 +209,14 @@ def com_prediction_with_rule(preds, confs):
                     temp_list.append(preds[j][i].item())
             # Remove elements which has 11
             temp_list = list(filter((11).__ne__, temp_list))
-            res.append(most_frequent(temp_list))
+            res.append(max(set(temp_list), key=temp_list.count))
         except:
             temp_list_exp = []
             for j in range(len(preds)):
                 temp_list_exp.append(preds[j][i].item())
             # Remove elements which has 11
             temp_list_exp = list(filter((11).__ne__, temp_list_exp))
-            res.append(most_frequent(temp_list_exp))
+            res.append(max(set(temp_list_exp), key=temp_list_exp.count))
     return res
 
 

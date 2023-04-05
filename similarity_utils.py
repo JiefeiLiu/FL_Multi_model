@@ -199,5 +199,5 @@ if __name__ == "__main__":
     #                                                                     temp_client_list_index, labels, best_k)
     # print("Clients distribution: ", global_model_to_clients_recording)
     # _____________________ Ideal way to cluster ____________________
-    # sim_matrix = np.array(round_sim[0])
-    # print("Clustering results from writing: ", utils.overlapping_group_clients_from_sim_matrix(sim_matrix, range(30)))
+    sim_matrix = np.array(round_sim[0])
+    print("Clustering results from writing: ", utils.group_clients_from_sim_matrix(sim_matrix, range(30)))
