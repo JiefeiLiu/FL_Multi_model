@@ -367,7 +367,7 @@ def dict_search(my_dict, target, alart=True):
             print("Client " + str(target) + " identified as new client, use init global model.")
         return init_index
     else:
-        print("Error: client " + str(target) + " used more then once.")
+        print("Error: client " + str(target) + " used more than once.")
         sys.exit()
 
 

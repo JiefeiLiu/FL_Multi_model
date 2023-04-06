@@ -54,8 +54,9 @@ if __name__ == '__main__':
     # a list to store global models, 0 index is init global model
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
+    over_lapping_clients_selection = True
     global_model_to_clients_recording = {}
-    # global_model_to_clients_recording_for_aggregation = {}
+    global_model_to_clients_recording_for_aggregation = {}
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
@@ -213,7 +214,9 @@ if __name__ == '__main__':
             #     23: [8],
             # }
             # _____________________ Group the clients from script _____________________
-            global_model_to_clients_recording = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+            global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+            if over_lapping_clients_selection:
+                global_model_to_clients_recording_for_aggregation = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
@@ -232,8 +235,13 @@ if __name__ == '__main__':
             pickle.dump(global_model_to_clients_recording, file)
         # sys.exit()
         # -------------------- Aggregate to global models --------------------
-        global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
-                                                                 w_clients)
+        if over_lapping_clients_selection:
+            global_models = aggregation_functions.Multi_model_FedAvg(global_models,
+                                                                     global_model_to_clients_recording_for_aggregation,
+                                                                     w_clients)
+        else:
+            global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
+                                                                     w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates
         global_weight_record.append(copy.deepcopy(global_models))
