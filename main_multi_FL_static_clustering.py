@@ -213,7 +213,7 @@ if __name__ == '__main__':
             #     23: [8],
             # }
             # _____________________ Group the clients from script _____________________
-            global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+            global_model_to_clients_recording = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
