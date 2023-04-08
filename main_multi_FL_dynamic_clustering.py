@@ -108,8 +108,11 @@ if __name__ == '__main__':
         for index in range(num_clients):
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
+            x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin,
+                                                                          client_X_train,
+                                                                          client_y_train)
             # process data
-            train_data = CustomDataset(client_X_train, client_y_train, neural_network)
+            train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
             # copy the global model based on the previous round aggregated global model, if it is first round use
             # init global model
