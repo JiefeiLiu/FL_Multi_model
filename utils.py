@@ -5,6 +5,7 @@ import copy
 import math
 import numpy as np
 import pandas as pd
+import random
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -34,6 +35,11 @@ Training the model
 
 def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index, device="cpu"):
     print("Train the Client model")
+    if torch.cuda.is_available():
+        cuda_num = random.randint(0, (torch.cuda.device_count() - 1))
+        cuda_name = "cuda:" + str(cuda_num)
+        device = torch.device(cuda_name)
+        print(device, " is using for training.")
     model.train()
     model.to(device)
     losses = []

@@ -32,7 +32,7 @@ if torch.cuda.is_available():
 
 
 if __name__ == '__main__':
-    print(DEVICE, " are using for training and testing.")
+    print(DEVICE, " is using for testing.")
     # clients hyperparameter setting
     client_epochs = 10
     learning_rate = 0.01
