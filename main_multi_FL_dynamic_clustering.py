@@ -156,9 +156,9 @@ if __name__ == '__main__':
         logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # -------------------- Aggregate to global models --------------------
         if over_lapping_clients_selection:
-            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation, w_clients)
+            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation, w_clients, DEVICE)
         else:
-            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
+            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients, DEVICE)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates
         # global_weight_record.append(copy.deepcopy(w_glob))
