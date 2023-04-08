@@ -18,6 +18,7 @@ import sampling
 import data_preprocessing
 from data_utils import CustomDataset
 from multi_threading import CustomThread
+import aggregation_functions
 from aggregation_functions import FedAvg, Multi_model_FedAvg
 from sklearn.cluster import KMeans
 
@@ -45,7 +46,16 @@ if __name__ == '__main__':
     # a list to store global models
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
+    over_lapping_clients_selection = True
     global_model_to_clients_recording = {}
+    global_model_to_clients_recording_for_aggregation = {}
+    # --------------------Logging setting-----------------------
+    curr_path = os.getcwd()
+    utils.make_dir(curr_path, "log_file")
+    log_name = "log_file/" + "FL" + "_dynamic_clustering_NN_" + neural_network + "_clients_" + str(
+        num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(
+        fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
+    logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
@@ -86,6 +96,7 @@ if __name__ == '__main__':
     clients_weight_record = []
     # --------------------Server Training-----------------------
     # Record running time
+    server_training_time = []
     start_time = time.time()
     # for loop for FL around
     for iter in range(rounds):
@@ -122,24 +133,41 @@ if __name__ == '__main__':
         # --------------------Find similar clients and aggregate to multiple global models --------------------
         # calculate the weight change of last layer for each client
         clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording, DEVICE)
-        # Find the best K for clustering
-        utils.find_best_k(clients_last_layer, iter)
-        best_k = 5
-        # Use Kmeans clustering the clients
-        k_means = KMeans(n_clusters=best_k, random_state=0).fit(clients_last_layer)
-        labels = k_means.labels_
-        # record the similar clients
-        global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording, temp_client_list_index, labels, best_k)
+        # Calculate weight similarity matrix
+        similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
+        # _____________________ Find the best K for clustering _____________________
+        # utils.find_best_k(clients_last_layer, iter)
+        # best_k = 5
+        # _____________________ Kmeans Clustering ____________________
+        # k_means = KMeans(n_clusters=best_k, random_state=0).fit(clients_last_layer)
+        # labels = k_means.labels_
+        # # record the similar clients
+        # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording, temp_client_list_index, labels, best_k)
+        # _____________________ Group the clients from script _____________________
+        global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix,
+                                                                                temp_client_list_index)
+        if over_lapping_clients_selection:
+            global_model_to_clients_recording_for_aggregation = utils.overlapping_group_clients_from_sim_matrix(
+                similarity_matrix, temp_client_list_index)
+        print("Clients distribution: ", global_model_to_clients_recording)
+        logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # -------------------- Aggregate to global models --------------------
-        global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
+        if over_lapping_clients_selection:
+            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation, w_clients)
+        else:
+            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients)
         print("Generated ", str(len(global_models) - 1), " Global models")
         # Record model weight updates
         # global_weight_record.append(copy.deepcopy(w_glob))
         # clients_weight_record.append(copy.deepcopy(w_clients))
         # --------------------Server Round Testing-----------------------
         round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
-        print('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s' % (iter, round_loss, round_accuracy,
-                     ((time.time() - Round_time) / 60)))
+        # print('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s' % (iter, round_loss, round_accuracy,
+        #              ((time.time() - Round_time) / 60)))
+        round_training_time = (time.time() - Round_time) / 60
+        server_training_time.append(round_training_time)
+        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy,
+                     round_training_time)
     # --------------------Save Records-----------------------
     # save records
     # with open('global_weight_records_imbalance.pkl', 'wb') as file:
@@ -150,10 +178,13 @@ if __name__ == '__main__':
     #     pickle.dump(clients_weight_record, file)
     # --------------------Server running time-----------------------
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
+    logging.info('Total training time(min) %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
     loss, accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)
+    logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s',
+                 loss, accuracy, f1, precision, recall, server_running_time)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (loss, accuracy, f1, server_running_time))
     # print("---Server testing time: %s minutes. ---" % server_running_time)
     print("Finish.")
