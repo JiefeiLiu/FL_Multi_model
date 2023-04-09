@@ -20,7 +20,7 @@ def Multi_model_FedAvg(global_model_list, clustered_info, clients_weights, devic
         temp_clients_weights = []
         # for loop go through each client
         for client_index in clients_list:
-            temp_clients_weights.append(clients_weights.get(client_index).to(device))
+            temp_clients_weights.append(clients_weights.get(client_index))
         temp_global_model_weight = FedAvg(temp_clients_weights, device)
         temp_init_global_model = copy.deepcopy(init_global_model)
         temp_init_global_model.load_state_dict(temp_global_model_weight)

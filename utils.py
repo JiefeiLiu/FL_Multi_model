@@ -34,6 +34,7 @@ Training the model
 
 
 def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index, device="cpu"):
+    default_device = device
     print("Train the Client model")
     if torch.cuda.is_available():
         cuda_num = random.randint(0, (torch.cuda.device_count() - 1))
@@ -65,6 +66,8 @@ def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index
         losses.append(epoch_loss / len(train_loader))
         if e % 5 == 0:
             print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
+    # convert back to default device
+    model.to(default_device)
     return model.state_dict(), client_index
 
 
