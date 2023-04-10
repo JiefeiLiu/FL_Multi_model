@@ -455,6 +455,7 @@ def group_clients_from_sim_matrix(sim_matrix, clients_list):
 def overlapping_group_clients_from_sim_matrix(sim_matrix, clients_list):
     # define res dict
     res = {}
+    res_sim = {}
     model_index = 1
     used_clients = []
     # Get number of clients
@@ -463,8 +464,12 @@ def overlapping_group_clients_from_sim_matrix(sim_matrix, clients_list):
         temp_client_sim = sim_matrix[client_index]
         # get element index which sim value is > 0.8
         similar_client_index = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.8]
-        # get the element index which sim value is > 0.5
+        # Get similarity value of similar clients
+        similar_client_sim = list(map(temp_client_sim.__getitem__, similar_client_index))
+        # get the overlapping element index which sim value is > 0.5
         overlapping_client_selection = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.5]
+        # Get similarity value for each overlapping selection
+        overlapping_client_selected_sim = list(map(temp_client_sim.__getitem__, overlapping_client_selection))
         # remove existing similar client index from overlapping client selection
         overlapping_client_selection = [i for i in overlapping_client_selection if i not in similar_client_index]
         # remove used client index
@@ -472,10 +477,11 @@ def overlapping_group_clients_from_sim_matrix(sim_matrix, clients_list):
         if similar_client_index:
             # Assign client index to global models
             res[model_index] = similar_client_index + overlapping_client_selection
+            res_sim[model_index] = similar_client_sim + overlapping_client_selected_sim
             model_index += 1
         # recording used clients index
         used_clients = used_clients + similar_client_index
-    return res
+    return res, res_sim
 
 
 

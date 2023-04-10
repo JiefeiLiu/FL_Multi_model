@@ -57,6 +57,7 @@ if __name__ == '__main__':
     over_lapping_clients_selection = True
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
+    global_model_to_clients_sim = {}
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
@@ -216,7 +217,7 @@ if __name__ == '__main__':
             # _____________________ Group the clients from script _____________________
             global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             if over_lapping_clients_selection:
-                global_model_to_clients_recording_for_aggregation = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+                global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             print("Clients distribution: ", global_model_to_clients_recording)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # --------------------Save Temp Records-----------------------
@@ -236,9 +237,9 @@ if __name__ == '__main__':
         # sys.exit()
         # -------------------- Aggregate to global models --------------------
         if over_lapping_clients_selection:
-            global_models = aggregation_functions.Multi_model_FedAvg(global_models,
+            global_models = aggregation_functions.Multi_model_FedAvg_with_attention(global_models,
                                                                      global_model_to_clients_recording_for_aggregation,
-                                                                     w_clients)
+                                                                     global_model_to_clients_sim, w_clients)
         else:
             global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
                                                                      w_clients)
