@@ -42,7 +42,7 @@ def Multi_model_FedAvg_with_attention(global_model_list, clustered_info, sim_inf
     del global_model_list[1:len(global_model_list)]
     init_global_model = copy.deepcopy(global_model_list[0])
     clustered_info_value = clustered_info.values()
-    sim_info_value = sim_info.values()
+    sim_info_value = list(sim_info.values())
     # for loop go through clusters
     for index, clients_list in enumerate(clustered_info_value):
         temp_clients_weights = []
