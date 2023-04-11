@@ -219,7 +219,9 @@ if __name__ == '__main__':
             if over_lapping_clients_selection:
                 global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             print("Clients distribution: ", global_model_to_clients_recording)
+            print("Clients similarity: ", global_model_to_clients_sim)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
+            logging.info('Clients similarity: %s', global_model_to_clients_sim)
         # --------------------Save Temp Records-----------------------
         # save records
         curr_path = os.getcwd()
