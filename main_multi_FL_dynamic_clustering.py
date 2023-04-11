@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # a list to store global models
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
-    over_lapping_clients_selection = True
+    over_lapping_clients_selection = False
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
     # --------------------Logging setting-----------------------
