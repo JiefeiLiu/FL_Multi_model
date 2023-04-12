@@ -52,9 +52,6 @@ def Multi_model_FedAvg_with_attention(global_model_list, clustered_info, sim_inf
         # for loop go through each client
         for list_index, client_index in enumerate(clients_list):
             temp_clients_weights.append(clients_weights.get(client_index))
-        print("length of weights", len(temp_clients_weights))
-        print("length of sim", len(temp_sim_value))
-        sys.exit()
         temp_global_model_weight = FedAvgAtt(temp_clients_weights, temp_sim_value, device)
         temp_init_global_model = copy.deepcopy(init_global_model)
         temp_init_global_model.load_state_dict(temp_global_model_weight)
