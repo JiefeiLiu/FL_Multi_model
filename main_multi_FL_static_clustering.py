@@ -124,10 +124,10 @@ if __name__ == '__main__':
             # define local optimizer
             local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
             # Set the different local epochs for first round
-            if iter == 0:
-                temp_local_epoch = client_epochs * 5
-            else:
-                temp_local_epoch = client_epochs
+            # if iter == 0:
+            #     temp_local_epoch = client_epochs * 5
+            # else:
+            temp_local_epoch = client_epochs
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(
             temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
@@ -218,10 +218,11 @@ if __name__ == '__main__':
             global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
             if over_lapping_clients_selection:
                 global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+                print("Overlapping clients distribution", global_model_to_clients_recording_for_aggregation)
+                print("Clients similarity: ", global_model_to_clients_sim)
             print("Clients distribution: ", global_model_to_clients_recording)
-            print("Clients similarity: ", global_model_to_clients_sim)
             logging.info('Clients distribution: %s', global_model_to_clients_recording)
-            logging.info('Clients similarity: %s', global_model_to_clients_sim)
+            # logging.info('Clients similarity: %s', global_model_to_clients_sim)
         # --------------------Save Temp Records-----------------------
         # save records
         curr_path = os.getcwd()
