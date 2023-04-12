@@ -468,10 +468,10 @@ def overlapping_group_clients_from_sim_matrix(sim_matrix, clients_list):
         similar_client_sim = list(map(temp_client_sim.__getitem__, similar_client_index))
         # get the overlapping element index which sim value is > 0.5
         overlapping_client_selection = [index for index in range(len(temp_client_sim)) if temp_client_sim[index] > 0.5]
-        # Get similarity value for each overlapping selection
-        overlapping_client_selected_sim = list(map(temp_client_sim.__getitem__, overlapping_client_selection))
         # remove existing similar client index from overlapping client selection
         overlapping_client_selection = [i for i in overlapping_client_selection if i not in similar_client_index]
+        # Get similarity value for each overlapping selection
+        overlapping_client_selected_sim = list(map(temp_client_sim.__getitem__, overlapping_client_selection))
         # remove used client index
         similar_client_index = [i for i in similar_client_index if i not in used_clients]
         if similar_client_index:

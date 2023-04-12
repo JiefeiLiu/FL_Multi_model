@@ -31,9 +31,9 @@ def Multi_model_FedAvg(global_model_list, clustered_info, clients_weights, devic
 # FedAvg with attention
 def FedAvgAtt(w, sim, device):
     w_avg = copy.deepcopy(w[0])
-    for k in w_avg.keys():
+    for index, k in enumerate(w_avg.keys()):
         for i in range(1, len(w)):
-            w_avg[k] += torch.mul(w[i][k] * sim[i][k])
+            w_avg[k] += torch.mul(w[i][k], sim[index])
         w_avg[k] = torch.div(w_avg[k], len(w))
     return w_avg
 
@@ -46,12 +46,11 @@ def Multi_model_FedAvg_with_attention(global_model_list, clustered_info, sim_inf
     # for loop go through clusters
     for index, clients_list in enumerate(clustered_info_value):
         temp_clients_weights = []
-        temp_clients_sim = []
+        temp_sim_value = sim_info_value[index]
         # for loop go through each client
         for list_index, client_index in enumerate(clients_list):
             temp_clients_weights.append(clients_weights.get(client_index))
-            temp_clients_sim.append(sim_info_value[index][list_index])
-        temp_global_model_weight = FedAvgAtt(temp_clients_weights, sim_info_value, device)
+        temp_global_model_weight = FedAvgAtt(temp_clients_weights, temp_sim_value, device)
         temp_init_global_model = copy.deepcopy(init_global_model)
         temp_init_global_model.load_state_dict(temp_global_model_weight)
         global_model_list.append(temp_init_global_model)
