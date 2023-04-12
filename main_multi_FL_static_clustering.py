@@ -69,7 +69,7 @@ if __name__ == '__main__':
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
+    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     num_classes = 12
     print("Loading data...")
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
@@ -124,10 +124,10 @@ if __name__ == '__main__':
             # define local optimizer
             local_optimizer = torch.optim.SGD(temp_local_model.parameters(), lr=learning_rate)
             # Set the different local epochs for first round
-            # if iter == 0:
-            #     temp_local_epoch = client_epochs * 5
-            # else:
-            temp_local_epoch = client_epochs
+            if iter == 0:
+                temp_local_epoch = client_epochs * 5
+            else:
+                temp_local_epoch = client_epochs
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(
             temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
