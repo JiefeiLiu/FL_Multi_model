@@ -49,6 +49,7 @@ if __name__ == '__main__':
     over_lapping_clients_selection = True
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
+    global_model_to_clients_sim = {}
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
@@ -154,11 +155,13 @@ if __name__ == '__main__':
         if over_lapping_clients_selection:
             global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(
                 similarity_matrix, temp_client_list_index)
+            print("Overlapping clients distribution", global_model_to_clients_recording_for_aggregation)
+            print("Overlapping clients similarity: ", global_model_to_clients_sim)
         print("Clients distribution: ", global_model_to_clients_recording)
         logging.info('Clients distribution: %s', global_model_to_clients_recording)
         # -------------------- Aggregate to global models --------------------
         if over_lapping_clients_selection:
-            global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording_for_aggregation, w_clients, DEVICE)
+            global_models = aggregation_functions.Multi_model_FedAvg_with_attention(global_models, global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim, w_clients, DEVICE)
         else:
             global_models = Multi_model_FedAvg(global_models, global_model_to_clients_recording, w_clients, DEVICE)
         print("Generated ", str(len(global_models) - 1), " Global models")
