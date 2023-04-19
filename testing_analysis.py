@@ -238,7 +238,7 @@ if __name__ == '__main__':
     # single_test_compare(global_models[1:], loss_fn, test_loader, neural_network)
     model_loss, model_accuracy, model_f1, model_precision, model_recall = single_test_compare(global_models[1:],
                                                                                               loss_fn, test_loader,
-                                                                                              neural_network)
+                                                                                              neural_network, device=DEVICE)
     # single_test_compare(client_models, loss_fn, test_loader, neural_network)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
