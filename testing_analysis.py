@@ -136,6 +136,7 @@ def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu"):
     # for i in range(len(ture_recording)):
     #     print(ture_recording[i])
 
+    # Print predictions
     # for i in range(len(ture_recording[0])):
     #     # print("Get predictions: ", len(pred_recording_np[i]))
     #     unique, counts = np.unique(pred_recording_np[i], return_counts=True)
