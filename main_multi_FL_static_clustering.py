@@ -49,6 +49,7 @@ if __name__ == '__main__':
     num_clients = 30
     rounds = 5
     fraction = 1.0
+    conf_filter = 0.7
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models, 0 index is init global model
@@ -253,7 +254,7 @@ if __name__ == '__main__':
         # --------------------Server Round Testing-----------------------
         round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn,
                                                                                    test_loader, neural_network,
-                                                                                   device=DEVICE)
+                                                                                   device=DEVICE, conf_rule=conf_filter)
         round_training_time = (time.time() - Round_time) / 60
         server_training_time.append(round_training_time)
         logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy,
@@ -282,7 +283,7 @@ if __name__ == '__main__':
     # --------------------Server Testing-----------------------
     test_time = time.time()
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
-        global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE)
+        global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
     model_loss, model_accuracy, model_f1, server_running_time))
