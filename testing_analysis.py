@@ -30,24 +30,30 @@ def most_frequent(List):
 
 
 # Combine model predictions if 11 is the most label then find the next most frequent element
-def com_prediction_with_rule(preds, confs):
+def com_prediction_with_rule(preds, confs, confs_rule=0.7):
     res = []
     for i in range(len(preds[0])):
         try:
             temp_list = []
             for j in range(len(preds)):
-                if confs[j][i].item() > 0.85:
+                if confs[j][i].item() > confs_rule:
                     temp_list.append(preds[j][i].item())
             # Remove elements which has 11
             temp_list = list(filter((11).__ne__, temp_list))
-            res.append(most_frequent(temp_list))
+            res.append(max(set(temp_list), key=temp_list.count))
         except:
-            temp_list = []
-            for j in range(len(preds)):
-                temp_list.append(preds[j][i].item())
-            # Remove elements which has 11
-            temp_list = list(filter((11).__ne__, temp_list))
-            res.append(most_frequent(temp_list))
+            try:
+                temp_list_exp = []
+                for j in range(len(preds)):
+                    temp_list_exp.append(preds[j][i].item())
+                # Remove elements which has 11
+                temp_list_exp = list(filter((11).__ne__, temp_list_exp))
+                res.append(max(set(temp_list_exp), key=temp_list_exp.count))
+            except:
+                temp_list_exp = []
+                for j in range(len(preds)):
+                    temp_list_exp.append(preds[j][i].item())
+                res.append(max(set(temp_list_exp), key=temp_list_exp.count))
     return res
 
 
@@ -72,7 +78,7 @@ def extract_un_testing_data(X_test, y_test):
     return new_X, new_y
 
 
-def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu"):
+def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu", conf_rule=0.7):
     loss_recording = []
     ture_recording = []
     pred_recording = []
@@ -132,16 +138,16 @@ def single_test_compare(models, loss_fn, test_loader, nn_type, device="cpu"):
     conf_recording_np = np.array(conf_recording)
     conf_recording_np = conf_recording_np.transpose()
     # majority voting function
-    voting = com_prediction_with_rule(pred_recording, conf_recording)
+    voting = com_prediction_with_rule(pred_recording, conf_recording, confs_rule=conf_rule)
     # for i in range(len(ture_recording)):
     #     print(ture_recording[i])
 
     # Print predictions
-    # for i in range(len(ture_recording[0])):
-    #     # print("Get predictions: ", len(pred_recording_np[i]))
-    #     unique, counts = np.unique(pred_recording_np[i], return_counts=True)
-    #     # print("Predict: ", list(zip(pred_recording_np[i], conf_recording_np[i])), " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
-    #     print("Predict: ", pred_recording_np[i], " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
+    for i in range(len(ture_recording[0])):
+        # print("Get predictions: ", len(pred_recording_np[i]))
+        unique, counts = np.unique(pred_recording_np[i], return_counts=True)
+        # print("Predict: ", list(zip(pred_recording_np[i], conf_recording_np[i])), " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
+        print("Predict: ", pred_recording_np[i], " Ground truth:", ture_recording[0][i], "Count:", np.count_nonzero(pred_recording_np[i] == ture_recording[0][i]), " Voting results:", voting[i], "Count:", np.count_nonzero(pred_recording_np[i] == voting[i]), "  Predict counter:", dict(zip(unique, counts)))
 
     final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
@@ -169,13 +175,13 @@ def weight_change_to_csv(weight_change, client_index):
 
 
 if __name__ == '__main__':
-    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
     # --------------------Read global models-----------------------
     model_path = "weight_records/"
     global_models = []
-    for i in range(22):
+    for i in range(24):
         temp_global_model_name = model_path + "static_global_model_" + str(i) + ".pt"
         global_models.append(torch.load(temp_global_model_name, map_location=DEVICE))
     print("Number of global models read: ", len(global_models))
@@ -230,15 +236,15 @@ if __name__ == '__main__':
     neural_network = "MLP_Mult"
     loss_fn = nn.CrossEntropyLoss()
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # x_test_new, y_test_new = extract_un_testing_data(x_test, y_test_bin)
-    test_data = CustomDataset(x_test, y_test_bin, neural_network)
+    x_test_new, y_test_new = extract_un_testing_data(x_test, y_test_bin)
+    test_data = CustomDataset(x_test_new, y_test_new, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
 
     # Testing global models
     # single_test_compare(global_models[1:], loss_fn, test_loader, neural_network)
     model_loss, model_accuracy, model_f1, model_precision, model_recall = single_test_compare(global_models[1:],
                                                                                               loss_fn, test_loader,
-                                                                                              neural_network, device=DEVICE)
+                                                                                              neural_network, device=DEVICE, conf_rule=0.7)
     # single_test_compare(client_models, loss_fn, test_loader, neural_network)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (

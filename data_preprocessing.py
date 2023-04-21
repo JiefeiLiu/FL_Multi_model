@@ -163,11 +163,15 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y):
     df_sample = pd.DataFrame(x_sample)
     df_sample['label'] = y_sample
 
+    # define the size of noise
+    total_attacks = sum(existing_label_counts[1:])
+    noise_size = int(total_attacks*0.4)
+
     # filter out the existing labels
     df_sample_filtered_out = df_sample[~df_sample['label'].isin(uni_existing_labels)]
     x_sample_np = df_sample_filtered_out.iloc[:, :-1].to_numpy()
     y_sample_np = df_sample_filtered_out.iloc[:, -1].to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(x_sample_np, y_sample_np, test_size=min(existing_label_counts), stratify=y_sample_np, shuffle=True, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(x_sample_np, y_sample_np, test_size=noise_size, stratify=y_sample_np, shuffle=True, random_state=1)
     new_x = np.concatenate((existing_x, X_test), axis=0)
     # Generate new label y
     generate_new_y = [11] * len(y_test)
