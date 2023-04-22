@@ -158,14 +158,17 @@ def preprocess_data_with_random_drop_class(data_path, missing_class):
 
 
 # Generate samples differ with existing class for training data
-def noise_generator(x_sample, y_sample, existing_x, existing_y):
+def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise=-1):
     uni_existing_labels, existing_label_counts = np.unique(existing_y, return_counts=True)
     df_sample = pd.DataFrame(x_sample)
     df_sample['label'] = y_sample
 
     # define the size of noise
-    total_attacks = sum(existing_label_counts[1:])
-    noise_size = int(total_attacks*0.4)
+    if percentage_noise == -1:
+        noise_size = min(existing_label_counts)
+    else:
+        total_attacks = sum(existing_label_counts[1:])
+        noise_size = int(total_attacks*percentage_noise)
 
     # filter out the existing labels
     df_sample_filtered_out = df_sample[~df_sample['label'].isin(uni_existing_labels)]

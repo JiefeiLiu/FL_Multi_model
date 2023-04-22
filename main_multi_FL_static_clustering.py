@@ -115,7 +115,7 @@ if __name__ == '__main__':
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
             x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin, client_X_train,
-                                                                          client_y_train)
+                                                                          client_y_train, percentage_noise=0.5)
             # process data
             train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
