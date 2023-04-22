@@ -50,12 +50,13 @@ if __name__ == '__main__':
     rounds = 5
     fraction = 1.0
     conf_filter = 0.7
+    percentage_of_noise = 0.4
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models, 0 index is init global model
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
-    over_lapping_clients_selection = True
+    over_lapping_clients_selection = False
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
     global_model_to_clients_sim = {}
@@ -115,7 +116,7 @@ if __name__ == '__main__':
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
             x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin, client_X_train,
-                                                                          client_y_train, percentage_noise=0.5)
+                                                                          client_y_train, percentage_noise=percentage_of_noise)
             # process data
             train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
