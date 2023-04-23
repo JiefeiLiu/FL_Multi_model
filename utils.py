@@ -64,7 +64,7 @@ def train(model, optimizer, loss_fn, train_loader, epochs, nn_type, client_index
             optimizer.step()
             epoch_loss += loss.item()
         losses.append(epoch_loss / len(train_loader))
-        if e % 5 == 0:
+        if e % 1 == 0:
             print(f'Epoch {(e + 1) + 0:02}: | Loss: {epoch_loss / len(train_loader):.5f}')
     # convert back to default device
     # model.to(default_device)
