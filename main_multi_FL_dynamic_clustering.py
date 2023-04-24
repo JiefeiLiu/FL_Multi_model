@@ -2,6 +2,8 @@ import os
 import sys
 import time
 import random
+
+import pandas as pd
 import torch
 import copy
 import numpy as np
@@ -142,6 +144,10 @@ if __name__ == '__main__':
         clients_last_layer = similarity_utils.weight_changes_of_last_layer(temp_client_list_index, w_clients, global_models, global_model_to_clients_recording, DEVICE)
         # Calculate weight similarity matrix
         similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
+        # save sim matrix to csv file
+        sim_matrix_saving_name = "sim_log/Dynamic_sim_matrix_round_" + str(iter) + ".csv"
+        similarity_matrix_df = pd.DataFrame(similarity_matrix)
+        similarity_matrix_df.to_csv(sim_matrix_saving_name)
         # _____________________ Find the best K for clustering _____________________
         # utils.find_best_k(clients_last_layer, iter)
         # best_k = 5
