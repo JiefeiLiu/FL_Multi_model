@@ -41,7 +41,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 30
-    rounds = 5
+    rounds = 10
     fraction = 1.0
     conf_filter = 0.7
     percentage_of_noise = 0.4
