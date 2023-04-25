@@ -50,7 +50,7 @@ if __name__ == '__main__':
     # a list to store global models
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
-    over_lapping_clients_selection = True
+    over_lapping_clients_selection = False
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
     global_model_to_clients_sim = {}
@@ -163,9 +163,11 @@ if __name__ == '__main__':
             global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(
                 similarity_matrix, temp_client_list_index)
             print("Overlapping clients distribution", global_model_to_clients_recording_for_aggregation)
+            logging.info('Round %d, overlapping clients distribution: %s', iter, global_model_to_clients_recording_for_aggregation)
             print("Overlapping clients similarity: ", global_model_to_clients_sim)
+            logging.info('Round %d, overlapping clients similarity: %s', iter, global_model_to_clients_sim)
         print("Clients distribution: ", global_model_to_clients_recording)
-        logging.info('Clients distribution: %s', global_model_to_clients_recording)
+        logging.info('Round %d, clients distribution: %s', iter, global_model_to_clients_recording)
         # -------------------- Aggregate to global models --------------------
         if over_lapping_clients_selection:
             global_models = aggregation_functions.Multi_model_FedAvg_with_attention(global_models, global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim, w_clients, DEVICE)
