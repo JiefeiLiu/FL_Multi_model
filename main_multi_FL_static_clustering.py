@@ -39,7 +39,11 @@ def drop_elements(org_list, target_list):
 
 
 if __name__ == '__main__':
-    print(DEVICE, " are using for training and testing.")
+    try:
+        DEVICE = sys.argv[1]
+        print(DEVICE, " is using for testing.")
+    except:
+        print(DEVICE, " is using for testing.")
     # --------------------Parameter Setting-----------------------
     # clients hyperparameter setting
     client_epochs = 10
@@ -82,6 +86,21 @@ if __name__ == '__main__':
         partition_data_list = pickle.load(file)
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+    # --------------------Logging writing init-----------------------
+    logging.info('Parameter setting:')
+    logging.info('Number of clients: %d', num_clients)
+    logging.info('Number of rounds: %d', rounds)
+    logging.info('Client epochs: %d', client_epochs)
+    logging.info('Client learning rate : %d', learning_rate)
+    logging.info('Client batch size : %d', batch_size)
+    logging.info('Fraction : %d', fraction)
+    logging.info('Confidence filtering : %d', conf_filter)
+    logging.info('Percentage of noise added to training : %d', percentage_of_noise)
+    logging.info('Classification method selected : %s', neural_network)
+    logging.info('Overlapping clients selection : %s', over_lapping_clients_selection)
+    logging.info('Total number of classes: %d', num_classes)
+    logging.info('Loading data path : %d', pickle_dir)
+    logging.info('Experiment results: ')
     # --------------Build init global model and Select loss function----------------------
     if neural_network == "MLP":
         init_glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
@@ -115,8 +134,10 @@ if __name__ == '__main__':
             temp_w_clients = []
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
-            x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin, client_X_train,
-                                                                          client_y_train, percentage_noise=percentage_of_noise)
+            x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin,
+                                                                          client_X_train,
+                                                                          client_y_train,
+                                                                          percentage_noise=percentage_of_noise)
             # process data
             train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -132,7 +153,8 @@ if __name__ == '__main__':
                 temp_local_epoch = client_epochs
             # create threads which represents clients
             client = CustomThread(target=utils.train, args=(
-            temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index, DEVICE,))
+                temp_local_model, local_optimizer, loss_fn, train_loader, temp_local_epoch, neural_network, index,
+                DEVICE,))
             temp_client_list.append(client)
             temp_client_list_index.append(index)
         # run clients simultaneously
@@ -217,9 +239,11 @@ if __name__ == '__main__':
             #     23: [8],
             # }
             # _____________________ Group the clients from script _____________________
-            global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+            global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix,
+                                                                                    temp_client_list_index)
             if over_lapping_clients_selection:
-                global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(similarity_matrix, temp_client_list_index)
+                global_model_to_clients_recording_for_aggregation, global_model_to_clients_sim = utils.overlapping_group_clients_from_sim_matrix(
+                    similarity_matrix, temp_client_list_index)
                 print("Overlapping clients distribution", global_model_to_clients_recording_for_aggregation)
                 print("Overlapping clients similarity: ", global_model_to_clients_sim)
             print("Clients distribution: ", global_model_to_clients_recording)
@@ -243,8 +267,9 @@ if __name__ == '__main__':
         # -------------------- Aggregate to global models --------------------
         if over_lapping_clients_selection:
             global_models = aggregation_functions.Multi_model_FedAvg_with_attention(global_models,
-                                                                     global_model_to_clients_recording_for_aggregation,
-                                                                     global_model_to_clients_sim, w_clients)
+                                                                                    global_model_to_clients_recording_for_aggregation,
+                                                                                    global_model_to_clients_sim,
+                                                                                    w_clients)
         else:
             global_models = aggregation_functions.Multi_model_FedAvg(global_models, global_model_to_clients_recording,
                                                                      w_clients)
@@ -287,7 +312,7 @@ if __name__ == '__main__':
         global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
-    model_loss, model_accuracy, model_f1, server_running_time))
+        model_loss, model_accuracy, model_f1, server_running_time))
     logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s',
                  model_loss, model_accuracy, model_f1, model_precision, model_recall, server_running_time)
     print("---Server testing time: %s minutes. ---" % server_running_time)

@@ -34,7 +34,11 @@ if torch.cuda.is_available():
 
 
 if __name__ == '__main__':
-    print(DEVICE, " is using for testing.")
+    try:
+        DEVICE = sys.argv[1]
+        print(DEVICE, " is using for testing.")
+    except:
+        print(DEVICE, " is using for testing.")
     # clients hyperparameter setting
     client_epochs = 10
     learning_rate = 0.01
@@ -84,6 +88,21 @@ if __name__ == '__main__':
     # new_testing_x, new_testing_y = data_preprocessing.testing_data_extraction(data_dir, testing_label)
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+    # --------------------Logging writing init-----------------------
+    logging.info('Parameter setting:')
+    logging.info('Number of clients: %d', num_clients)
+    logging.info('Number of rounds: %d', rounds)
+    logging.info('Client epochs: %d', client_epochs)
+    logging.info('Client learning rate : %d', learning_rate)
+    logging.info('Client batch size : %d', batch_size)
+    logging.info('Fraction : %d', fraction)
+    logging.info('Confidence filtering : %d', conf_filter)
+    logging.info('Percentage of noise added to training : %d', percentage_of_noise)
+    logging.info('Classification method selected : %s', neural_network)
+    logging.info('Overlapping clients selection : %s', over_lapping_clients_selection)
+    logging.info('Total number of classes: %d', num_classes)
+    logging.info('Loading data path : %d', pickle_dir)
+    logging.info('Experiment results: ')
     # --------------Build global model and Select loss function----------------------
     if neural_network == "MLP":
         init_glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
