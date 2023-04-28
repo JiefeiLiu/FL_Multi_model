@@ -99,7 +99,7 @@ if __name__ == '__main__':
     logging.info('Classification method selected : %s', neural_network)
     logging.info('Overlapping clients selection : %s', over_lapping_clients_selection)
     logging.info('Total number of classes: %d', num_classes)
-    logging.info('Loading data path : %d', pickle_dir)
+    logging.info('Loading data path : %s', pickle_dir)
     logging.info('Experiment results: ')
     # --------------Build init global model and Select loss function----------------------
     if neural_network == "MLP":
