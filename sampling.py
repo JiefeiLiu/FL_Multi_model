@@ -37,15 +37,20 @@ def read_2019_data(path):
     print("X test shape: ", X_test.shape)
     print("y test shape: ", y_test.shape)
 
-    # Verify
-    unique_train, counts_train = np.unique(y_train, return_counts=True)
-    print("train label:", unique_train)
-    # print(type(unique_train))
-    print("train count:", counts_train)
-    print("Train shape", dict(zip(unique_train, counts_train)))
+    '''re-split the training and testing'''
+    X = np.concatenate((X_train, X_test), axis=0)
+    y = np.concatenate((y_train, y_test), axis=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True,
+                                                      stratify=y_train)
+
+    unique, counts = np.unique(y_train, return_counts=True)
+    print("Training shape", dict(zip(unique, counts)))
     unique, counts = np.unique(y_test, return_counts=True)
-    print("Test shape", dict(zip(unique, counts)))
-    # print(y_train)
+    print("Testing shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_val, return_counts=True)
+    print("Validation shape", dict(zip(unique, counts)))
+
     # print(str(len(y_test) / (len(y_train) + len(y_test))))
     return (X_train, y_train), (X_test, y_test)
 
@@ -452,6 +457,7 @@ if __name__ == "__main__":
     # print("The shape of y: ", len(y_train))
     # -------------------- Extreme data partition ----------------------------
     (X_train, y_train), _ = read_2019_data(data_path)
+    sys.exit()
     # -------------------- Extreme data partition testing ----------------------------
     partitioned_data = partition_ex_imbal_equ_testing(X_train, y_train, partition_num, number_of_attack_classes=num_attacks_range[0])
     save_file_name = pickle_saving_path + "partition_attacks_" + str(num_attacks_range[0]) + "_imbalance.pkl"

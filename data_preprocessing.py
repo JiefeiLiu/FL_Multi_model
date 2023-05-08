@@ -23,20 +23,20 @@ def read_2019_data(path):
     # print("y test shape: ", y_test.shape)
 
     '''re-split the training and testing'''
-    # X = np.concatenate((X_train, X_test), axis=0)
-    # y = np.concatenate((y_train, y_test), axis=0)
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1, shuffle=True, stratify=y)
+    X = np.concatenate((X_train, X_test), axis=0)
+    y = np.concatenate((y_train, y_test), axis=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True,
+                                                      stratify=y_train)
 
-    # '''binary class classification encoding'''
-    # y_train[y_train > 0] = 1
-    # y_test[y_test > 0] = 1
-
-    # Verify
     unique, counts = np.unique(y_train, return_counts=True)
-    # print(dict(zip(unique, counts)))
-    # print(y_train)
+    print("Training shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_test, return_counts=True)
+    print("Testing shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_val, return_counts=True)
+    print("Validation shape", dict(zip(unique, counts)))
     # print(str(len(y_test) / (len(y_train) + len(y_test))))
-    return (X_train, y_train), (X_test, y_test)
+    return (X_train, y_train), (X_test, y_test), (X_val, y_val)
 
 
 # -----------------------------------
@@ -52,10 +52,22 @@ def read_2017_data(path):
     # print("y train shape: ", y_train.shape)
     # print("X test shape: ", X_test.shape)
     # print("y test shape: ", y_test.shape)
-    # print(len(np.unique(y_train)))
-    # print(y_train)
+
+    '''re-split the training and testing'''
+    X = np.concatenate((X_train, X_test), axis=0)
+    y = np.concatenate((y_train, y_test), axis=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True, stratify=y_train)
+
+
+    unique, counts = np.unique(y_train, return_counts=True)
+    print("Training shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_test, return_counts=True)
+    print("Testing shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_val, return_counts=True)
+    print("Validation shape", dict(zip(unique, counts)))
     # print(str(len(y_test) / (len(y_train) + len(y_test))))
-    return (X_train, y_train), (X_test, y_test)
+    return (X_train, y_train), (X_test, y_test), (X_val, y_val)
 
 
 def read_data_from_pickle(pickle_dir, client_index):
@@ -112,7 +124,7 @@ def regenerate_data(pickle_dir, client_index):
 
 # extract the corresponding testing data based on the class
 def testing_data_extraction(data_path, label):
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = read_2019_data(data_path)
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = read_2019_data(data_path)
     un_label = np.unique(label)
     # convert to df
     df = pd.DataFrame(x_test)
@@ -130,7 +142,7 @@ def testing_data_extraction(data_path, label):
 
 # Randomly drop the class for centralized scenario
 def preprocess_data_with_random_drop_class(data_path, missing_class):
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = read_2019_data(data_path)
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = read_2019_data(data_path)
     # Verify
     unique, counts = np.unique(y_train_un_bin, return_counts=True)
     print("Original label distribution", dict(zip(unique, counts)))
@@ -203,15 +215,19 @@ if __name__ == '__main__':
     # print(utils.csm(A, B))
     # print(cosine_similarity(A, B))
     # ------------------- Training data verification ----------------------
-    pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    print("Loading data...")
-    # Load partitioned data
-    with open(pickle_dir, 'rb') as file:
-        # Call load method to deserialze
-        partition_data_list = pickle.load(file)
-    label = []
-    for index in range(len(partition_data_list)):
-        (client_X_train, client_y_train) = partition_data_list[index]
-        label = np.concatenate((label, client_y_train), axis=None)
-    unique, counts = np.unique(label, return_counts=True)
-    print(dict(zip(unique, counts)))
+    # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
+    # print("Loading data...")
+    # # Load partitioned data
+    # with open(pickle_dir, 'rb') as file:
+    #     # Call load method to deserialze
+    #     partition_data_list = pickle.load(file)
+    # label = []
+    # for index in range(len(partition_data_list)):
+    #     (client_X_train, client_y_train) = partition_data_list[index]
+    #     label = np.concatenate((label, client_y_train), axis=None)
+    # unique, counts = np.unique(label, return_counts=True)
+    # print(dict(zip(unique, counts)))
+    # ------------------- data re-split verification ----------------------
+    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = read_2017_data(data_dir)

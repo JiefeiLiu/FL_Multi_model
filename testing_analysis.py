@@ -177,7 +177,7 @@ def weight_change_to_csv(weight_change, client_index):
 if __name__ == '__main__':
     data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
     # --------------------Read global models-----------------------
     model_path = "weight_records/"
     global_models = []

@@ -74,7 +74,7 @@ if __name__ == '__main__':
     pickle_dir = "../DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     num_classes = 12
     print("Loading data...")
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.read_2019_data(data_dir)
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
     # Load partitioned data
     with open(pickle_dir, 'rb') as file:
         # Call load method to deserialze
