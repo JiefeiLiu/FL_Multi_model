@@ -85,7 +85,7 @@ def read_data_from_pickle(pickle_dir, client_index):
 
 
 # -----------------------------------
-# regenerate data
+# regenerate data the number of instance for classes equal to the smallest size of the class
 def regenerate_data(pickle_dir, client_index):
     # Load partitioned data
     with open(pickle_dir, 'rb') as file:
