@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 import utils
 
+
 # -----------------------------------
 # Read CICDDoS2019 data
 def read_2019_data(path):
@@ -26,6 +27,7 @@ def read_2019_data(path):
     X = np.concatenate((X_train, X_test), axis=0)
     y = np.concatenate((y_train, y_test), axis=0)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    # validation generator
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True,
                                                       stratify=y_train)
 
@@ -57,9 +59,8 @@ def read_2017_data(path):
     X = np.concatenate((X_train, X_test), axis=0)
     y = np.concatenate((y_train, y_test), axis=0)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    # validation generator
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True, stratify=y_train)
-
-
     unique, counts = np.unique(y_train, return_counts=True)
     print("Training shape", dict(zip(unique, counts)))
     unique, counts = np.unique(y_test, return_counts=True)
@@ -68,6 +69,32 @@ def read_2017_data(path):
     print("Validation shape", dict(zip(unique, counts)))
     # print(str(len(y_test) / (len(y_train) + len(y_test))))
     return (X_train, y_train), (X_test, y_test), (X_val, y_val)
+
+
+def read_generated_data(file):
+    training_data_path = file + 'training_data.pkl'
+    testing_data_path = file + 'testing_data.pkl'
+    y_train = []
+    with open(training_data_path, 'rb') as file:
+        # Call load method to deserialze
+        training_data_list = pickle.load(file)
+    for client_data in training_data_list:
+        X_train_temp, y_train_temp = client_data
+        y_train = y_train + y_train_temp.tolist()
+    with open(testing_data_path, 'rb') as file:
+        # Call load method to deserialze
+        testing_data = pickle.load(file)
+    (x_test, y_test_bin) = testing_data
+    # split testing and validation set
+    X_test, X_val, y_test, y_val = train_test_split(x_test, y_test_bin, test_size=0.15, random_state=1, shuffle=True,
+                                                      stratify=y_test_bin)
+    unique, counts = np.unique(y_train, return_counts=True)
+    print("Training shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_test, return_counts=True)
+    print("Testing shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_val, return_counts=True)
+    print("Validation shape", dict(zip(unique, counts)))
+    return training_data_list, (X_test, y_test), (X_val, y_val)
 
 
 def read_data_from_pickle(pickle_dir, client_index):
@@ -229,5 +256,6 @@ if __name__ == '__main__':
     # print(dict(zip(unique, counts)))
     # ------------------- data re-split verification ----------------------
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = read_2017_data(data_dir)
+    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    data_dir = '../DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/Processed_data/'
+    partitioned_data, (x_test, y_test_bin), (_, _) = read_generated_data(data_dir)
