@@ -5,6 +5,7 @@ import copy
 import math
 import numpy as np
 import pandas as pd
+import pickle
 import random
 import torch
 from torch import nn
@@ -18,6 +19,21 @@ from sklearn.metrics.pairwise import cosine_similarity
 import models
 import data_preprocessing
 from data_utils import CustomDataset
+
+
+# read dataset
+def load_data(file_path):
+    # load training testing and validation
+    with open(file_path + 'training.pkl', 'rb') as file:
+        # Call load method to deserialze
+        training_data_list = pickle.load(file)
+    with open(file_path + 'testing.pkl', 'rb') as file:
+        # Call load method to deserialze
+        testing_data = pickle.load(file)
+    with open(file_path + 'validation.pkl', 'rb') as file:
+        # Call load method to deserialze
+        validation_data = pickle.load(file)
+    return training_data_list, testing_data, validation_data
 
 '''
 Training the model

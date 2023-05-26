@@ -40,8 +40,8 @@ def read_2019_data(path):
     '''re-split the training and testing'''
     X = np.concatenate((X_train, X_test), axis=0)
     y = np.concatenate((y_train, y_test), axis=0)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True,
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.45, random_state=1, shuffle=True,
                                                       stratify=y_train)
 
     unique, counts = np.unique(y_train, return_counts=True)
@@ -52,7 +52,7 @@ def read_2019_data(path):
     print("Validation shape", dict(zip(unique, counts)))
 
     # print(str(len(y_test) / (len(y_train) + len(y_test))))
-    return (X_train, y_train), (X_test, y_test)
+    return (X_train, y_train), (X_test, y_test), (X_val, y_val)
 
 
 # Partition the data with equal and balance subsets
@@ -232,7 +232,9 @@ def plot_stacked_bar(partition_data, saving_path, saving_name, number_class=11):
 
 # partition the imbalance data into extreme case and balance
 def partition_ex_imbal_equ(X: np.ndarray, y: np.ndarray, num_partitions: int, low_bound_of_classes=1,
-                           high_bound_of_classes=3, percentage_normal_traffic=60):
+                           high_bound_of_classes=3, percentage_normal_traffic=60, seed=42):
+    # fix random seed
+    random.seed(seed)
     # define the return variable
     res = []
     # define the size of dataset for each client
@@ -440,9 +442,9 @@ def verify_class_distribution(pickle_path):
 if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
     data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_saving_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/"
+    pickle_saving_path = "2019_data/"
     partition_num = 30
-    num_attacks_range = [2, 2]
+    num_attacks_range = [1, 3]
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
     # Split train set into partitions and randomly use one for training.
@@ -456,20 +458,29 @@ if __name__ == "__main__":
     # print("The shape of X: ", len(X_train), len(X_train[0]))
     # print("The shape of y: ", len(y_train))
     # -------------------- Extreme data partition ----------------------------
-    (X_train, y_train), _ = read_2019_data(data_path)
-    sys.exit()
+    (X_train, y_train), testing, validation = read_2019_data(data_path)
+    # sys.exit()
     # -------------------- Extreme data partition testing ----------------------------
-    partitioned_data = partition_ex_imbal_equ_testing(X_train, y_train, partition_num, number_of_attack_classes=num_attacks_range[0])
-    save_file_name = pickle_saving_path + "partition_attacks_" + str(num_attacks_range[0]) + "_imbalance.pkl"
+    # partitioned_data = partition_ex_imbal_equ_testing(X_train, y_train, partition_num, number_of_attack_classes=num_attacks_range[0])
+    # save_file_name = pickle_saving_path + "partition_attacks_" + str(num_attacks_range[0]) + "_imbalance.pkl"
     # -------------------- Extreme data partition regular ----------------------------
-    # partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
-    #                                           low_bound_of_classes=num_attacks_range[0],
-    #                                           high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)    # Open a file and use dump()
-    # save_file_name = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_" + str(num_attacks_range[0]) + "_high_" + str(num_attacks_range[1]) + ".pkl"
+    partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
+                                              low_bound_of_classes=num_attacks_range[0],
+                                              high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)
+    save_file_name = "2019_data/training.pkl"
     # -------------------- Save Extreme data partition ----------------------------
     with open(save_file_name, 'wb') as file:
         # A new file will be created
         pickle.dump(partitioned_data, file)
+    # saving testing
+    with open("2019_data/testing.pkl", 'wb') as file:
+        # A new file will be created
+        pickle.dump(testing, file)
+    # saving validation
+    with open("2019_data/validation.pkl", 'wb') as file:
+        # A new file will be created
+        pickle.dump(validation, file)
+
     # ---------------------Verify data partition-----------------------------
     # # Open the file in binary mode
     # with open('partition.pkl', 'rb') as file:
@@ -484,10 +495,10 @@ if __name__ == "__main__":
     #     print("train count:", counts_train)
     #     print()
     # ---------------------Plot data partition-----------------------------
-    plot_name = "Partition_class_distribution_2attacks_imbalance_testing.pdf"
+    plot_name = "Partition_ex_class_imbalanced.pdf"
     plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
     # ---------------------verify data partition-----------------------------
-    verify_class_distribution(save_file_name)
+    # verify_class_distribution(save_file_name)
 
 
     # ----------------------Generate random sampling----------------------------

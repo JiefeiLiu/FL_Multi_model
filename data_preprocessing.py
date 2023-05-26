@@ -26,9 +26,9 @@ def read_2019_data(path):
     '''re-split the training and testing'''
     X = np.concatenate((X_train, X_test), axis=0)
     y = np.concatenate((y_train, y_test), axis=0)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
     # validation generator
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True,
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.45, random_state=1, shuffle=True,
                                                       stratify=y_train)
 
     unique, counts = np.unique(y_train, return_counts=True)
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     # unique, counts = np.unique(label, return_counts=True)
     # print(dict(zip(unique, counts)))
     # ------------------- data re-split verification ----------------------
-    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
-    data_dir = '../DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/Processed_data/'
-    partitioned_data, (x_test, y_test_bin), (_, _) = read_generated_data(data_dir)
+    # data_dir = '../DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/Processed_data/'
+    partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)

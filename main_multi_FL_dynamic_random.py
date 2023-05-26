@@ -53,29 +53,46 @@ if __name__ == '__main__':
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
-    log_name = "log_file/" + "FL" + "_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
+    log_name = "log_file/" + "FL" + "_dynamic_random_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
     # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
+    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
+    data_dir = "2019_data/"
     num_classes = 11
+    num_features = 41
     print("Loading data...")
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
+    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
     # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
     # Load partitioned data
-    with open(pickle_dir, 'rb') as file:
-        # Call load method to deserialze
-        partition_data_list = pickle.load(file)
+    # with open(pickle_dir, 'rb') as file:
+    #     # Call load method to deserialze
+    #     partition_data_list = pickle.load(file)
+    partition_data_list, testing_data, validation_data = utils.load_data(data_dir)
+    (x_test, y_test_bin) = testing_data
+    (x_val, y_val) = validation_data
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
+    # --------------------Logging writing init-----------------------
+    logging.info('Parameter setting:')
+    logging.info('Number of clients: %d', num_clients)
+    logging.info('Number of rounds: %d', rounds)
+    logging.info('Client epochs: %d', client_epochs)
+    logging.info('Client learning rate : %d', learning_rate)
+    logging.info('Client batch size : %d', batch_size)
+    logging.info('Fraction : %d', fraction)
+    logging.info('Classification method selected : %s', neural_network)
+    logging.info('Total number of classes: %d', num_classes)
+    logging.info('Loading data path : %s', data_dir)
+    logging.info('Experiment results: ')
     # --------------Build global models and Select loss function----------------------
     glob_models = []
     loss_functions = []
     optimizers = []
     for i in range(num_global_models):
         if neural_network == "MLP":
-            glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
+            glob_model = models.MLP(input_shape=num_features).to(DEVICE)
             optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
             loss_fn = nn.BCELoss()  # Binary classification
             glob_models.append(glob_model)
@@ -83,7 +100,7 @@ if __name__ == '__main__':
             optimizers.append(optimizer)
 
         elif neural_network == "MLP_Mult":
-            glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
+            glob_model = models.MLP_Mult(input_shape=num_features, num_classes=num_classes).to(DEVICE)
             optimizer = torch.optim.SGD(glob_model.parameters(), lr=learning_rate)
             loss_fn = nn.CrossEntropyLoss()  # Muti class classification
             glob_models.append(glob_model)

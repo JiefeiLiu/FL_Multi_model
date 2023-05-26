@@ -74,16 +74,21 @@ if __name__ == '__main__':
     # --------------------Data Loading-----------------------
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
+    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
+    data_dir = "2019_data/"
     num_classes = 12
+    num_features = 41
     print("Loading data...")
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
+    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
     # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
     # Load partitioned data
-    with open(pickle_dir, 'rb') as file:
-        # Call load method to deserialze
-        partition_data_list = pickle.load(file)
+    # with open(pickle_dir, 'rb') as file:
+    #     # Call load method to deserialze
+    #     partition_data_list = pickle.load(file)
+    partition_data_list, testing_data, validation_data = utils.load_data(data_dir)
+    (x_test, y_test_bin) = testing_data
+    (x_val, y_val) = validation_data
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     # --------------------Logging writing init-----------------------
@@ -99,14 +104,14 @@ if __name__ == '__main__':
     logging.info('Classification method selected : %s', neural_network)
     logging.info('Overlapping clients selection : %s', over_lapping_clients_selection)
     logging.info('Total number of classes: %d', num_classes)
-    logging.info('Loading data path : %s', pickle_dir)
+    logging.info('Loading data path : %s', data_dir)
     logging.info('Experiment results: ')
     # --------------Build init global model and Select loss function----------------------
     if neural_network == "MLP":
-        init_glob_model = models.MLP(input_shape=x_train_un_bin.shape[1]).to(DEVICE)
+        init_glob_model = models.MLP(input_shape=num_features).to(DEVICE)
         loss_fn = nn.BCELoss()  # Binary classification
     elif neural_network == "MLP_Mult":
-        init_glob_model = models.MLP_Mult(input_shape=x_train_un_bin.shape[1], num_classes=num_classes).to(DEVICE)
+        init_glob_model = models.MLP_Mult(input_shape=num_features, num_classes=num_classes).to(DEVICE)
         loss_fn = nn.CrossEntropyLoss()  # Muti class classification
     else:
         print("Wrong neural network type, exit.")
@@ -134,7 +139,7 @@ if __name__ == '__main__':
             temp_w_clients = []
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
-            x_train_new, y_train_new = data_preprocessing.noise_generator(x_train_un_bin, y_train_un_bin,
+            x_train_new, y_train_new = data_preprocessing.noise_generator(x_val, y_val,
                                                                           client_X_train,
                                                                           client_y_train,
                                                                           percentage_noise=percentage_of_noise)
