@@ -36,9 +36,9 @@ if torch.cuda.is_available():
 if __name__ == '__main__':
     try:
         DEVICE = sys.argv[1]
-        print(DEVICE, " is using for testing.")
+        print(DEVICE, " is using for training and testing.")
     except:
-        print(DEVICE, " is using for testing.")
+        print(DEVICE, " is using for training and testing.")
     # clients hyperparameter setting
     client_epochs = 10
     learning_rate = 0.01

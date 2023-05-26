@@ -36,7 +36,11 @@ def drop_elements(org_list, target_list):
 
 
 if __name__ == '__main__':
-    print(DEVICE, " are using for training and testing.")
+    try:
+        DEVICE = sys.argv[1]
+        print(DEVICE, " is using for training and testing.")
+    except:
+        print(DEVICE, " is using for training and testing.")
     # --------------------Parameter Setting-----------------------
     # clients hyperparameter setting
     client_epochs = 10
