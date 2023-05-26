@@ -550,7 +550,7 @@ if __name__ == '__main__':
         train_time = time.time()
         train_data = CustomDataset(x_train_un_bin, y_train_un_bin, neural_network)
         train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-        model_weights = train(model, optimizer, loss_fn, train_loader, epochs, neural_network, device=DEVICE)
+        model_weights, _ = train(model, optimizer, loss_fn, train_loader, epochs, neural_network, i, device=DEVICE)
         training_time = (time.time() - train_time) / 60
         print("---Training time: %s minutes. ---" % training_time)
         # save model

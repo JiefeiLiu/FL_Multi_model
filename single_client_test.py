@@ -182,11 +182,12 @@ if __name__ == "__main__":
             sys.exit()
         # -------------------Training model----------------------
         train_time = time.time()
-        model, _ = utils.train(model, optimizer, loss_fn, train_loader, epochs, neural_network, i, device=DEVICE)
+        model_weights, _ = utils.train(model, optimizer, loss_fn, train_loader, epochs, neural_network, i, device=DEVICE)
         training_time = (time.time() - train_time) / 60
         print("---Training time: %s minutes. ---" % training_time)
         # -------------------Testing model----------------------
         test_time = time.time()
+        model.load_state_dict(copy.deepcopy(model_weights))
         loss, accuracy, f1, precision, recall = test(model, loss_fn, test_loader, curr_path, device=DEVICE)
         res_list.append([accuracy, precision, recall, f1, loss, training_time])
         print("---Testing time: %s minutes. ---" % ((time.time() - test_time) / 60))
