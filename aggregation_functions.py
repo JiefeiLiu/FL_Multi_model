@@ -13,6 +13,7 @@ def FedAvg(w, device):
     return w_avg
 
 
+# FedAvg for clustering method
 def Multi_model_FedAvg(global_model_list, clustered_info, clients_weights, device='cpu'):
     del global_model_list[1:len(global_model_list)]
     init_global_model = copy.deepcopy(global_model_list[0])

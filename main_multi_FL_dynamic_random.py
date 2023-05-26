@@ -173,7 +173,7 @@ if __name__ == '__main__':
         w_globals_last = copy.deepcopy(w_globals)
         # FedAvg for each model
         for j in range(num_global_models):
-            w_glob = FedAvg(models_w[j])
+            w_glob = FedAvg(models_w[j], DEVICE)
             # Update global models
             glob_models[j].load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
