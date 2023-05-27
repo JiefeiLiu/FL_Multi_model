@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import random
 import flwr as fl
 import numpy as np
 from typing import Dict
@@ -15,6 +16,13 @@ import models
 import client
 import utils
 from data_utils import CustomDataset
+
+# Set cuda
+DEVICE = torch.device("cpu")
+if torch.cuda.is_available():
+    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
+    cuda_name = "cuda:" + str(cuda_num)
+    DEVICE = torch.device(cuda_name)
 
 
 # define parameters
@@ -71,12 +79,11 @@ def get_evaluate_fn():
         print("Classification method does not found.")
         sys.exit()
     def evaluate(server_round, parameters: fl.common.NDArrays, config):
-        curr_path = os.getcwd()
         # Update model with the latest parameters
         params_dict = zip(model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         model.load_state_dict(state_dict, strict=True)
-        loss, accuracy = utils.test(model, loss_fn, test_loader, curr_path)
+        loss, accuracy = utils.test(model, loss_fn, test_loader, neural_network, device=DEVICE)
         return loss, {"accuracy": accuracy}
 
     return evaluate
