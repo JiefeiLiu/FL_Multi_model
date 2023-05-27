@@ -83,7 +83,7 @@ def get_evaluate_fn():
         params_dict = zip(model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         model.load_state_dict(state_dict, strict=True)
-        loss, accuracy = utils.test(model, loss_fn, test_loader, neural_network, device=DEVICE)
+        loss, accuracy, f1, precision, recall = utils.test(model, loss_fn, test_loader, neural_network, device=DEVICE)
         return loss, {"accuracy": accuracy}
 
     return evaluate
@@ -126,15 +126,15 @@ def server_init():
 
 if __name__ == "__main__":
     start_time = time.time()
-    strategy = fl.server.strategy.FedAvgM(
-        min_available_clients=10,
+    strategy = fl.server.strategy.FedAvg(
+        min_available_clients=30,
         # min_fit_clients=30,
         # min_evaluate_clients=30,
         fraction_fit=0.9,
         fraction_evaluate=0.9,
         # server_learning_rate=0.1,
         initial_parameters=fl.common.ndarrays_to_parameters(get_parameters(server_init())),
-        server_momentum=0.7,
+        # server_momentum=0.7,
         # eta=0.01,
         # beta_1=0.7,
         # tau=0.001,
