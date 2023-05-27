@@ -79,6 +79,7 @@ def get_evaluate_fn():
         print("Classification method does not found.")
         sys.exit()
     def evaluate(server_round, parameters: fl.common.NDArrays, config):
+        print(DEVICE, " is using for testing...")
         # Update model with the latest parameters
         params_dict = zip(model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
