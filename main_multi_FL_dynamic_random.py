@@ -19,6 +19,8 @@ from data_utils import CustomDataset
 from multi_threading import CustomThread
 from aggregation_functions import FedAvg
 
+# control random selection
+np.random.seed(42)
 
 # Set cuda
 DEVICE = torch.device("cpu")
