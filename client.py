@@ -113,7 +113,7 @@ def main() -> None:
     client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
-    partition_num = 10
+    partition_num = 30
     num_classes = 11
     # Select from "Binary" or "Multi"
     classification = "Multi"
