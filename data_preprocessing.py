@@ -227,7 +227,7 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise
 
 
 if __name__ == '__main__':
-    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
+    # data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_low_9_high_9.pkl"
     # regenerate_data(data_path, 17)
     # ------------------- Model Similarity ----------------------
     # A = torch.load("models/model_client_6.pth")
@@ -255,7 +255,7 @@ if __name__ == '__main__':
     # unique, counts = np.unique(label, return_counts=True)
     # print(dict(zip(unique, counts)))
     # ------------------- data re-split verification ----------------------
-    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     # data_dir = '../DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/Processed_data/'
     partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)

@@ -20,8 +20,8 @@ from data_utils import CustomDataset
 # Set cuda
 DEVICE = torch.device("cpu")
 if torch.cuda.is_available():
-    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
-    cuda_name = "cuda:" + str(cuda_num)
+    # cuda_num = random.randint(0, (torch.cuda.device_count()-1))
+    cuda_name = "cuda:" + str(0)
     DEVICE = torch.device(cuda_name)
 
 
