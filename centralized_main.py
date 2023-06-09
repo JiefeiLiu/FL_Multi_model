@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
     data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # hyper-parameters
-    epochs = 50
+    epochs = 200
     learning_rate = 0.01
     batch_size = 64
     # Setting parameters
