@@ -1,13 +1,17 @@
 import random
 import sys
-
+import time
 import numpy as np
 import pandas as pd
 import pickle
 import torch
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 from sklearn.metrics.pairwise import cosine_similarity
 import utils
+import sampling
 
 
 # -----------------------------------
@@ -41,26 +45,57 @@ def read_2019_data(path):
     return (X_train, y_train), (X_test, y_test), (X_val, y_val)
 
 
+def cic2017_feature_selection(X, y, n_features=41):
+    # Drop columns with value -1
+    # X_dropped = np.delete(X, [18, 56, 57], 1)
+    # print(X_dropped[X_dropped < 0])
+    # print(np.where(X_dropped < 0))
+    # sys.exit()
+    # replace negative value to zeros
+    X[X < 0] = 0
+    # feature selection
+    features = SelectKBest(score_func=chi2, k=n_features)
+    fit = features.fit(X, y)
+    X_selected = fit.transform(X)
+    return X_selected, y
+
+
+def cic_2017_normalize(training_data_list, X_test, y_test, X_val, y_val):
+    # normalize training data
+    normed_training_data_list = []
+    for training_data in training_data_list:
+        temp_X, temp_y = training_data
+        X_norm_train = MinMaxScaler().fit_transform(temp_X)
+        normed_training_data_list.append((X_norm_train, temp_y))
+    # normalize testing data
+    X_norm_test = MinMaxScaler().fit_transform(X_test)
+    # normalize validation data
+    X_norm_val = MinMaxScaler().fit_transform(X_val)
+    return normed_training_data_list, (X_norm_test, y_test), (X_norm_val, y_val)
+
+
 # -----------------------------------
 # Read CICIDS2017 data
-def read_2017_data(path):
+def read_2017_data_for_FL(path):
     # multi-class classification
-    X_train = np.load(path + "x_train_mul_samp.npy")
-    X_test = np.load(path + "x_test.npy")
-    y_train = np.load(path + "y_train_mul_samp.npy")
-    y_test = np.load(path + "y_test_mul.npy")
+    X = np.load(path + "cic17_all_X.npy")
+    y = np.load(path + "cic17_all_y.npy")
 
-    # print("X train shape: ", X_train.shape)
-    # print("y train shape: ", y_train.shape)
-    # print("X test shape: ", X_test.shape)
-    # print("y test shape: ", y_test.shape)
+    print("X shape: ", X.shape)
+    print("y shape: ", y.shape)
+    unique, counts = np.unique(y, return_counts=True)
+    print("data shape", dict(zip(unique, counts)))
 
-    '''re-split the training and testing'''
-    X = np.concatenate((X_train, X_test), axis=0)
-    y = np.concatenate((y_train, y_test), axis=0)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1, shuffle=True, stratify=y)
-    # validation generator
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.15, random_state=1, shuffle=True, stratify=y_train)
+    # feature selection
+    X_selected, y = cic2017_feature_selection(X, y)
+    print("X shape after select features: ", X_selected.shape)
+    print("y shape after select features: ", y.shape)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
+    # validation/noise data generator
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=1, shuffle=True,
+                                                      stratify=y_train)
+
     unique, counts = np.unique(y_train, return_counts=True)
     print("Training shape", dict(zip(unique, counts)))
     unique, counts = np.unique(y_test, return_counts=True)
@@ -87,7 +122,7 @@ def read_generated_data(file):
     (x_test, y_test_bin) = testing_data
     # split testing and validation set
     X_test, X_val, y_test, y_val = train_test_split(x_test, y_test_bin, test_size=0.15, random_state=1, shuffle=True,
-                                                      stratify=y_test_bin)
+                                                    stratify=y_test_bin)
     unique, counts = np.unique(y_train, return_counts=True)
     print("Training shape", dict(zip(unique, counts)))
     unique, counts = np.unique(y_test, return_counts=True)
@@ -170,6 +205,8 @@ def testing_data_extraction(data_path, label):
 # Randomly drop the class for centralized scenario
 def preprocess_data_with_random_drop_class(data_path, missing_class):
     (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = read_2019_data(data_path)
+    if missing_class == -1:
+        return (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin)
     # Verify
     unique, counts = np.unique(y_train_un_bin, return_counts=True)
     print("Original label distribution", dict(zip(unique, counts)))
@@ -207,13 +244,14 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise
         noise_size = min(existing_label_counts)
     else:
         total_attacks = sum(existing_label_counts[1:])
-        noise_size = int(total_attacks*percentage_noise)
+        noise_size = int(total_attacks * percentage_noise)
 
     # filter out the existing labels
     df_sample_filtered_out = df_sample[~df_sample['label'].isin(uni_existing_labels)]
     x_sample_np = df_sample_filtered_out.iloc[:, :-1].to_numpy()
     y_sample_np = df_sample_filtered_out.iloc[:, -1].to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(x_sample_np, y_sample_np, test_size=noise_size, stratify=y_sample_np, shuffle=True, random_state=1)
+    X_train, X_test, y_train, y_test = train_test_split(x_sample_np, y_sample_np, test_size=noise_size,
+                                                        stratify=y_sample_np, shuffle=True, random_state=1)
     new_x = np.concatenate((existing_x, X_test), axis=0)
     # Generate new label y
     generate_new_y = [11] * len(y_test)
@@ -256,6 +294,34 @@ if __name__ == '__main__':
     # print(dict(zip(unique, counts)))
     # ------------------- data re-split verification ----------------------
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
-    # data_dir = '../DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/Processed_data/'
-    partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)
+    # partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)
+    # ------------------- data preprocessing for 2017 data ----------------------
+    num_attacks_range = [1, 3]
+    partition_num = 30
+    start_time = time.time()
+    data_dir = '2017_data/'
+    (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(data_dir)
+    # data partition
+    partitioned_data = sampling.partition_ex_imbal_equ(X_train, y_train, partition_num,
+                                                       low_bound_of_classes=num_attacks_range[0],
+                                                       high_bound_of_classes=num_attacks_range[1],
+                                                       percentage_normal_traffic=60)
+    # normalize data
+    partitioned_data_normed, testing, validation = cic_2017_normalize(partitioned_data, X_test, y_test, X_val, y_val)
+    # -------------------- Save Extreme data partition ----------------------------
+    with open('2017_data/training.pkl', 'wb') as file:
+        # A new file will be created
+        pickle.dump(partitioned_data, file)
+    # saving testing
+    with open("2017_data/testing.pkl", 'wb') as file:
+        # A new file will be created
+        pickle.dump(testing, file)
+    # saving validation
+    with open("2017_data/validation.pkl", 'wb') as file:
+        # A new file will be created
+        pickle.dump(validation, file)
+    # ---------------------Plot data partition-----------------------------
+    pickle_saving_path = "2017_data/"
+    plot_name = "Partition_2017_ex_class_imbalanced.pdf"
+    sampling.plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
+    print("--- %s seconds ---" % (time.time() - start_time))

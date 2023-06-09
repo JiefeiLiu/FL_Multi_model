@@ -69,12 +69,12 @@ def get_performance(y_pred, y_test, classification_method):
         # f1 = metrics.f1_score(y_test, y_pred)
     elif classification_method == "Multi":
         '''Muti class classification'''
-        # precision_all_classes = metrics.precision_score(y_test, y_pred, average=None)
-        # recall_all_classes = metrics.recall_score(y_test, y_pred, average=None)
-        # f1_all_classes = metrics.f1_score(y_test, y_pred, average=None)
-        # print('Precision =', precision_all_classes)
-        # print('Recall =', recall_all_classes)
-        # print('F1 =', f1_all_classes)
+        precision_all_classes = metrics.precision_score(y_test, y_pred, average=None)
+        recall_all_classes = metrics.recall_score(y_test, y_pred, average=None)
+        f1_all_classes = metrics.f1_score(y_test, y_pred, average=None)
+        print('Precision for all classes =', precision_all_classes)
+        print('Recall for all classes =', recall_all_classes)
+        print('F1 for all classes =', f1_all_classes)
         precision = metrics.precision_score(y_test, y_pred, average='macro')
         recall = metrics.recall_score(y_test, y_pred, average='macro')
         f1 = metrics.f1_score(y_test, y_pred, average='macro')
@@ -138,11 +138,13 @@ def test(model, loss_fn, test_loader, curr_path, classification_method="Multi", 
 
 
 if __name__ == "__main__":
-    data_dir = '2019_data/'
+    data_dir = '2017_data/'
     # hyper-parameters
     epochs = 50
     learning_rate = 0.01
     batch_size = 64
+    MLP_first_hidden = 64
+    MLP_second_hidden = 128
     num_classes = 11
     num_clients = 30
     classification = "Multi"
@@ -174,7 +176,7 @@ if __name__ == "__main__":
             optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
             loss_fn = nn.BCELoss()  # Binary classification
         elif classification == "Multi":
-            model = models.MLP_Mult(input_shape=X_train.shape[1], num_classes=num_classes).to(DEVICE).train()
+            model = models.MLP_Mult(input_shape=X_train.shape[1], first_hidden=MLP_first_hidden, second_hidden=MLP_second_hidden, num_classes=num_classes).to(DEVICE).train()
             optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
             loss_fn = nn.CrossEntropyLoss()  # Muti class classification
         else:
@@ -192,4 +194,4 @@ if __name__ == "__main__":
         res_list.append([accuracy, precision, recall, f1, loss, training_time])
         print("---Testing time: %s minutes. ---" % ((time.time() - test_time) / 60))
     res_df = pd.DataFrame(res_list, columns=['Accuracy', 'Precision', 'Recall', 'F1', 'Loss', 'Training_time(min)'])
-    res_df.to_csv("results/clients_data_res.csv")
+    res_df.to_csv("results/2017_clients_data_res.csv")

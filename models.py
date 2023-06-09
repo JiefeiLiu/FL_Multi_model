@@ -19,11 +19,11 @@ class MLP(nn.Module):
 
 # MLP for Multi-class Classification
 class MLP_Mult(nn.Module):
-    def __init__(self, input_shape, num_units=64, num_classes=6):
+    def __init__(self, input_shape, num_units=64, first_hidden=64, second_hidden=128, num_classes=6):
         super(MLP_Mult, self).__init__()
-        self.fc1 = nn.Linear(input_shape, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, num_units)
+        self.fc1 = nn.Linear(input_shape, first_hidden)
+        self.fc2 = nn.Linear(first_hidden, second_hidden)
+        self.fc3 = nn.Linear(second_hidden, num_units)
         self.fc4 = nn.Linear(num_units, num_classes)
 
     def forward(self, x):

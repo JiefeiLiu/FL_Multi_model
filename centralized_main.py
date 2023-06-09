@@ -17,8 +17,8 @@ import utils
 
 
 if __name__ == '__main__':
-    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
-    data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
+    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # hyper-parameters
     epochs = 50
     learning_rate = 0.01
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # Setting parameters
     neural_network = "MLP_Mult"
     # -------------------load datasets----------------------
-    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.preprocess_data_with_random_drop_class(data_dir, 8)
+    (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin) = data_preprocessing.preprocess_data_with_random_drop_class(data_dir, -1)
     num_examples = {"trainset": len(y_train_un_bin), "testset": len(y_test_bin)}
     print(num_examples)
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     train_time = time.time()
     train_data = CustomDataset(x_train_un_bin, y_train_un_bin, neural_network)
     train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
-    model_weights = utils.train(model, optimizer, loss_fn, train_loader, epochs, neural_network, device=DEVICE)
+    model_weights, _ = utils.train(model, optimizer, loss_fn, train_loader, epochs, neural_network, -1, device=DEVICE)
     print("---Training time: %s minutes. ---" % ((time.time() - train_time) / 60))
     # save model
     # saving_model_name = "models/model_client_" + str(single_client_index) + ".pth"

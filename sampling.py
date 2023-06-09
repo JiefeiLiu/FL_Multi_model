@@ -495,7 +495,7 @@ if __name__ == "__main__":
     #     print("train count:", counts_train)
     #     print()
     # ---------------------Plot data partition-----------------------------
-    plot_name = "Partition_ex_class_imbalanced.pdf"
+    plot_name = "Partition_2019_ex_class_imbalanced.pdf"
     plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
     # ---------------------verify data partition-----------------------------
     # verify_class_distribution(save_file_name)
