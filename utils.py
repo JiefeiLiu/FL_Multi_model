@@ -22,9 +22,9 @@ from data_utils import CustomDataset
 
 
 # read dataset
-def load_data(file_path):
+def load_data(file_path, training_data='30_training.pkl'):
     # load training testing and validation
-    with open(file_path + 'training.pkl', 'rb') as file:
+    with open(file_path + training_data, 'rb') as file:
         # Call load method to deserialze
         training_data_list = pickle.load(file)
     with open(file_path + 'testing.pkl', 'rb') as file:

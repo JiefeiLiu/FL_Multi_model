@@ -441,9 +441,9 @@ def verify_class_distribution(pickle_path):
 
 if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
-    data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_path = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_saving_path = "2019_data/"
-    partition_num = 30
+    partition_num = 25
     num_attacks_range = [1, 3]
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     # print("The shape of partition data")
     # print("The shape of X: ", len(X_train), len(X_train[0]))
     # print("The shape of y: ", len(y_train))
-    # -------------------- Extreme data partition ----------------------------
+    # -------------------- load data  ----------------------------
     (X_train, y_train), testing, validation = read_2019_data(data_path)
     # sys.exit()
     # -------------------- Extreme data partition testing ----------------------------
@@ -467,7 +467,7 @@ if __name__ == "__main__":
     partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
                                               low_bound_of_classes=num_attacks_range[0],
                                               high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)
-    save_file_name = "2019_data/training.pkl"
+    save_file_name = "2019_data/" + str(partition_num) + "_training.pkl"
     # -------------------- Save Extreme data partition ----------------------------
     with open(save_file_name, 'wb') as file:
         # A new file will be created
@@ -495,7 +495,7 @@ if __name__ == "__main__":
     #     print("train count:", counts_train)
     #     print()
     # ---------------------Plot data partition-----------------------------
-    plot_name = "Partition_2019_ex_class_imbalanced.pdf"
+    plot_name = "Partition_" + str(partition_num) + "_2019_ex_class_imbalanced.pdf"
     plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
     # ---------------------verify data partition-----------------------------
     # verify_class_distribution(save_file_name)

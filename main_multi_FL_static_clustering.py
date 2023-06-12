@@ -51,6 +51,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 30
+    training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
@@ -86,7 +87,7 @@ if __name__ == '__main__':
     # with open(pickle_dir, 'rb') as file:
     #     # Call load method to deserialze
     #     partition_data_list = pickle.load(file)
-    partition_data_list, testing_data, validation_data = utils.load_data(data_dir)
+    partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
     (x_test, y_test_bin) = testing_data
     (x_val, y_val) = validation_data
     test_data = CustomDataset(x_test, y_test_bin, neural_network)

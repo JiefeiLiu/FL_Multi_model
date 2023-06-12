@@ -114,6 +114,7 @@ def main() -> None:
     learning_rate = 0.01
     batch_size = 64
     partition_num = 30
+    training_data_name = str(partition_num) + '_training.pkl'
     num_classes = 11
     # Select from "Binary" or "Multi"
     classification = "Multi"
@@ -125,13 +126,13 @@ def main() -> None:
     # -------------- load datasets ----------------------
     print("Loading data...")
     if dataset == 2017:
-        partitioned_data, testing_data, _ = utils.load_data(data_dir)
+        partitioned_data, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == 2019:
-        partitioned_data, testing_data, _ = utils.load_data(data_dir)
+        partitioned_data, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == "generated":
-        partitioned_data, testing_data, _ = utils.load_data(data_dir)
+        partitioned_data, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     else:
         print("Dataset does not found")
