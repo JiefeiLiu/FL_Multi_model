@@ -242,6 +242,8 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise
     # define the size of noise
     if percentage_noise == -1:
         noise_size = min(existing_label_counts)
+    elif percentage_noise == 0:
+        return existing_x, existing_y
     else:
         total_attacks = sum(existing_label_counts[1:])
         noise_size = int(total_attacks * percentage_noise)
@@ -254,7 +256,7 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise
                                                         stratify=y_sample_np, shuffle=True, random_state=1)
     new_x = np.concatenate((existing_x, X_test), axis=0)
     # Generate new label y
-    generate_new_y = [11] * len(y_test)
+    generate_new_y = [20] * len(y_test)
     new_y = np.concatenate((existing_y, generate_new_y), axis=0)
 
     # Verify

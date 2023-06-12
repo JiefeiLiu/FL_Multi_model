@@ -48,13 +48,13 @@ if __name__ == '__main__':
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
-    percentage_of_noise = 0.4
+    percentage_of_noise = 0
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
-    over_lapping_clients_selection = True
+    over_lapping_clients_selection = False
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
     global_model_to_clients_sim = {}
