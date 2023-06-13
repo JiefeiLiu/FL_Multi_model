@@ -55,7 +55,7 @@ if __name__ == '__main__':
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
-    percentage_of_noise = 0
+    percentage_of_noise = 0.4
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models, 0 index is init global model
