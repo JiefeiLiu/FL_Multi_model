@@ -234,7 +234,7 @@ def preprocess_data_with_random_drop_class(data_path, missing_class):
 
 
 # Generate samples differ with existing class for training data
-def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise=-1):
+def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise=-1, noise_label=11):
     uni_existing_labels, existing_label_counts = np.unique(existing_y, return_counts=True)
     df_sample = pd.DataFrame(x_sample)
     df_sample['label'] = y_sample
@@ -256,7 +256,7 @@ def noise_generator(x_sample, y_sample, existing_x, existing_y, percentage_noise
                                                         stratify=y_sample_np, shuffle=True, random_state=1)
     new_x = np.concatenate((existing_x, X_test), axis=0)
     # Generate new label y
-    generate_new_y = [11] * len(y_test)
+    generate_new_y = [noise_label] * len(y_test)
     new_y = np.concatenate((existing_y, generate_new_y), axis=0)
 
     # Verify

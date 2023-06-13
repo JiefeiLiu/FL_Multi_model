@@ -50,7 +50,8 @@ if __name__ == '__main__':
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
-    num_clients = 30
+    num_clients = 15
+    training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
@@ -78,6 +79,7 @@ if __name__ == '__main__':
     # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     data_dir = "2019_data/"
     num_classes = 12
+    noise_label = num_classes + 1
     num_features = 41
     print("Loading data...")
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
@@ -86,7 +88,7 @@ if __name__ == '__main__':
     # with open(pickle_dir, 'rb') as file:
     #     # Call load method to deserialze
     #     partition_data_list = pickle.load(file)
-    partition_data_list, testing_data, validation_data = utils.load_data(data_dir)
+    partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
     (x_test, y_test_bin) = testing_data
     (x_val, y_val) = validation_data
     test_data = CustomDataset(x_test, y_test_bin, neural_network)
@@ -142,7 +144,8 @@ if __name__ == '__main__':
             x_train_new, y_train_new = data_preprocessing.noise_generator(x_val, y_val,
                                                                           client_X_train,
                                                                           client_y_train,
-                                                                          percentage_noise=percentage_of_noise)
+                                                                          percentage_noise=percentage_of_noise,
+                                                                          noise_label=noise_label)
             # process data
             train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -285,7 +288,8 @@ if __name__ == '__main__':
         # --------------------Server Round Testing-----------------------
         round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn,
                                                                                    test_loader, neural_network,
-                                                                                   device=DEVICE, conf_rule=conf_filter)
+                                                                                   device=DEVICE, conf_rule=conf_filter,
+                                                                                   noise_label=noise_label)
         round_training_time = (time.time() - Round_time) / 60
         server_training_time.append(round_training_time)
         logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy,
@@ -314,7 +318,7 @@ if __name__ == '__main__':
     # --------------------Server Testing-----------------------
     test_time = time.time()
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
-        global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter)
+        global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter, noise_label=noise_label)
     server_running_time = ((time.time() - test_time) / 60)
     print("Global model, Loss %f, Accuracy %f, F1 %f, Total Running time(min): %s" % (
         model_loss, model_accuracy, model_f1, server_running_time))

@@ -44,7 +44,7 @@ if __name__ == '__main__':
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
-    num_clients = 30
+    num_clients = 15
     training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
@@ -75,6 +75,7 @@ if __name__ == '__main__':
     # pickle_dir = "../DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     data_dir = "2019_data/"
     num_classes = 12
+    noise_label = num_classes + 1
     num_features = 41
     print("Loading data...")
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
@@ -141,7 +142,7 @@ if __name__ == '__main__':
             # Get clients data
             (client_X_train, client_y_train) = partition_data_list[index]
             x_train_new, y_train_new = data_preprocessing.noise_generator(x_val, y_val, client_X_train,
-                                                                          client_y_train, percentage_noise=percentage_of_noise)
+                                                                          client_y_train, percentage_noise=percentage_of_noise, noise_label=noise_label)
             # process data
             train_data = CustomDataset(x_train_new, y_train_new, neural_network)
             train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -203,7 +204,7 @@ if __name__ == '__main__':
         # global_weight_record.append(copy.deepcopy(w_glob))
         # clients_weight_record.append(copy.deepcopy(w_clients))
         # --------------------Server Round Testing-----------------------
-        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter)
+        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter, noise_label=noise_label)
         # print('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s' % (iter, round_loss, round_accuracy,
         #              ((time.time() - Round_time) / 60)))
         round_training_time = (time.time() - Round_time) / 60
@@ -223,7 +224,7 @@ if __name__ == '__main__':
     logging.info('Total training time(min) %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
-    loss, accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter)
+    loss, accuracy, f1, precision, recall = utils.multi_model_test(global_models[1:], loss_fn, test_loader, neural_network, device=DEVICE, conf_rule=conf_filter, noise_label=noise_label)
     server_running_time = ((time.time() - test_time) / 60)
     logging.info('Global model, Loss %f, Accuracy %f, F1 %f, Precision %f, Recall %f, Total Running time(min): %s',
                  loss, accuracy, f1, precision, recall, server_running_time)

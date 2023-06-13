@@ -156,7 +156,7 @@ Testing the multi-model
 '''
 
 
-def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu", conf_rule=0.7):
+def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu", conf_rule=0.7, noise_label=11):
     loss_recording = []
     ture_recording = []
     pred_recording = []
@@ -205,7 +205,7 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu", conf_r
             ture_recording.append(all_true_values)
         loss_recording.append(loss / len(test_loader))
     # combine model predictions by majority voting, ground truth, and loss
-    voting = com_prediction_with_rule(pred_recording, conf_recording, confs_rule=conf_rule)  # combine prediction
+    voting = com_prediction_with_rule(pred_recording, conf_recording, confs_rule=conf_rule, noise_label=noise_label)  # combine prediction
     final_true = ture_recording[0]  # find one of the ground truth
     final_loss = sum(loss_recording) / len(loss_recording)  # Average the loss
     accuracy, f1, precision, recall = get_performance(voting, final_true, nn_type)
@@ -224,7 +224,7 @@ def com_prediction(preds):
 
 
 # Combine model predictions if 11 is the most label then find the next most frequent element
-def com_prediction_with_rule(preds, confs, confs_rule=0.7):
+def com_prediction_with_rule(preds, confs, confs_rule=0.7, noise_label=11):
     res = []
     for i in range(len(preds[0])):
         try:
@@ -233,7 +233,7 @@ def com_prediction_with_rule(preds, confs, confs_rule=0.7):
                 if confs[j][i].item() > confs_rule:
                     temp_list.append(preds[j][i].item())
             # Remove elements which has 11
-            temp_list = list(filter((11).__ne__, temp_list))
+            temp_list = list(filter((noise_label).__ne__, temp_list))
             res.append(max(set(temp_list), key=temp_list.count))
         except:
             try:
@@ -241,7 +241,7 @@ def com_prediction_with_rule(preds, confs, confs_rule=0.7):
                 for j in range(len(preds)):
                     temp_list_exp.append(preds[j][i].item())
                 # Remove elements which has 11
-                temp_list_exp = list(filter((11).__ne__, temp_list_exp))
+                temp_list_exp = list(filter((noise_label).__ne__, temp_list_exp))
                 res.append(max(set(temp_list_exp), key=temp_list_exp.count))
             except:
                 temp_list_exp = []
