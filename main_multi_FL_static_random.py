@@ -120,15 +120,18 @@ if __name__ == '__main__':
         w_glob = glob_models[i].state_dict()
         w_globals.append(w_glob)
     # --------------------Random assign clients for each model, without overlapping-----------------------
-    # model_clients = []
-    # clients_list = list(range(0, num_clients))
-    # num_clients_per_model = int(num_clients / num_global_models)
-    # # print(clients_list)
-    # for i in range(num_global_models):
-    #     temp_clients_list = np.random.choice(clients_list, num_clients_per_model, replace=False)
-    #     # print(temp_clients_list)
-    #     model_clients.append(temp_clients_list)
-    #     clients_list = drop_elements(clients_list, temp_clients_list)
+    model_clients = []
+    np.random.seed(1)
+    clients_list = list(range(0, num_clients))
+    num_clients_per_model = int(num_clients / num_global_models)
+    # print(clients_list)
+    for i in range(num_global_models):
+        temp_clients_list = np.random.choice(clients_list, num_clients_per_model, replace=False)
+        # print(temp_clients_list)
+        model_clients.append(temp_clients_list)
+        clients_list = drop_elements(clients_list, temp_clients_list)
+    # print(model_clients)
+    # sys.exit()
     # --------------------Random assign clients for each model with clients overlapping-----------------------
     # model_clients = []
     # clients_list = list(range(0, num_clients))
@@ -138,11 +141,11 @@ if __name__ == '__main__':
     #     model_clients.append(temp_clients_list)
     # ___________________Load Random clients selection___________________
     # print(model_clients)
-    client_selection_pickle_dir = "client_selection_list.pkl"
-    # Load client selection list
-    with open(client_selection_pickle_dir, 'rb') as file:
-        # Call load method to deserialze
-        model_clients = pickle.load(file)
+    # client_selection_pickle_dir = "client_selection_list.pkl"
+    # # Load client selection list
+    # with open(client_selection_pickle_dir, 'rb') as file:
+    #     # Call load method to deserialze
+    #     model_clients = pickle.load(file)
     # sys.exit()
     # --------------------Server Training-----------------------
     # Record running time
