@@ -64,7 +64,7 @@ if __name__ == '__main__':
     utils.make_dir(curr_path, "log_file")
     log_name = "log_file/" + "FL" + "_dynamic_clustering_NN_" + neural_network + "_clients_" + str(
         num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(
-        fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
+        fraction) + "_noise_" + str(percentage_of_noise) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
     # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
