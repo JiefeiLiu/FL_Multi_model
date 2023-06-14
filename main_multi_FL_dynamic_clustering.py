@@ -44,12 +44,12 @@ if __name__ == '__main__':
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
-    num_clients = 25
+    num_clients = 30
     training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
-    percentage_of_noise = 0.4
+    percentage_of_noise = 0.2
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models
