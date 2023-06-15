@@ -53,14 +53,16 @@ def get_evaluate_fn():
     """Return an evaluation function for server-side evaluation."""
     # load data
     batch_size = 64
+    partition_num = 15
+    training_data_name = str(partition_num) + '_training.pkl'
     if dataset == 2017:
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == 2019:
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == "generated":
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     else:
         print("Dataset does not found")
@@ -100,14 +102,16 @@ def server_init():
     '''Init global model'''
     # load data
     batch_size = 64
+    partition_num = 15
+    training_data_name = str(partition_num) + '_training.pkl'
     if dataset == 2017:
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == 2019:
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     elif dataset == "generated":
-        _, testing_data, _ = utils.load_data(data_dir)
+        _, testing_data, _ = utils.load_data(data_dir, training_data_name)
         (x_test, y_test_bin) = testing_data
     else:
         print("Dataset does not found")

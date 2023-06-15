@@ -113,7 +113,7 @@ def main() -> None:
     client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
-    partition_num = 30
+    partition_num = 15
     training_data_name = str(partition_num) + '_training.pkl'
     num_classes = 11
     # Select from "Binary" or "Multi"
