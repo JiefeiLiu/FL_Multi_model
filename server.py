@@ -20,8 +20,8 @@ from data_utils import CustomDataset
 # Set cuda
 DEVICE = torch.device("cpu")
 if torch.cuda.is_available():
-    # cuda_num = random.randint(0, (torch.cuda.device_count()-1))
-    cuda_name = "cuda:" + str(0)
+    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
+    cuda_name = "cuda:" + str(cuda_num)
     DEVICE = torch.device(cuda_name)
 
 
@@ -130,7 +130,7 @@ def server_init():
 
 if __name__ == "__main__":
     start_time = time.time()
-    strategy = fl.server.strategy.FedAvg(
+    strategy = fl.server.strategy.FedAvgM(
         min_available_clients=partition_num,
         # min_fit_clients=30,
         # min_evaluate_clients=30,
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         fraction_evaluate=0.9,
         # server_learning_rate=0.1,
         initial_parameters=fl.common.ndarrays_to_parameters(get_parameters(server_init())),
-        # server_momentum=0.7,
+        server_momentum=0.7,
         # eta=0.01,
         # beta_1=0.7,
         # tau=0.001,
