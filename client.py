@@ -22,8 +22,8 @@ USE_FEDBN: bool = False
 # Set cuda
 DEVICE = torch.device("cpu")
 if torch.cuda.is_available():
-    # cuda_num = random.randint(0, (torch.cuda.device_count()-1))
-    cuda_name = "cuda:" + str(0)
+    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
+    cuda_name = "cuda:" + str(cuda_num)
     DEVICE = torch.device(cuda_name)
 
 
@@ -113,7 +113,7 @@ def main() -> None:
     client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
-    partition_num = 15
+    partition_num = 20
     training_data_name = str(partition_num) + '_training.pkl'
     num_classes = 11
     # Select from "Binary" or "Multi"

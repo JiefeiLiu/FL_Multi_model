@@ -35,7 +35,7 @@ neural_network = "MLP_Mult"
 n_classes = 11
 # number of features
 num_features = 41
-partition_num = 15
+partition_num = 20
 
 if dataset == 2019:
     data_dir = "2019_data/"
