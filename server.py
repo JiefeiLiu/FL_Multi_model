@@ -35,6 +35,7 @@ neural_network = "MLP_Mult"
 n_classes = 11
 # number of features
 num_features = 41
+partition_num = 15
 
 if dataset == 2019:
     data_dir = "2019_data/"
@@ -53,7 +54,6 @@ def get_evaluate_fn():
     """Return an evaluation function for server-side evaluation."""
     # load data
     batch_size = 64
-    partition_num = 15
     training_data_name = str(partition_num) + '_training.pkl'
     if dataset == 2017:
         _, testing_data, _ = utils.load_data(data_dir, training_data_name)
@@ -102,7 +102,6 @@ def server_init():
     '''Init global model'''
     # load data
     batch_size = 64
-    partition_num = 15
     training_data_name = str(partition_num) + '_training.pkl'
     if dataset == 2017:
         _, testing_data, _ = utils.load_data(data_dir, training_data_name)
@@ -132,7 +131,7 @@ def server_init():
 if __name__ == "__main__":
     start_time = time.time()
     strategy = fl.server.strategy.FedAvg(
-        min_available_clients=30,
+        min_available_clients=partition_num,
         # min_fit_clients=30,
         # min_evaluate_clients=30,
         fraction_fit=0.9,
