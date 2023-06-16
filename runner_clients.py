@@ -38,7 +38,7 @@ def exit_screen():
 
 if __name__ == '__main__':
     time.sleep(3)
-    num_client = 20
+    num_client = 25
     for i in range(1, num_client+1):
         screen_name = "screen -r client" + str(i)
         enter_screen(screen_name)
