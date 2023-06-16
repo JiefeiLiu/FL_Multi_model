@@ -56,6 +56,19 @@ if __name__ == '__main__':
     fraction = 1.0
     conf_filter = 0.7
     percentage_of_noise = 0.6
+    # data dir
+    dataset = 2017
+    if dataset == 2019:
+        data_dir = "2019_data/"
+        num_classes = 11
+        num_features = 41
+    elif dataset == 2017:
+        data_dir = "2017_data/"
+        num_classes = 7
+        num_features = 40
+    else:
+        print("No data found, exit.")
+        sys.exit()
     # Setting parameters
     neural_network = "MLP_Mult"
     # a list to store global models, 0 index is init global model
@@ -68,7 +81,7 @@ if __name__ == '__main__':
     # --------------------Logging setting-----------------------
     curr_path = os.getcwd()
     utils.make_dir(curr_path, "log_file")
-    log_name = "log_file/" + "FL" + "_static_clustering_NN_" + neural_network + "_clients_" + str(
+    log_name = "log_file/" + "FL" + "_static_clustering_dataset_" + str(dataset) + "_NN_" + neural_network + "_clients_" + str(
         num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(
         fraction) + "_noise_" + str(percentage_of_noise) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -77,10 +90,7 @@ if __name__ == '__main__':
     # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
     # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
-    data_dir = "2019_data/"
-    num_classes = 12
     noise_label = num_classes - 1
-    num_features = 41
     print("Loading data...")
     # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
     # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
