@@ -57,7 +57,7 @@ if __name__ == '__main__':
     conf_filter = 0.7
     percentage_of_noise = 0.6
     # data dir
-    dataset = 2017
+    dataset = 2019
     if dataset == 2019:
         data_dir = "2019_data/"
         num_classes = 11
