@@ -146,7 +146,7 @@ if __name__ == "__main__":
     MLP_first_hidden = 64
     MLP_second_hidden = 128
     num_classes = 7
-    num_clients = 30
+    num_clients = 20
     training_data_name = str(num_clients) + '_training.pkl'
     classification = "Multi"
     neural_network = "MLP_Mult"

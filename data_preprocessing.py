@@ -304,7 +304,7 @@ if __name__ == '__main__':
     # partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)
     # ------------------- data preprocessing for 2017 data ----------------------
     num_attacks_range = [1, 3]
-    partition_num = 30
+    partition_num = 20
     start_time = time.time()
     data_dir = '2017_data/'
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(data_dir)
