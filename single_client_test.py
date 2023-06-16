@@ -145,8 +145,9 @@ if __name__ == "__main__":
     batch_size = 64
     MLP_first_hidden = 64
     MLP_second_hidden = 128
-    num_classes = 11
+    num_classes = 7
     num_clients = 30
+    training_data_name = str(num_clients) + '_training.pkl'
     classification = "Multi"
     neural_network = "MLP_Mult"
     # create df for results recording
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     make_dir(curr_path, "results")
     # -------------- load datasets ----------------------
     print("Loading data...")
-    partitioned_data, testing_data, _ = utils.load_data(data_dir)
+    partitioned_data, testing_data, _ = utils.load_data(data_dir, training_data=training_data_name)
     for i in range(num_clients):
         print("\nClient ", str(i+1), "training...")
         (X_train, y_train) = partitioned_data[i]
