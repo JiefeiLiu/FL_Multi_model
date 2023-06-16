@@ -97,7 +97,7 @@ class MLPClient(fl.client.NumPyClient):
 
 def main() -> None:
     # Select from 2017, 2019 or generated
-    dataset = 2019
+    dataset = 2017
     if dataset == 2019:
         data_dir = "2019_data/"
     elif dataset == 2017:
@@ -115,7 +115,11 @@ def main() -> None:
     batch_size = 64
     partition_num = 15
     training_data_name = str(partition_num) + '_training.pkl'
-    num_classes = 11
+    # number of classes
+    if dataset == 2019:
+        num_classes = 11
+    elif dataset == 2017:
+        num_classes = 7
     # Select from "Binary" or "Multi"
     classification = "Multi"
     neural_network = "MLP_Mult"
