@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def curve_plot():
+def curve_plot(comp_loss, comp_acc):
     losses_centralized = [[(0, 0.00015056385803222656), (1, 0.000155355224609375), (2, 0.00013385609436035155), (3, 0.00011074392700195312), (4, 9.893773651123047e-05), (5, 8.763913726806641e-05), (6, 8.786256408691407e-05), (7, 8.011539459228516e-05), (8, 7.885035705566407e-05), (9, 7.674244689941406e-05), (10, 7.724567413330079e-05), (11, 7.51748046875e-05), (12, 7.09059066772461e-05), (13, 7.123036956787109e-05), (14, 6.963818359375e-05), (15, 7.024172973632812e-05), (16, 7.231837463378906e-05), (17, 6.813994598388672e-05), (18, 6.794043731689453e-05), (19, 6.524508666992188e-05), (20, 6.92929458618164e-05)],
                           [(0, 0.00015290451049804687), (1, 0.0002037772979736328), (2, 0.0001188478012084961), (
                               3, 0.0001140562744140625), (4, 0.00010555089569091796), (5, 9.751801300048828e-05), (
@@ -43,10 +43,8 @@ def curve_plot():
                  (18, 0.594271), (19, 0.597735), (20, 0.598093)]
                ]
 
-    loss_centralized_comparison = [[(0, 0.000225), (1, 1.3016023635864257e-05), (2, 8.59559440612793e-06), (3, 8.318199157714843e-06), (4, 8.107690811157227e-06), (5, 7.984623432159424e-06), (6, 7.842446327209473e-06), (7, 7.671719551086425e-06), (8, 7.737252235412597e-06), (9, 7.73774003982544e-06), (10, 7.590766906738281e-06), (11, 7.520060539245605e-06), (12, 7.510822772979736e-06), (13, 7.55278730392456e-06), (14, 7.574787139892578e-06), (15, 7.327755451202392e-06), (16, 7.45884370803833e-06), (17, 7.312892436981201e-06), (18, 7.324048995971679e-06), (19, 7.305636882781982e-06), (20, 7.396151542663574e-06)]
-                                   ]
-    accuracy_comparison = [[(0, 0.05), (1, 0.762771), (2, 0.8292265), (3, 0.829179), (4, 0.8308215), (5, 0.8326575), (6, 0.832956), (7, 0.831716), (8, 0.8321035), (9, 0.833471), (10, 0.8325), (11, 0.834194), (12, 0.8333495), (13, 0.834709), (14, 0.8348205), (15, 0.8339615), (16, 0.8333245), (17, 0.833462), (18, 0.8330195), (19, 0.834977), (20, 0.8359915)]
-                           ]
+    loss_centralized_comparison = comp_loss
+    accuracy_comparison = comp_acc
     loss_list = []
     acc_list = []
     loss_comparison_list = []
@@ -67,13 +65,13 @@ def curve_plot():
     for comp_single_loss in loss_centralized_comparison:
         comp_temp_loss = []
         for val in comp_single_loss:
-            comp_temp_loss.append(val[1])
+            comp_temp_loss.append(val)
         loss_comparison_list.append(comp_temp_loss)
 
     for comp_single_acc in accuracy_comparison:
         comp_temp_acc = []
         for val in comp_single_acc:
-            comp_temp_acc.append(val[1])
+            comp_temp_acc.append(val)
         acc_comparison_list.append(comp_temp_acc)
 
     x = range(len(loss_list[0]))
@@ -125,11 +123,30 @@ def curve_plot():
 
 
 def read_log_file(path):
+    file_regular_expression = "FL_dynamic_clustering_NN_MLP_Mult_clients_30_epochs_10_rounds_20_fraction_1"
+    acc = []
+    loss = []
     dir_list = os.listdir(path)
     print(dir_list)
+    for log in dir_list:
+        if file_regular_expression in log:
+            temp_file_loss = []
+            temp_file_acc = []
+            with open(path+log) as f:
+                f = f.readlines()
+            for line in f:
+                if "Loss" in line:
+                    temp_loss = float(line.split("Loss ")[1].split(",")[0])
+                    temp_acc = float(line.split("Accuracy ")[1].split(",")[0])
+                    temp_file_loss.append(temp_loss)
+                    temp_file_acc.append(temp_acc)
+            acc.append(temp_file_acc)
+            loss.append(temp_file_loss)
+    return loss, acc
 
 
 if __name__ == "__main__":
     folder_path = 'log_file/'
-    read_log_file(folder_path)
-    curve_plot()
+    loss_list, acc_list = read_log_file(folder_path)
+    # print(loss_list)
+    curve_plot(loss_list, acc_list)
