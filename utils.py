@@ -12,7 +12,6 @@ from torch import nn
 from torch.utils.data import DataLoader
 from numpy.linalg import norm
 from sklearn import metrics
-from scipy.spatial.distance import cdist
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
