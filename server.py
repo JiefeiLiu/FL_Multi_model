@@ -78,7 +78,7 @@ def get_evaluate_fn():
         model = models.MLP(input_shape=num_features)
         loss_fn = nn.BCELoss()  # Binary classification
     elif classification == "Multi":
-        model = models.MLP_Mult(input_shape=num_features, num_classes=11)
+        model = models.MLP_Mult(input_shape=num_features, num_classes=n_classes)
         loss_fn = nn.CrossEntropyLoss()  # Muti class classification
     else:
         print("Classification method does not found.")
@@ -124,7 +124,7 @@ def server_init():
     if classification == "Binary":
         model = models.MLP(input_shape=num_features)
     elif classification == "Multi":
-        model = models.MLP_Mult(input_shape=num_features, num_classes=11)
+        model = models.MLP_Mult(input_shape=num_features, num_classes=n_classes)
     else:
         print("Classification method does not found.")
         sys.exit()
