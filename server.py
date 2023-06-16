@@ -34,10 +34,11 @@ neural_network = "MLP_Mult"
 # number of classes
 if dataset == 2019:
     n_classes = 11
+    num_features = 41
 elif dataset == 2017:
     n_classes = 7
+    num_features = 40
 # number of features
-num_features = 41
 partition_num = 20
 
 if dataset == 2019:
