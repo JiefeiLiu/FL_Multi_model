@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-def curve_plot(comp_loss, comp_acc):
+def curve_plot(comp_loss, comp_acc, plot_acc=True):
     losses_centralized = [[(0, 0.00015056385803222656), (1, 0.000155355224609375), (2, 0.00013385609436035155), (3, 0.00011074392700195312), (4, 9.893773651123047e-05), (5, 8.763913726806641e-05), (6, 8.786256408691407e-05), (7, 8.011539459228516e-05), (8, 7.885035705566407e-05), (9, 7.674244689941406e-05), (10, 7.724567413330079e-05), (11, 7.51748046875e-05), (12, 7.09059066772461e-05), (13, 7.123036956787109e-05), (14, 6.963818359375e-05), (15, 7.024172973632812e-05), (16, 7.231837463378906e-05), (17, 6.813994598388672e-05), (18, 6.794043731689453e-05), (19, 6.524508666992188e-05), (20, 6.92929458618164e-05)],
                           [(0, 0.00015290451049804687), (1, 0.0002037772979736328), (2, 0.0001188478012084961), (
                               3, 0.0001140562744140625), (4, 0.00010555089569091796), (5, 9.751801300048828e-05), (
@@ -93,18 +93,17 @@ def curve_plot(comp_loss, comp_acc):
     for i, (loss, color) in enumerate(zip(loss_comparison_list, category_colors_3)):
         line2 = ax.plot(x, loss, c=color, ls="solid", marker='^', label='Loss', markersize=10, linewidth=5)
 
+    if plot_acc:
+        ax2 = ax.twinx()
+        category_colors_2 = plt.colormaps['tab20b_r'](np.linspace(0.05, 0.95, len(x)))
+        for i, (acc, color) in enumerate(zip(acc_list, category_colors_2)):
+            line3 = ax2.plot(x, acc, c=color, ls="solid", marker='p', label='Accuracy', markersize=10, linewidth=5)
 
-    ax2 = ax.twinx()
-    category_colors_2 = plt.colormaps['tab20b_r'](np.linspace(0.05, 0.95, len(x)))
-    for i, (acc, color) in enumerate(zip(acc_list, category_colors_2)):
-        line3 = ax2.plot(x, acc, c=color, ls="solid", marker='p', label='Accuracy', markersize=10, linewidth=5)
-
-    category_colors_4 = plt.colormaps['tab20b_r'](np.linspace(0.05, 0.95, len(x)))
-    for i, (acc, color) in enumerate(zip(acc_comparison_list, category_colors_4)):
-        line4 = ax2.plot(x, acc, c=color, ls="solid", marker='h', label='Accuracy', markersize=10, linewidth=5)
-
+        category_colors_4 = plt.colormaps['tab20b_r'](np.linspace(0.05, 0.95, len(x)))
+        for i, (acc, color) in enumerate(zip(acc_comparison_list, category_colors_4)):
+            line4 = ax2.plot(x, acc, c=color, ls="solid", marker='h', label='Accuracy', markersize=10, linewidth=5)
+        ax2.set_ylabel('Accuracy', **font)
     ax.set_ylabel('Loss value', **font)
-    ax2.set_ylabel('Accuracy', **font)
     ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
     # ax.set_ylim([-0.0005, 0.013])
     # ax.set_yticks([0, 0.002, 0.004, 0.006, 0.008, 0.01, 0.012])
@@ -115,9 +114,10 @@ def curve_plot(comp_loss, comp_acc):
     # ax2.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     # ax.set_yticks(fontsize=33, weight='bold', fontname='Helvetica Neue')
     # ax2.set_yticks(fontsize=33, weight='bold', fontname='Helvetica Neue')
-
-    ax.legend(line1 + line2 + line3 + line4, ['Loss', 'Compare loss', 'Accuracy', 'Compare accuracy'], loc=7, fontsize=23, ncol=2, framealpha=0.3)
-
+    if plot_acc:
+        ax.legend(line1 + line2 + line3 + line4, ['Loss', 'Compare loss', 'Accuracy', 'Compare accuracy'], loc=7, fontsize=23, ncol=2, framealpha=0.3)
+    else:
+        ax.legend(line1 + line2, ['Loss', 'Compare loss'], loc=7, fontsize=23, ncol=2, framealpha=0.3)
     # plt.savefig("plots/loss_plot.pdf", bbox_inches='tight')
     plt.show()
 
@@ -135,7 +135,7 @@ def read_log_file(path):
             with open(path+log) as f:
                 f = f.readlines()
             for line in f:
-                if "Loss" in line:
+                if "Round" in line:
                     temp_loss = float(line.split("Loss ")[1].split(",")[0])
                     temp_acc = float(line.split("Accuracy ")[1].split(",")[0])
                     temp_file_loss.append(temp_loss)
@@ -149,4 +149,4 @@ if __name__ == "__main__":
     folder_path = 'log_file/'
     loss_list, acc_list = read_log_file(folder_path)
     # print(loss_list)
-    curve_plot(loss_list, acc_list)
+    curve_plot(loss_list, acc_list, plot_acc=False)
