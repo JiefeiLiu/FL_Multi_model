@@ -9,7 +9,6 @@ import random
 import torch
 from torch import nn
 import time
-import data_preprocessing
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
@@ -17,6 +16,7 @@ import utils
 import models
 from data_utils import CustomDataset
 import single_client_test
+import data_preprocessing
 
 
 # Set cuda
@@ -27,42 +27,42 @@ if torch.cuda.is_available():
     DEVICE = torch.device(cuda_name)
 
 
-# -----------------------------------
-# Read CICIDS2017 data
-def read_2017_data_for_FL(path):
-    # multi-class classification
-    X_train = np.load(path + "x_tr_dos-sl-hk_ddos_bf_pr_f40.npy")
-    y_train = np.load(path + "y_tr_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
-    X_test = np.load(path + "x_ts_dos-sl-hk_ddos_bf_pr_f40.npy")
-    y_test = np.load(path + "y_ts_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
-
-    print("X training shape: ", X_train.shape)
-    print("y training shape: ", y_train.shape)
-    print("X training shape: ", X_test.shape)
-    print("y training shape: ", y_test.shape)
-    unique, counts = np.unique(y_train, return_counts=True)
-    print("Training data shape", dict(zip(unique, counts)))
-    unique, counts = np.unique(y_test, return_counts=True)
-    print("Testing data shape", dict(zip(unique, counts)))
-
-    '''re-split the training and testing'''
-    X = np.concatenate((X_train, X_test), axis=0)
-    y = np.concatenate((y_train, y_test), axis=0)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
-    # validation/noise data generator
-    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=1, shuffle=True,
-                                                      stratify=y_train)
-
-    unique, counts = np.unique(y_train, return_counts=True)
-    print("Training shape", dict(zip(unique, counts)))
-    unique, counts = np.unique(y_test, return_counts=True)
-    print("Testing shape", dict(zip(unique, counts)))
-    unique, counts = np.unique(y_val, return_counts=True)
-    print("Validation shape", dict(zip(unique, counts)))
-    # print(str(len(y_test) / (len(y_train) + len(y_test))))
-    return (X_train, y_train), (X_test, y_test), (X_val, y_val)
+# # -----------------------------------
+# # Read CICIDS2017 data
+# def read_2017_data_for_FL(path):
+#     # multi-class classification
+#     X_train = np.load(path + "x_tr_dos-sl-hk_ddos_bf_pr_f40.npy")
+#     y_train = np.load(path + "y_tr_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
+#     X_test = np.load(path + "x_ts_dos-sl-hk_ddos_bf_pr_f40.npy")
+#     y_test = np.load(path + "y_ts_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
 #
+#     print("X training shape: ", X_train.shape)
+#     print("y training shape: ", y_train.shape)
+#     print("X training shape: ", X_test.shape)
+#     print("y training shape: ", y_test.shape)
+#     unique, counts = np.unique(y_train, return_counts=True)
+#     print("Training data shape", dict(zip(unique, counts)))
+#     unique, counts = np.unique(y_test, return_counts=True)
+#     print("Testing data shape", dict(zip(unique, counts)))
+#
+#     '''re-split the training and testing'''
+#     X = np.concatenate((X_train, X_test), axis=0)
+#     y = np.concatenate((y_train, y_test), axis=0)
+#
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
+#     # validation/noise data generator
+#     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.23, random_state=1, shuffle=True,
+#                                                       stratify=y_train)
+#
+#     unique, counts = np.unique(y_train, return_counts=True)
+#     print("Training shape", dict(zip(unique, counts)))
+#     unique, counts = np.unique(y_test, return_counts=True)
+#     print("Testing shape", dict(zip(unique, counts)))
+#     unique, counts = np.unique(y_val, return_counts=True)
+#     print("Validation shape", dict(zip(unique, counts)))
+#     # print(str(len(y_test) / (len(y_train) + len(y_test))))
+#     return (X_train, y_train), (X_test, y_test), (X_val, y_val)
+# #
 #
 # def normalization(X_train, y_train, X_test, y_test):
 #     # normalize training data
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     #     print("Client ", str(index), "training shape", dict(zip(unique, counts)))
     # sys.exit()
     data_dir = '2017_data/'
-    (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(data_dir)
+    (X_train, y_train), (X_test, y_test), (X_val, y_val) = data_preprocessing.read_2017_data_for_FL(data_dir)
     # define parameters
     epochs = 200
     learning_rate = 0.01
