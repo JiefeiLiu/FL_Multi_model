@@ -111,9 +111,12 @@ def main() -> None:
     # set cuda
     try:
         DEVICE = int(sys.argv[2])
+        print(DEVICE)
         print("Input setting ", DEVICE, " are using for training and testing.")
     except:
         print("Random pick ", DEVICE, " are using for training and testing.")
+
+    sys.exit()
     # hyper-parameters
     client_epochs = 10
     learning_rate = 0.01
