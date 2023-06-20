@@ -14,7 +14,7 @@ def create_screen(com, activate_conda=False):
     keyboard.release(Key.enter)
     if activate_conda:
         time.sleep(0.5)
-        keyboard.type("conda activate pytorch_cuda")
+        keyboard.type("conda activate FL_env")
         keyboard.press(Key.enter)
         keyboard.release(Key.enter)
         time.sleep(0.5)
@@ -29,10 +29,21 @@ def enter_screen(com):
     keyboard.release(Key.enter)
 
 
-def execute_program(index):
-    keyboard.type('python client.py ' + str(index))
+def execute_program(index, process_count, cuda_index, num_process_per_gpu):
+    print(process_count, cuda_index)
+    if process_count < num_process_per_gpu:
+        cuda_name = "cuda:" + str(cuda_index)
+        com = 'python client.py ' + str(index) + ' ' + cuda_name
+        process_count += 1
+    else:
+        cuda_index += 1
+        process_count = 1
+        cuda_name = "cuda:" + str(cuda_index)
+        com = 'python client.py ' + str(index) + ' ' + cuda_name
+    keyboard.type(com)
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
+    return process_count, cuda_index
 
 
 def exit_screen():
@@ -53,12 +64,13 @@ def exit_screen():
 
 if __name__ == '__main__':
     time.sleep(3)
-    num_client = 2
+    num_client = 100
     act_conda = False
     create_scn = False
     run_client = True
     if create_scn:
-        for i in range(1, num_client+1):
+        client_lower_bound = 50
+        for i in range(client_lower_bound+1, num_client+1):
             create_screen_name = "screen -S client" + str(i)
             create_screen(create_screen_name, activate_conda=act_conda)
             time.sleep(1)
@@ -68,17 +80,10 @@ if __name__ == '__main__':
         process_count = 0
         cuda_index = 0
         for i in range(1, num_client+1):
-            if process_count < num_process_per_gpu:
-                cuda_name = "cuda:" + str(cuda_index)
-                screen_name = "screen -r client" + str(i) + " " + cuda_name
-            else:
-                cuda_name = "cuda:" + str(cuda_index)
-                screen_name = "screen -r client" + str(i) + " " + cuda_name
-                cuda_index += 1
-                process_count = 0
+            screen_name = "screen -r client" + str(i)
             enter_screen(screen_name)
             time.sleep(1)
-            execute_program(i-1)
+            process_count, cuda_index = execute_program(i-1, process_count, cuda_index, num_process_per_gpu)
             time.sleep(2)
             exit_screen()
             time.sleep(1)
