@@ -111,7 +111,6 @@ def main() -> None:
     # set cuda
     try:
         DEVICE = sys.argv[2]
-        print(DEVICE)
         print("Input setting", DEVICE, "are using for training and testing.")
     except:
         print("Random pick", DEVICE, "are using for training and testing.")
