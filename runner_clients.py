@@ -64,7 +64,8 @@ def exit_screen():
 
 if __name__ == '__main__':
     time.sleep(3)
-    num_client = 100
+    num_client = 50
+    num_gpus = 4
     act_conda = False
     create_scn = False
     run_client = True
@@ -76,7 +77,7 @@ if __name__ == '__main__':
             time.sleep(1)
 
     if run_client:
-        num_process_per_gpu = num_client/4
+        num_process_per_gpu = num_client/num_gpus
         process_count = 0
         cuda_index = 0
         for i in range(1, num_client+1):
