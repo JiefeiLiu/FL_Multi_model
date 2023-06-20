@@ -443,7 +443,7 @@ if __name__ == "__main__":
     # data_path = "../LR_model/CICIDS2017/"
     data_path = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     pickle_saving_path = "2019_data/"
-    partition_num = 25
+    partition_num = 50
     num_attacks_range = [1, 3]
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
