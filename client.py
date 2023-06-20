@@ -22,9 +22,14 @@ USE_FEDBN: bool = False
 # Set cuda
 DEVICE = torch.device("cpu")
 if torch.cuda.is_available():
-    cuda_num = random.randint(0, (torch.cuda.device_count()-1))
-    cuda_name = "cuda:" + str(cuda_num)
-    DEVICE = torch.device(cuda_name)
+    try:
+        DEVICE = int(sys.argv[2])
+        print("Input setting ", DEVICE, " are using for training and testing.")
+    except:
+        cuda_num = random.randint(0, (torch.cuda.device_count() - 1))
+        cuda_name = "cuda:" + str(cuda_num)
+        DEVICE = torch.device(cuda_name)
+        print("Random pick ", DEVICE, " are using for training and testing.")
 
 
 class MLPClient(fl.client.NumPyClient):
@@ -107,11 +112,6 @@ def main() -> None:
     else:
         print("No data found.")
         sys.exit()
-    try:
-        DEVICE = int(sys.argv[2])
-        print("Input setting ", DEVICE, " are using for training and testing.")
-    except:
-        print(DEVICE, " are using for training and testing.")
     # hyper-parameters
     client_epochs = 10
     learning_rate = 0.01
