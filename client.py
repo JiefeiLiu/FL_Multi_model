@@ -118,7 +118,7 @@ def main() -> None:
     client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
-    partition_num = 100
+    partition_num = 50
     training_data_name = str(partition_num) + '_training.pkl'
     # number of classes
     if dataset == 2019:

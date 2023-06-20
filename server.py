@@ -39,7 +39,7 @@ elif dataset == 2017:
     n_classes = 7
     num_features = 40
 # number of features
-partition_num = 100
+partition_num = 50
 
 if dataset == 2019:
     data_dir = "2019_data/"

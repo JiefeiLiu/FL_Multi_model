@@ -30,7 +30,7 @@ def enter_screen(com):
 
 
 def execute_program(index, process_count, cuda_index, num_process_per_gpu):
-    print(process_count, cuda_index)
+    # print(process_count, cuda_index)
     if process_count < num_process_per_gpu:
         cuda_name = "cuda:" + str(cuda_index)
         com = 'python client.py ' + str(index) + ' ' + cuda_name
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     create_scn = False
     run_client = True
     if create_scn:
-        client_lower_bound = 50
+        client_lower_bound = 0
         for i in range(client_lower_bound+1, num_client+1):
             create_screen_name = "screen -S client" + str(i)
             create_screen(create_screen_name, activate_conda=act_conda)
