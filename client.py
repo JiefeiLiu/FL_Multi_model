@@ -107,13 +107,16 @@ def main() -> None:
     else:
         print("No data found.")
         sys.exit()
-
-    print(DEVICE, " are using for training and testing.")
+    try:
+        DEVICE = int(sys.argv[2])
+        print("Input setting ", DEVICE, " are using for training and testing.")
+    except:
+        print(DEVICE, " are using for training and testing.")
     # hyper-parameters
     client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
-    partition_num = 20
+    partition_num = 100
     training_data_name = str(partition_num) + '_training.pkl'
     # number of classes
     if dataset == 2019:

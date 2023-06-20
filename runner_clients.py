@@ -53,7 +53,7 @@ def exit_screen():
 
 if __name__ == '__main__':
     time.sleep(3)
-    num_client = 20
+    num_client = 2
     act_conda = False
     create_scn = False
     run_client = True
@@ -64,8 +64,18 @@ if __name__ == '__main__':
             time.sleep(1)
 
     if run_client:
+        num_process_per_gpu = num_client/4
+        process_count = 0
+        cuda_index = 0
         for i in range(1, num_client+1):
-            screen_name = "screen -r client" + str(i)
+            if process_count < num_process_per_gpu:
+                cuda_name = "cuda:" + str(cuda_index)
+                screen_name = "screen -r client" + str(i) + " " + cuda_name
+            else:
+                cuda_name = "cuda:" + str(cuda_index)
+                screen_name = "screen -r client" + str(i) + " " + cuda_name
+                cuda_index += 1
+                process_count = 0
             enter_screen(screen_name)
             time.sleep(1)
             execute_program(i-1)
