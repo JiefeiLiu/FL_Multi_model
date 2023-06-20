@@ -110,7 +110,7 @@ def main() -> None:
         sys.exit()
     # set cuda
     try:
-        DEVICE = int(sys.argv[2])
+        DEVICE = sys.argv[2]
         print(DEVICE)
         print("Input setting ", DEVICE, " are using for training and testing.")
     except:
