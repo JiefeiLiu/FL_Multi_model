@@ -112,11 +112,9 @@ def main() -> None:
     try:
         DEVICE = sys.argv[2]
         print(DEVICE)
-        print("Input setting ", DEVICE, " are using for training and testing.")
+        print("Input setting", DEVICE, "are using for training and testing.")
     except:
-        print("Random pick ", DEVICE, " are using for training and testing.")
-
-    sys.exit()
+        print("Random pick", DEVICE, "are using for training and testing.")
     # hyper-parameters
     client_epochs = 10
     learning_rate = 0.01
