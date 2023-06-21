@@ -47,7 +47,7 @@ if __name__ == '__main__':
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
-    num_clients = 100
+    num_clients = 50
     training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
