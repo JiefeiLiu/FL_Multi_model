@@ -204,18 +204,25 @@ if __name__ == '__main__':
             # Update global models
             glob_models[j].load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
-        round_models_loss = []
-        round_models_accuracy = []
-        # Testing all models
-        for j in range(num_global_models):
-            temp_model_round_loss, temp_model_round_accuracy, _, _, _ = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
-            round_models_loss.append(temp_model_round_loss)
-            round_models_accuracy.append(temp_model_round_accuracy)
-        # find best model
-        best_accuracy_index = round_models_accuracy.index(max(round_models_accuracy))
+        # round_models_loss = []
+        # round_models_accuracy = []
+        # # Testing all models
+        # for j in range(num_global_models):
+        #     temp_model_round_loss, temp_model_round_accuracy, _, _, _ = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
+        #     round_models_loss.append(temp_model_round_loss)
+        #     round_models_accuracy.append(temp_model_round_accuracy)
+        # # find best model
+        # best_accuracy_index = round_models_accuracy.index(max(round_models_accuracy))
+        # round_training_time = (time.time() - Round_time) / 60
+        # server_training_time.append(round_training_time)
+        # logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], round_training_time)
+        round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(glob_models, loss_functions[0],
+                                                                                   test_loader, neural_network,
+                                                                                   device=DEVICE)
         round_training_time = (time.time() - Round_time) / 60
         server_training_time.append(round_training_time)
-        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], round_training_time)
+        logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_loss, round_accuracy,
+                     round_training_time)
     print("---Server running time: %s minutes. ---" % ((time.time() - start_time) / 60))
     logging.info('Total training time(min) %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
