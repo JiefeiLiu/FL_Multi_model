@@ -54,7 +54,7 @@ if __name__ == '__main__':
     rounds = 20
     fraction = 1.0
     num_global_models = 5
-    num_clients_per_model = 9
+    num_clients_per_model = int(num_clients/num_global_models)
     # Setting parameters
     neural_network = "MLP_Mult"
     # data dir
