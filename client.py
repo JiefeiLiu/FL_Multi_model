@@ -98,7 +98,7 @@ class MLPClient(fl.client.NumPyClient):
 def main() -> None:
     # Select from 2017, 2019 or generated
     global DEVICE
-    dataset = 2019
+    dataset = 2017
     if dataset == 2019:
         data_dir = "2019_data/"
     elif dataset == 2017:

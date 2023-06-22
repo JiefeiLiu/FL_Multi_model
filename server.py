@@ -27,7 +27,7 @@ if torch.cuda.is_available():
 
 # define parameters
 # Select from 2017 or 2019
-dataset = 2019
+dataset = 2017
 # Select from "Binary" or "Multi"
 classification = "Multi"
 neural_network = "MLP_Mult"
