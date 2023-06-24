@@ -39,7 +39,7 @@ elif dataset == 2017:
     n_classes = 7
     num_features = 40
 # number of features
-partition_num = 50
+partition_num = 25
 
 if dataset == 2019:
     data_dir = "2019_data/"
@@ -134,7 +134,7 @@ def server_init():
 
 if __name__ == "__main__":
     start_time = time.time()
-    strategy = fl.server.strategy.FedAvgM(
+    strategy = fl.server.strategy.FedAvg(
         min_available_clients=partition_num,
         # min_fit_clients=30,
         # min_evaluate_clients=30,
@@ -142,7 +142,7 @@ if __name__ == "__main__":
         fraction_evaluate=0.9,
         # server_learning_rate=0.1,
         initial_parameters=fl.common.ndarrays_to_parameters(get_parameters(server_init())),
-        server_momentum=0.7,
+        # server_momentum=0.7,
         # eta=0.01,
         # beta_1=0.7,
         # tau=0.001,
