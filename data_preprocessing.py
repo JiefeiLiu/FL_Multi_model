@@ -12,6 +12,7 @@ from sklearn.feature_selection import chi2
 from sklearn.metrics.pairwise import cosine_similarity
 import utils
 import sampling
+import centralized_2017_test
 
 
 # -----------------------------------
@@ -307,7 +308,7 @@ if __name__ == '__main__':
     partition_num = 20
     start_time = time.time()
     data_dir = '2017_data/'
-    (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(data_dir)
+    (X_train, y_train), (X_test, y_test), (X_val, y_val) = centralized_2017_test.read_2017_data_for_FL(data_dir)
     # data partition
     partitioned_data = sampling.partition_ex_imbal_equ(X_train, y_train, partition_num,
                                                        low_bound_of_classes=num_attacks_range[0],
