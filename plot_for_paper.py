@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
+import utils
+import sampling
+
 
 def curve_plot(comp_loss, comp_acc, plot_acc=True, plot_comp=True):
     losses_centralized = [[(0, 0.00015056385803222656), (1, 0.000155355224609375), (2, 0.00013385609436035155), (3, 0.00011074392700195312), (4, 9.893773651123047e-05), (5, 8.763913726806641e-05), (6, 8.786256408691407e-05), (7, 8.011539459228516e-05), (8, 7.885035705566407e-05), (9, 7.674244689941406e-05), (10, 7.724567413330079e-05), (11, 7.51748046875e-05), (12, 7.09059066772461e-05), (13, 7.123036956787109e-05), (14, 6.963818359375e-05), (15, 7.024172973632812e-05), (16, 7.231837463378906e-05), (17, 6.813994598388672e-05), (18, 6.794043731689453e-05), (19, 6.524508666992188e-05), (20, 6.92929458618164e-05)],
@@ -157,8 +160,18 @@ def read_log_file(path):
 
 
 if __name__ == "__main__":
-    folder_path = 'log_file/'
-    loss_list, acc_list = read_log_file(folder_path)
-    # print(len(loss_list[0]))
-    # print(loss_list)
-    curve_plot(loss_list, acc_list, plot_acc=False, plot_comp=False)
+    # folder_path = 'log_file/'
+    # loss_list, acc_list = read_log_file(folder_path)
+    # # print(len(loss_list[0]))
+    # # print(loss_list)
+    # curve_plot(loss_list, acc_list, plot_acc=False, plot_comp=False)
+    #-------------------------------Plot for data-----------------------------------------------#
+    data_dir = '2019_data/'
+    pickle_saving_path = 'plots/'
+    num_clients = 20
+    training_data_name = str(num_clients) + '_training.pkl'
+    # load data
+    partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
+    # plot
+    plot_name = "Partition_" + str(num_clients) + "_2019_ex_class_imbalanced.pdf"
+    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name)

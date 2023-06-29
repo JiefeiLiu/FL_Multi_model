@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 import random
 import time
 import matplotlib.pyplot as plt
+import matplotlib
 
 
 def read_data(path):
@@ -173,20 +174,25 @@ def stacked_bar_plot(results, category_names):
     data = np.array(list(results.values()))
     data_cum = data.cumsum(axis=1)
     category_colors = plt.colormaps['RdYlGn'](np.linspace(0.15, 0.85, data.shape[1]))
-
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 30}
+    matplotlib.rc('font', **font)
     fig, ax = plt.subplots(figsize=(10, 10))
     ax.invert_yaxis()
     ax.xaxis.set_visible(False)
     ax.set_xlim(0, np.sum(data, axis=1).max())
+    # ax.yaxis.set_visible(False)
+    ax.set_yticks(list(range(1, 21, 2)))
 
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] - widths
         rects = ax.barh(labels, widths, left=starts, height=0.5, label=colname, color=color)
         r, g, b, _ = color
-        text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
-        ax.bar_label(rects, label_type='center', color=text_color)
-    ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1), loc='lower left', fontsize='small', title='Class Name')
+        # text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
+        # ax.bar_label(rects, label_type='center', color=text_color)
+    # ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1), loc='lower left', fontsize='small', title='Class Name')
 
     return fig, ax
 
@@ -225,7 +231,7 @@ def plot_stacked_bar(partition_data, saving_path, saving_name, number_class=11):
     # plt.title("Clients' data distribution")
     plt.ylabel("Clients")
     plt.xlabel("Class distribution")
-    plt.savefig(saving_path + saving_name)
+    plt.savefig(saving_path + saving_name, bbox_inches='tight')
     # plt.show()
     pass
 
