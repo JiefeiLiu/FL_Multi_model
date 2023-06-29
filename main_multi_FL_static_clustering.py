@@ -64,7 +64,7 @@ if __name__ == '__main__':
         num_features = 41
     elif dataset == 2017:
         data_dir = "2017_data/"
-        num_classes = 7
+        num_classes = 8
         num_features = 40
     else:
         print("No data found, exit.")

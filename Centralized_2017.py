@@ -92,9 +92,9 @@ if __name__ == '__main__':
     # define parameters
     epochs = 50
     learning_rate = 0.01
-    batch_size = 32
-    MLP_first_hidden = 32
-    MLP_second_hidden = 64
+    batch_size = 64
+    MLP_first_hidden = 64
+    MLP_second_hidden = 128
     num_classes = 12
     # num_classes = 7
     classification = "Multi"

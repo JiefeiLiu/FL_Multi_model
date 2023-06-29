@@ -78,26 +78,19 @@ def cic_2017_normalize(training_data_list, X_test, y_test, X_val, y_val):
 # -----------------------------------
 # Read CICIDS2017 data
 def read_2017_data_for_FL(path):
-    # multi-class classification
-    X_train = np.load(path + "x_tr_dos-sl-hk_ddos_bf_pr_f40.npy")
-    y_train = np.load(path + "y_tr_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
-    X_test = np.load(path + "x_ts_dos-sl-hk_ddos_bf_pr_f40.npy")
-    y_test = np.load(path + "y_ts_mul_dos-sl-hk_ddos_bf_pr_f40.npy")
+    X = np.load(path + "cic17_all_X_org.npy")
+    y = np.load(path + "cic17_all_y_org.npy")
 
-    print("X training shape: ", X_train.shape)
-    print("y training shape: ", y_train.shape)
-    print("X training shape: ", X_test.shape)
-    print("y training shape: ", y_test.shape)
-    unique, counts = np.unique(y_train, return_counts=True)
-    print("Training data shape", dict(zip(unique, counts)))
-    unique, counts = np.unique(y_test, return_counts=True)
-    print("Testing data shape", dict(zip(unique, counts)))
+    # feature selection
+    X_s, y = cic2017_feature_selection(X, y, 40)
 
-    '''re-split the training and testing'''
-    X = np.concatenate((X_train, X_test), axis=0)
-    y = np.concatenate((y_train, y_test), axis=0)
+    print("X shape: ", X.shape)
+    print("y shape: ", y.shape)
+    unique, counts = np.unique(y, return_counts=True)
+    print("Total data shape", dict(zip(unique, counts)))
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X_s, y, test_size=0.10, random_state=1, shuffle=True,
+                                                        stratify=y)
     # validation/noise data generator
     X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.23, random_state=1, shuffle=True,
                                                       stratify=y_train)
@@ -330,7 +323,12 @@ if __name__ == '__main__':
         # A new file will be created
         pickle.dump(validation, file)
     # ---------------------Plot data partition-----------------------------
+    # show class distribution
+    for index, partition in enumerate(partitioned_data):
+        (X_train, y_train) = partition
+        unique, counts = np.unique(y_train, return_counts=True)
+        print("Client", str(index+1), "training shape", dict(zip(unique, counts)))
     pickle_saving_path = "2017_data/"
     plot_name = "Partition_" + str(partition_num) + "_2017_ex_class_imbalanced.pdf"
-    sampling.plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name, number_class=7)
+    sampling.plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name, number_class=8)
     print("--- %s seconds ---" % (time.time() - start_time))

@@ -166,12 +166,17 @@ if __name__ == "__main__":
     # # print(loss_list)
     # curve_plot(loss_list, acc_list, plot_acc=False, plot_comp=False)
     #-------------------------------Plot for data-----------------------------------------------#
-    data_dir = '2019_data/'
+    data_dir = '2017_data/'
     pickle_saving_path = 'plots/'
     num_clients = 20
     training_data_name = str(num_clients) + '_training.pkl'
     # load data
     partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
+    # show class distribution
+    for index, partition in enumerate(partition_data_list):
+        (X_train, y_train) = partition
+        unique, counts = np.unique(y_train, return_counts=True)
+        print("Client", str(index), "training shape", dict(zip(unique, counts)))
     # plot
-    plot_name = "Partition_" + str(num_clients) + "_2019_ex_class_imbalanced.pdf"
-    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name)
+    plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
+    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=8)

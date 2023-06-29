@@ -124,7 +124,7 @@ def main() -> None:
     if dataset == 2019:
         num_classes = 11
     elif dataset == 2017:
-        num_classes = 7
+        num_classes = 8
     # Select from "Binary" or "Multi"
     classification = "Multi"
     neural_network = "MLP_Mult"
