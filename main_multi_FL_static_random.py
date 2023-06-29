@@ -47,7 +47,7 @@ if __name__ == '__main__':
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
-    num_clients = 100
+    num_clients = 20
     training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Setting parameters
     neural_network = "MLP_Mult"
     # data dir
-    dataset = 2019
+    dataset = 2017
     if dataset == 2019:
         data_dir = "2019_data/"
         num_classes = 11
