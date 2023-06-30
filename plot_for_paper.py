@@ -176,18 +176,19 @@ def noise_curve_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=8, linewidth=5)
-    line2 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic Accuracy', markersize=8, linewidth=5)
+    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
+    line2 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic Accuracy', markersize=15, linewidth=10)
 
-    line3 = ax.plot(x, F1_static, c='forestgreen', ls="solid", marker='^', label='Static F1',
-                    markersize=8, linewidth=5)
-    line4 = ax.plot(x, F1_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic F1',
-                    markersize=8, linewidth=5)
+    line3 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
+                    markersize=15, linewidth=10)
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='h', label='Dynamic F1',
+                    markersize=15, linewidth=10)
+    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_ylabel('Accuracy / F1', **font)
+    ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Dynamic accuracy', 'static F1', 'Dynamic F1'], loc=0, fontsize=30, ncol=1, framealpha=0.3)
 
-    ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Dynamic accuracy', 'static F1', 'Dynamic F1'], loc=2, fontsize=23, ncol=2, framealpha=0.3)
-
+    plt.savefig("plots/noise_plot.pdf", bbox_inches='tight')
     plt.show()
-    # plt.savefig("plots/noise_plot.pdf", bbox_inches='tight')
     pass
 
 

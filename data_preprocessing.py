@@ -297,7 +297,7 @@ if __name__ == '__main__':
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # partitioned_data, (x_test, y_test_bin), (_, _) = read_2019_data(data_dir)
     # ------------------- data preprocessing for 2017 data ----------------------
-    num_attacks_range = [1, 3]
+    num_attacks_range = [1, 2]
     partition_num = 20
     start_time = time.time()
     data_dir = '2017_data/'
@@ -306,7 +306,7 @@ if __name__ == '__main__':
     partitioned_data = sampling.partition_ex_imbal_equ(X_train, y_train, partition_num,
                                                        low_bound_of_classes=num_attacks_range[0],
                                                        high_bound_of_classes=num_attacks_range[1],
-                                                       percentage_normal_traffic=70)
+                                                       percentage_normal_traffic=60)
     testing = (X_test, y_test)
     validation = (X_val, y_val)
     save_file_name = "2017_data/" + str(partition_num) + "_training.pkl"
