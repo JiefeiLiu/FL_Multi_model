@@ -244,7 +244,7 @@ def partition_ex_imbal_equ(X: np.ndarray, y: np.ndarray, num_partitions: int, lo
     # define the return variable
     res = []
     # define the size of dataset for each client
-    client_size = int(len(y) / num_partitions*0.6)
+    client_size = int(len(y) / num_partitions*0.9)
     # Convert np array to df
     df = pd.DataFrame(X)
     df['label'] = y

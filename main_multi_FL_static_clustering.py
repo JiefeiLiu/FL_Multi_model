@@ -51,7 +51,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 20
-    training_data_name = str(num_clients) + '_training.pkl'
+    training_data_name = str(21) + '_training.pkl'
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     # a list to store global models, 0 index is init global model
     global_models = []
     # a dict to store temp {global models : [temp clients index]}
-    over_lapping_clients_selection = True
+    over_lapping_clients_selection = False
     global_model_to_clients_recording = {}
     global_model_to_clients_recording_for_aggregation = {}
     global_model_to_clients_sim = {}

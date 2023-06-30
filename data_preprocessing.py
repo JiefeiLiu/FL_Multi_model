@@ -306,7 +306,7 @@ if __name__ == '__main__':
     partitioned_data = sampling.partition_ex_imbal_equ(X_train, y_train, partition_num,
                                                        low_bound_of_classes=num_attacks_range[0],
                                                        high_bound_of_classes=num_attacks_range[1],
-                                                       percentage_normal_traffic=60)
+                                                       percentage_normal_traffic=70)
     testing = (X_test, y_test)
     validation = (X_val, y_val)
     save_file_name = "2017_data/" + str(partition_num) + "_training.pkl"
