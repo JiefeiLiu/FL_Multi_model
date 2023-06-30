@@ -45,7 +45,7 @@ if __name__ == '__main__':
     batch_size = 64
     # Server hyperparameter setting
     num_clients = 20
-    training_data_name = str(21) + '_training.pkl'
+    training_data_name = str(num_clients) + '_training.pkl'
     rounds = 20
     fraction = 1.0
     conf_filter = 0.7

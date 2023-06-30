@@ -159,24 +159,58 @@ def read_log_file(path):
     return loss, acc
 
 
+def noise_curve_plot():
+    accuracy_static = [0.595, 0.764, 0.813, 0.816]
+    F1_static = [0.186, 0.496, 0.586, 0.597]
+    accuracy_dynamic = [0.585, 0.771, 0.793, 0.812]
+    F1_dynamic = [0.174, 0.521, 0.559, 0.593]
+    x = range(len(accuracy_static))
+    # plot
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 30}
+    matplotlib.rc('font', **font)
+    fig, ax = plt.subplots()
+    fig.set_figheight(10)
+    fig.set_figwidth(15)
+    # using rc function
+    plt.rc('font', **font)
+
+    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=8, linewidth=5)
+    line2 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic Accuracy', markersize=8, linewidth=5)
+
+    line3 = ax.plot(x, F1_static, c='forestgreen', ls="solid", marker='^', label='Static F1',
+                    markersize=8, linewidth=5)
+    line4 = ax.plot(x, F1_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic F1',
+                    markersize=8, linewidth=5)
+
+    ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Dynamic accuracy', 'static F1', 'Dynamic F1'], loc=2, fontsize=23, ncol=2, framealpha=0.3)
+
+    plt.show()
+    # plt.savefig("plots/noise_plot.pdf", bbox_inches='tight')
+    pass
+
+
 if __name__ == "__main__":
     # folder_path = 'log_file/'
     # loss_list, acc_list = read_log_file(folder_path)
     # # print(len(loss_list[0]))
     # # print(loss_list)
     # curve_plot(loss_list, acc_list, plot_acc=False, plot_comp=False)
-    #-------------------------------Plot for data-----------------------------------------------#
-    data_dir = '2017_data/'
-    pickle_saving_path = 'plots/'
-    num_clients = 20
-    training_data_name = str(num_clients) + '_training.pkl'
-    # load data
-    partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
-    # show class distribution
-    for index, partition in enumerate(partition_data_list):
-        (X_train, y_train) = partition
-        unique, counts = np.unique(y_train, return_counts=True)
-        print("Client", str(index), "training shape", dict(zip(unique, counts)))
-    # plot
-    plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
-    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=8)
+    #-------------------------------Bar plot for data-----------------------------------------------#
+    # data_dir = '2017_data/'
+    # pickle_saving_path = 'plots/'
+    # num_clients = 20
+    # training_data_name = str(num_clients) + '_training.pkl'
+    # # load data
+    # partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
+    # # show class distribution
+    # for index, partition in enumerate(partition_data_list):
+    #     (X_train, y_train) = partition
+    #     unique, counts = np.unique(y_train, return_counts=True)
+    #     print("Client", str(index), "training shape", dict(zip(unique, counts)))
+    # # plot
+    # plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
+    # sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=8)
+    #-------------------------------noise comparsion plot-----------------------------------------------#
+    noise_curve_plot()
