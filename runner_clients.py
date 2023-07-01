@@ -64,7 +64,7 @@ def exit_screen():
 
 if __name__ == '__main__':
     time.sleep(3)
-    num_client = 20
+    num_client = 10
     num_gpus = 4
     act_conda = False
     create_scn = False
