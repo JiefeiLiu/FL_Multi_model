@@ -91,12 +91,12 @@ if __name__ == '__main__':
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = centralized_2017_test.read_2017_data_for_FL(data_dir)
     # (X_train, y_train), (X_test, y_test), (X_val, y_val) = data_preprocessing.read_2017_data_for_FL((data_dir))
     # define parameters
-    epochs = 50
+    epochs = 200
     learning_rate = 0.01
     batch_size = 64
     MLP_first_hidden = 64
     MLP_second_hidden = 128
-    num_classes = 12
+    num_classes = 8
     # num_classes = 7
     classification = "Multi"
     neural_network = "MLP_Mult"
