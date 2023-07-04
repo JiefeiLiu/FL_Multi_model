@@ -128,7 +128,7 @@ def test(model, loss_fn, test_loader, nn_type, device="cpu"):
                 else:
                     _, predictions = torch.max(output.cpu(), 1)
                 all_pred_values.extend(predictions)
-                loss = loss_fn(output, target).item()  # Muti class classification
+                loss += loss_fn(output, target).item()  # Muti class classification
             else:
                 print("Wrong neural network type, exit.")
                 sys.exit()
@@ -190,7 +190,7 @@ def multi_model_test(models, loss_fn, test_loader, nn_type, device="cpu", conf_r
                         conf, predictions = torch.max(output.cpu(), 1)
                     all_pred_values.extend(predictions)
                     all_conf_values.extend(conf)
-                    loss = loss_fn(output, target).item()  # Muti class classification
+                    loss += loss_fn(output, target).item()  # Muti class classification
                 else:
                     print("Wrong neural network type, exit.")
                     sys.exit()

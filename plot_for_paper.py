@@ -164,7 +164,7 @@ def noise_curve_plot():
     F1_static = [0.186, 0.496, 0.586, 0.597]
     accuracy_dynamic = [0.585, 0.771, 0.793, 0.812]
     F1_dynamic = [0.174, 0.521, 0.559, 0.593]
-    x = range(len(accuracy_static))
+    x = [0, 0.2, 0.4, 0.6]
     # plot
     font = {'family': 'Arial',
             'weight': 'normal',
@@ -185,6 +185,7 @@ def noise_curve_plot():
                     markersize=15, linewidth=10)
     ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax.set_ylabel('Accuracy / F1', **font)
+    ax.set_xticks([0, 0.2, 0.4, 0.6])
     ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Dynamic accuracy', 'static F1', 'Dynamic F1'], loc=0, fontsize=30, ncol=1, framealpha=0.3)
 
     plt.savefig("plots/noise_plot.pdf", bbox_inches='tight')
