@@ -103,7 +103,7 @@ def weight_preprocess(client_weights, device):
                     temp_weight = [i for l in weight.cpu().numpy() for i in l]
                     temp_res.extend(temp_weight)
                 except:
-                    temp_res.extend(weight)
+                    temp_res.extend(weight.cpu().numpy())
         res.append(temp_res)
     return np.array(res)
 

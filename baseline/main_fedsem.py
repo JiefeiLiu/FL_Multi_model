@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # --------------------Parameter Setting-----------------------
     # clients hyperparameter setting
-    client_epochs = 5
+    client_epochs = 10
     learning_rate = 0.01
     batch_size = 64
     # Server hyperparameter setting
