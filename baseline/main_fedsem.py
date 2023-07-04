@@ -12,9 +12,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from sklearn.cluster import KMeans
 
+sys.path.append("..")
 import aggregation_functions
 import utils
-import baseline_utils
+import baseline.baseline_utils as baseline_utils
 import models
 import sampling
 import data_preprocessing
