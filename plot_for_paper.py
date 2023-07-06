@@ -162,35 +162,126 @@ def read_log_file(path):
 def noise_curve_plot():
     accuracy_static = [0.595, 0.764, 0.813, 0.816]
     F1_static = [0.186, 0.496, 0.586, 0.597]
-    accuracy_dynamic = [0.585, 0.771, 0.793, 0.812]
-    F1_dynamic = [0.174, 0.521, 0.559, 0.593]
+
     x = [0, 0.2, 0.4, 0.6]
     # plot
     font = {'family': 'Arial',
             'weight': 'normal',
-            'size': 30}
+            'size': 33}
     matplotlib.rc('font', **font)
     fig, ax = plt.subplots()
     fig.set_figheight(10)
+    fig.set_figwidth(10)
+    # using rc function
+    plt.rc('font', **font)
+
+    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
+                    markersize=15, linewidth=10)
+
+    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
+    ax.set_ylabel('Accuracy / F1', **font)
+    ax.set_xlabel('Noise size', **font)
+    ax.set_xticks([0, 0.2, 0.4, 0.6])
+    ax.legend(line1 + line2, ['Static accuracy', 'static F1'], loc=4, fontsize=33, ncol=1, framealpha=0.3)
+
+    plt.savefig("plots/noise_plot_1.pdf", bbox_inches='tight')
+    plt.show()
+
+    # second plot
+    accuracy_dynamic = [0.585, 0.771, 0.793, 0.812]
+    F1_dynamic = [0.174, 0.521, 0.559, 0.593]
+
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 33}
+    matplotlib.rc('font', **font)
+    fig, ax = plt.subplots()
+    fig.set_figheight(10)
+    fig.set_figwidth(10)
+    # using rc function
+    plt.rc('font', **font)
+
+    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
+                    markersize=15, linewidth=10)
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
+                    markersize=15, linewidth=10)
+
+    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
+    # ax.set_ylabel('Accuracy / F1', **font)
+    ax.set_xticks([0, 0.2, 0.4, 0.6])
+    ax.set_xlabel('Noise size', **font)
+    # ax.yaxis.set_visible(False)
+    ax.legend(line3 + line4, ['Dynamic accuracy', 'Dynamic F1'], loc=4,
+              fontsize=33, ncol=1, framealpha=0.3)
+
+    plt.savefig("plots/noise_plot_2.pdf", bbox_inches='tight')
+    plt.show()
+    pass
+
+
+def clients_curve_plot():
+    accuracy_static = [0.765, 0.802, 0.813, 0.79, 0.805, 0.788, 0.813]
+    F1_static = [0.494, 0.574, 0.586, 0.541, 0.576, 0.545, 0.585]
+
+    x = [10, 15, 20, 25, 30, 50, 100]
+    # plot
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 33}
+    matplotlib.rc('font', **font)
+    fig, ax = plt.subplots()
+    fig.set_figheight(5)
     fig.set_figwidth(15)
     # using rc function
     plt.rc('font', **font)
 
     line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
-    line2 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='^', label='Dynamic Accuracy', markersize=15, linewidth=10)
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
+                    markersize=15, linewidth=10)
 
-    line3 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
-                    markersize=15, linewidth=10)
-    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='h', label='Dynamic F1',
-                    markersize=15, linewidth=10)
-    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_yticks([0.4, 0.6, 0.8])
+    ax.set_ylim([0.3, 0.9])
     ax.set_ylabel('Accuracy / F1', **font)
-    ax.set_xticks([0, 0.2, 0.4, 0.6])
-    ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Dynamic accuracy', 'static F1', 'Dynamic F1'], loc=0, fontsize=30, ncol=1, framealpha=0.3)
+    # ax.set_xlabel('Number of clients', **font)
+    ax.set_xticks([10, 15, 20, 25, 30, 50, 100])
+    ax.legend(line1 + line2, ['Static accuracy', 'static F1'], loc=4, fontsize=30, ncol=1, framealpha=0.3)
 
-    plt.savefig("plots/noise_plot.pdf", bbox_inches='tight')
+    plt.savefig("plots/clients_plot_1.pdf", bbox_inches='tight')
+    plt.show()
+
+    # second plot
+    accuracy_dynamic = [0.707, 0.807, 0.793, 0.796, 0.804, 0.777, 0.811]
+    F1_dynamic = [0.38, 0.591, 0.559, 0.551, 0.575, 0.519, 0.581]
+
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 33}
+    matplotlib.rc('font', **font)
+    fig, ax = plt.subplots()
+    fig.set_figheight(5)
+    fig.set_figwidth(15)
+    # using rc function
+    plt.rc('font', **font)
+
+    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
+                    markersize=15, linewidth=10)
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
+                    markersize=15, linewidth=10)
+
+    ax.set_yticks([0.4, 0.6, 0.8])
+    ax.set_ylim([0.3, 0.9])
+    ax.set_ylabel('Accuracy / F1', **font)
+    ax.set_xlabel('Number of clients', **font)
+    ax.set_xticks([10, 15, 20, 25, 30, 50, 100])
+    # ax.yaxis.set_visible(False)
+    ax.legend(line3 + line4, ['Dynamic accuracy', 'Dynamic F1'], loc=4,
+              fontsize=30, ncol=1, framealpha=0.3)
+
+    plt.savefig("plots/clients_plot_2.pdf", bbox_inches='tight')
     plt.show()
     pass
+
 
 
 if __name__ == "__main__":
@@ -216,3 +307,4 @@ if __name__ == "__main__":
     # sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=8)
     #-------------------------------noise comparsion plot-----------------------------------------------#
     noise_curve_plot()
+    # clients_curve_plot()
