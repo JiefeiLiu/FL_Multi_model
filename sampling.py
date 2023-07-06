@@ -173,7 +173,7 @@ def stacked_bar_plot(results, category_names):
     labels = list(results.keys())
     data = np.array(list(results.values()))
     data_cum = data.cumsum(axis=1)
-    category_colors = plt.colormaps['RdYlGn'](np.linspace(0.15, 0.85, data.shape[1]))
+    category_colors = plt.colormaps['RdYlGn_r'](np.linspace(0.1, 0.95, data.shape[1]))
     font = {'family': 'Arial',
             'weight': 'normal',
             'size': 30}
@@ -192,7 +192,9 @@ def stacked_bar_plot(results, category_names):
         r, g, b, _ = color
         # text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
         # ax.bar_label(rects, label_type='center', color=text_color)
-    # ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1), loc='lower left', fontsize='small', title='Class Name')
+    org_label = ['Normal', 'DDoS', 'DoS Goldeye', 'Dos Hulk', 'Dos SlowHTTPTest', 'Dos Slowloris', 'FTP Patator', 'Brute Force', 'SSH Patator']
+    # org_label = ['Normal', 'DDoS SNMP', 'DDoS DNS', 'DDoS MSSQL', 'DDoS NetBIOS', 'DDoS UDP', 'DDoS SSDP', 'DDoS LDAP', 'DDoS NTP', 'UDP-Lag', 'SYN']
+    ax.legend(org_label, ncol=3, bbox_to_anchor=(0, 1), loc='lower left', fontsize=13)
 
     return fig, ax
 
