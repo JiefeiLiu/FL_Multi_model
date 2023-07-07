@@ -36,7 +36,7 @@ if dataset == 2019:
     n_classes = 11
     num_features = 41
 elif dataset == 2017:
-    n_classes = 8
+    n_classes = 9
     num_features = 40
 # number of features
 partition_num = 20

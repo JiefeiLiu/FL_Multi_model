@@ -313,7 +313,7 @@ if __name__ == "__main__":
         plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
     elif data == 2019:
         plot_name = "Partition_" + str(num_clients) + "_2019_ex_class_imbalanced.pdf"
-    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=9)
+    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=num_class)
     #-------------------------------noise comparsion plot-----------------------------------------------#
     # noise_curve_plot()
     # clients_curve_plot()
