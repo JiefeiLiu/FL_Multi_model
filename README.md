@@ -1,7 +1,7 @@
-# Federated Learning with Multi Model 
-===
+# Multi-Model Federated Learning (MMFL)
 **Framework Architecture**<br>
 
+![alt text](https://github.com/JiefeiLiu/FL_Multi_model/blob/main/plots/Clustering.pdf)
 
 ****
 **Experiments set up**<br>
