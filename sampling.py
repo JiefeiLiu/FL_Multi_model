@@ -397,37 +397,7 @@ def partition_ex_imbal_equ_testing(X: np.ndarray, y: np.ndarray, num_partitions:
                 # remove the assigned data from original attack flow
                 attack_flow.drop(temp_class_sample_flow.index)
             except:
-                # # if the sample data greater than original data
-                # # assign all current data
-                # clients_data_df = pd.concat([clients_data_df, temp_class_flow])
-                # # remove the assigned data from original attack flow
-                # attack_flow.drop(temp_class_flow.index)
-                # remain_size = remain_size + (label_size_list[j] - temp_class_flow.shape[0])
                 continue
-        # # if we current client does not reach the target size
-        # while remain_size > 0:
-        #     # continue sample another class data
-        #     # Get the labels from attack data
-        #     attack_label = [*set(attack_flow['label'].tolist())]
-        #     # random pick a class
-        #     random_label_remain = random.sample(attack_label, 1)
-        #     # Get the target class data from attack traffic flow
-        #     temp_class_flow = attack_flow[attack_flow['label'] == random_label_remain[0]]
-        #     try:
-        #         # if the sampling data less than original data
-        #         temp_class_sample_flow = temp_class_flow.sample(100000)
-        #         # Assign attack sample to client data
-        #         clients_data_df = pd.concat([clients_data_df, temp_class_sample_flow])
-        #         # remove the assigned data from original attack flow
-        #         attack_flow.drop(temp_class_sample_flow.index)
-        #     except:
-        #         # # if the sample data greater than original data
-        #         # # assign all current data
-        #         # clients_data_df = pd.concat([clients_data_df, temp_class_flow])
-        #         # # remove the assigned data from original attack flow
-        #         # attack_flow.drop(temp_class_flow.index)
-        #         # remain_size = remain_size - temp_class_flow.shape[0]
-        #         continue
         # convert the client data df to np
         X_client = clients_data_df.iloc[:, :-1].to_numpy()
         y_client = clients_data_df.iloc[:, -1].to_numpy()

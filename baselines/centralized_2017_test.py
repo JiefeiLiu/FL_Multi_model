@@ -1,24 +1,12 @@
 import sys
-
+sys.path.append("..")
 import pandas as pd
 import numpy as np
-import pickle
-import os
-import copy
-import random
-import torch
-from torch import nn
-import time
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
-from torch.utils.data import DataLoader
-import utils
-import models
-from data_utils import CustomDataset
-import single_client_test
-import data_preprocessing
 
 
 
@@ -88,5 +76,5 @@ def read_2017_data_for_FL(path):
 
 
 if __name__ == '__main__':
-    path = '2017_data/'
+    path = '../2017_data/'
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(path)

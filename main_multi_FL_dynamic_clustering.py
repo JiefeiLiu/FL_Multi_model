@@ -22,7 +22,6 @@ from data_utils import CustomDataset
 from multi_threading import CustomThread
 import aggregation_functions
 from aggregation_functions import FedAvg, Multi_model_FedAvg
-from sklearn.cluster import KMeans
 
 
 # Set cuda
@@ -80,26 +79,8 @@ if __name__ == '__main__':
         fraction) + "_noise_" + str(percentage_of_noise) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
-    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "../DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     noise_label = num_classes - 1
     print("Loading data...")
-    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
-    # # Load partitioned data
-    # with open(pickle_dir, 'rb') as file:
-    #     # Call load method to deserialze
-    #     partition_data_list = pickle.load(file)
-    # # extract subset of training data
-    # testing_label = []
-    # for i in range(num_clients):
-    #     (temp_test_x, temp_test_y) = partition_data_list[i]
-    #     testing_label = np.concatenate([testing_label, temp_test_y])
-    # # extract corresponding testing data
-    # new_testing_x, new_testing_y = data_preprocessing.testing_data_extraction(data_dir, testing_label)
     partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
     (x_test, y_test_bin) = testing_data
     (x_val, y_val) = validation_data
@@ -184,14 +165,6 @@ if __name__ == '__main__':
         sim_matrix_saving_name = "sim_log/Dynamic_sim_matrix_round_" + str(iter) + ".csv"
         similarity_matrix_df = pd.DataFrame(similarity_matrix)
         similarity_matrix_df.to_csv(sim_matrix_saving_name)
-        # _____________________ Find the best K for clustering _____________________
-        # utils.find_best_k(clients_last_layer, iter)
-        # best_k = 5
-        # _____________________ Kmeans Clustering ____________________
-        # k_means = KMeans(n_clusters=best_k, random_state=0).fit(clients_last_layer)
-        # labels = k_means.labels_
-        # # record the similar clients
-        # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording, temp_client_list_index, labels, best_k)
         # _____________________ Group the clients from script _____________________
         global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix,
                                                                                 temp_client_list_index)

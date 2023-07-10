@@ -15,7 +15,7 @@ from sklearn.cluster import KMeans
 sys.path.append("..")
 import aggregation_functions
 import utils
-import baseline.baseline_utils as baseline_utils
+import baselines.baseline_utils as baseline_utils
 import models
 import sampling
 import data_preprocessing

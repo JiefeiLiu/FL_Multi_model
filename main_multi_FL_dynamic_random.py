@@ -76,16 +76,7 @@ if __name__ == '__main__':
     log_name = "log_file/" + "FL" + "_dynamic_random_dataset_" + str(dataset) + "_NN_" + neural_network + "_clients_" + str(num_clients) + "_epochs_" + str(client_epochs) + "_rounds_" + str(rounds) + "_fraction_" + str(fraction) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
-    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     print("Loading data...")
-    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
-    # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
-    # Load partitioned data
-    # with open(pickle_dir, 'rb') as file:
-    #     # Call load method to deserialze
-    #     partition_data_list = pickle.load(file)
     partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
     (x_test, y_test_bin) = testing_data
     (x_val, y_val) = validation_data
@@ -190,18 +181,6 @@ if __name__ == '__main__':
             # Update global models
             glob_models[j].load_state_dict(w_glob)
         # --------------------Server Round Testing-----------------------
-        # round_models_loss = []
-        # round_models_accuracy = []
-        # # Testing all models
-        # for j in range(num_global_models):
-        #     temp_model_round_loss, temp_model_round_accuracy, _, _, _ = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
-        #     round_models_loss.append(temp_model_round_loss)
-        #     round_models_accuracy.append(temp_model_round_accuracy)
-        # # find best model
-        # best_accuracy_index = round_models_accuracy.index(max(round_models_accuracy))
-        # round_training_time = (time.time() - Round_time) / 60
-        # server_training_time.append(round_training_time)
-        # logging.info('Round %d, Loss %f, Accuracy %f, Round Running time(min): %s', iter, round_models_loss[best_accuracy_index], round_models_accuracy[best_accuracy_index], round_training_time)
         round_loss, round_accuracy, f1, precision, recall = utils.multi_model_test(glob_models, loss_functions[0],
                                                                                    test_loader, neural_network,
                                                                                    device=DEVICE)
@@ -213,21 +192,6 @@ if __name__ == '__main__':
     logging.info('Total training time(min) %s', sum(server_training_time))
     # --------------------Server Testing-----------------------
     test_time = time.time()
-    # server_models_loss = []
-    # server_models_accuracy = []
-    # server_models_f1 = []
-    # server_models_precision = []
-    # server_models_recall = []
-    # Testing all models
-    # for j in range(num_global_models):
-    #     temp_model_loss, temp_model_accuracy, temp_model_f1, temp_model_precision, temp_model_recall = utils.test(glob_models[j], loss_functions[j], test_loader, neural_network, device=DEVICE)
-    #     server_models_loss.append(temp_model_loss)
-    #     server_models_accuracy.append(temp_model_accuracy)
-    #     server_models_f1.append(temp_model_f1)
-    #     server_models_precision.append(temp_model_precision)
-    #     server_models_recall.append(temp_model_recall)
-    # # find best model
-    # best_model_index = server_models_f1.index(max(server_models_f1))
     model_loss, model_accuracy, model_f1, model_precision, model_recall = utils.multi_model_test(
         glob_models, loss_functions[0], test_loader, neural_network, device=DEVICE)
     server_running_time = ((time.time() - test_time) / 60)

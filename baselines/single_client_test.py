@@ -2,6 +2,7 @@ import copy
 import random
 import warnings
 import sys
+sys.path.append("..")
 import time
 import os
 import pickle
@@ -138,7 +139,7 @@ def test(model, loss_fn, test_loader, curr_path, classification_method="Multi", 
 
 
 if __name__ == "__main__":
-    data_dir = '2017_data/'
+    data_dir = '../2017_data/'
     # hyper-parameters
     epochs = 50
     learning_rate = 0.01
@@ -154,7 +155,7 @@ if __name__ == "__main__":
     res_list = []
     # -------------------Create folder for model----------------------
     curr_path = os.getcwd()
-    make_dir(curr_path, "results")
+    make_dir(curr_path, "../results")
     # -------------- load datasets ----------------------
     print("Loading data...")
     partitioned_data, testing_data, _ = utils.load_data(data_dir, training_data=training_data_name)

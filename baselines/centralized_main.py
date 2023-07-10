@@ -1,24 +1,20 @@
-import models
-import data_preprocessing
-from data_utils import CustomDataset
-import os
-import time
 import sys
+sys.path.append("..")
+import time
 import copy
-import math
-import numpy as np
-import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from numpy.linalg import norm
-from sklearn import metrics
+
+import models
+import data_preprocessing
+from data_utils import CustomDataset
 import utils
 
 
 if __name__ == '__main__':
     # data_dir = "../DoD_Misra_project/jiefei_liu/DOD/LR_model/CICIDS2017/"
-    data_dir = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    data_dir = "../../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
     # hyper-parameters
     epochs = 200
     learning_rate = 0.01

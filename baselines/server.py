@@ -1,19 +1,17 @@
-import os
 import sys
+sys.path.append("..")
 import time
 import random
 import flwr as fl
 import numpy as np
-from typing import Dict
 from collections import OrderedDict
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
 import models
-import client
 import utils
 from data_utils import CustomDataset
 
@@ -42,9 +40,9 @@ elif dataset == 2017:
 partition_num = 20
 
 if dataset == 2019:
-    data_dir = "2019_data/"
+    data_dir = "../2019_data/"
 elif dataset == 2017:
-    data_dir = "2017_data/"
+    data_dir = "../2017_data/"
 elif dataset == "generated":
     data_dir = 'generated_data/'
 

@@ -1,15 +1,13 @@
 import random
 import warnings
 import sys
-import os
+sys.path.append("..")
 import flwr as fl
 import pickle
 import torch
 from torch import nn
 import numpy as np
 from collections import OrderedDict
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import log_loss
 from typing import Dict, List, Tuple
 from torch.utils.data import DataLoader
 
@@ -100,9 +98,9 @@ def main() -> None:
     global DEVICE
     dataset = 2017
     if dataset == 2019:
-        data_dir = "2019_data/"
+        data_dir = "../2019_data/"
     elif dataset == 2017:
-        data_dir = "2017_data/"
+        data_dir = "../2017_data/"
     elif dataset == "generated":
         data_dir = 'generated_data/'
     else:

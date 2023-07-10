@@ -21,15 +21,15 @@ def func(n1, n2):
     return np.array([[n1, n2], [n1, n2]]), np.array([[n1, n2], [n1, n2], [n1, n2]])
 
 
-if __name__ == '__main__':
-    thread_list = []
-    for i in range(3):
-        thread = CustomThread(target=func, args=(5, 3,))
-        thread_list.append(thread)
-    for i in thread_list:
-        i.start()
-    for i in thread_list:
-        a = i.join()
-        print(a[1])
-        # print(b)
-        print()
+# if __name__ == '__main__':
+#     thread_list = []
+#     for i in range(3):
+#         thread = CustomThread(target=func, args=(5, 3,))
+#         thread_list.append(thread)
+#     for i in thread_list:
+#         i.start()
+#     for i in thread_list:
+#         a = i.join()
+#         print(a[1])
+#         # print(b)
+#         print()

@@ -176,14 +176,14 @@ def noise_curve_plot():
     plt.rc('font', **font)
 
     line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
-    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='^', label='Static F1',
                     markersize=15, linewidth=10)
 
     ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
     ax.set_ylabel('Accuracy / F1', **font)
     ax.set_xlabel('Noise size', **font)
     ax.set_xticks([0, 0.2, 0.4, 0.6])
-    ax.legend(line1 + line2, ['Static accuracy', 'static F1'], loc=4, fontsize=33, ncol=1, framealpha=0.3)
+    ax.legend(line1 + line2, ['Static accuracy', 'Static F1'], loc=4, fontsize=33, ncol=1, framealpha=0.3)
 
     plt.savefig("plots/noise_plot_1.pdf", bbox_inches='tight')
     plt.show()
@@ -204,7 +204,7 @@ def noise_curve_plot():
 
     line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
                     markersize=15, linewidth=10)
-    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='^', label='Dynamic F1',
                     markersize=15, linewidth=10)
 
     ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
@@ -237,7 +237,7 @@ def clients_curve_plot():
     plt.rc('font', **font)
 
     line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
-    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='s', label='Static F1',
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='^', label='Static F1',
                     markersize=15, linewidth=10)
 
     ax.set_yticks([0.4, 0.6, 0.8])
@@ -245,7 +245,7 @@ def clients_curve_plot():
     ax.set_ylabel('Accuracy / F1', **font)
     # ax.set_xlabel('Number of clients', **font)
     ax.set_xticks([10, 15, 20, 25, 30, 50, 100])
-    ax.legend(line1 + line2, ['Static accuracy', 'static F1'], loc=4, fontsize=30, ncol=1, framealpha=0.3)
+    ax.legend(line1 + line2, ['Static accuracy', 'Static F1'], loc=4, fontsize=30, ncol=1, framealpha=0.3)
 
     plt.savefig("plots/clients_plot_1.pdf", bbox_inches='tight')
     plt.show()
@@ -266,7 +266,7 @@ def clients_curve_plot():
 
     line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
                     markersize=15, linewidth=10)
-    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='^', label='Dynamic F1',
                     markersize=15, linewidth=10)
 
     ax.set_yticks([0.4, 0.6, 0.8])
@@ -283,6 +283,48 @@ def clients_curve_plot():
     pass
 
 
+def clients_curve_combine_plot():
+    accuracy_static = [0.765, 0.802, 0.813, 0.79, 0.805, 0.788, 0.813]
+    F1_static = [0.494, 0.574, 0.586, 0.541, 0.576, 0.545, 0.585]
+    accuracy_dynamic = [0.707, 0.807, 0.793, 0.796, 0.804, 0.777, 0.811]
+    F1_dynamic = [0.38, 0.591, 0.559, 0.551, 0.575, 0.519, 0.581]
+    x = [10, 15, 20, 25, 30, 50, 100]
+
+    # plot
+    font = {'family': 'Arial',
+            'weight': 'normal',
+            'size': 33}
+    matplotlib.rc('font', **font)
+    fig, ax = plt.subplots()
+    fig.set_figheight(5)
+    fig.set_figwidth(15)
+    # using rc function
+    plt.rc('font', **font)
+
+    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='o', label='Static Accuracy', markersize=15,
+                    linewidth=10)
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='o', label='Static F1',
+                    markersize=15, linewidth=10)
+    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='s', label='Dynamic Accuracy',
+                    markersize=15, linewidth=10)
+    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
+                    markersize=15, linewidth=10)
+
+    ax.set_yticks([0.4, 0.6, 0.8])
+    ax.set_ylim([0.3, 0.9])
+    ax.set_ylabel('Accuracy / F1', **font)
+    ax.set_xlabel('Number of clients', **font)
+    ax.set_xticks([10, 15, 20, 25, 30, 50, 100])
+    # ax.yaxis.set_visible(False)
+    ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Static F1', 'Dynamic accuracy', 'Dynamic F1'], loc=4,
+              fontsize=25, ncol=2, framealpha=0.3)
+
+    plt.savefig("plots/clients_plot.pdf", bbox_inches='tight')
+    plt.show()
+
+
+
+
 
 if __name__ == "__main__":
     # folder_path = 'log_file/'
@@ -291,29 +333,30 @@ if __name__ == "__main__":
     # # print(loss_list)
     # curve_plot(loss_list, acc_list, plot_acc=False, plot_comp=False)
     #-------------------------------Bar plot for data-----------------------------------------------#
-    data = 2017
-    if data == 2017:
-        data_dir = '2017_data/'
-        num_class = 9
-    elif data == 2019:
-        data_dir = '2019_data/'
-        num_class = 11
-    pickle_saving_path = 'plots/'
-    num_clients = 20
-    training_data_name = str(num_clients) + '_training.pkl'
-    # load data
-    partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
-    # show class distribution
-    for index, partition in enumerate(partition_data_list):
-        (X_train, y_train) = partition
-        unique, counts = np.unique(y_train, return_counts=True)
-        print("Client", str(index), "training shape", dict(zip(unique, counts)))
-    # plot
-    if data == 2017:
-        plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
-    elif data == 2019:
-        plot_name = "Partition_" + str(num_clients) + "_2019_ex_class_imbalanced.pdf"
-    sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=num_class)
+    # data = 2017
+    # if data == 2017:
+    #     data_dir = '2017_data/'
+    #     num_class = 9
+    # elif data == 2019:
+    #     data_dir = '2019_data/'
+    #     num_class = 11
+    # pickle_saving_path = 'plots/'
+    # num_clients = 20
+    # training_data_name = str(num_clients) + '_training.pkl'
+    # # load data
+    # partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
+    # # show class distribution
+    # for index, partition in enumerate(partition_data_list):
+    #     (X_train, y_train) = partition
+    #     unique, counts = np.unique(y_train, return_counts=True)
+    #     print("Client", str(index), "training shape", dict(zip(unique, counts)))
+    # # plot
+    # if data == 2017:
+    #     plot_name = "Partition_" + str(num_clients) + "_2017_ex_class_imbalanced.pdf"
+    # elif data == 2019:
+    #     plot_name = "Partition_" + str(num_clients) + "_2019_ex_class_imbalanced.pdf"
+    # sampling.plot_stacked_bar(partition_data_list, pickle_saving_path, plot_name, number_class=num_class)
     #-------------------------------noise comparsion plot-----------------------------------------------#
-    # noise_curve_plot()
+    noise_curve_plot()
     # clients_curve_plot()
+    # clients_curve_combine_plot()

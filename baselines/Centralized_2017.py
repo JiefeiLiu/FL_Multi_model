@@ -1,22 +1,16 @@
 import sys
-
-import pandas as pd
-import numpy as np
-import pickle
+sys.path.append("..")
 import os
 import copy
 import random
 import torch
 from torch import nn
 import time
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 import utils
 import models
 from data_utils import CustomDataset
 import single_client_test
-import data_preprocessing
 import centralized_2017_test
 
 
@@ -87,7 +81,7 @@ if __name__ == '__main__':
     #     print("Client ", str(index), "training shape", dict(zip(unique, counts)))
     # sys.exit()
     print("Random pick", DEVICE, "are using for training and testing.")
-    data_dir = '2017_data/'
+    data_dir = '../2017_data/'
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = centralized_2017_test.read_2017_data_for_FL(data_dir)
     # (X_train, y_train), (X_test, y_test), (X_val, y_val) = data_preprocessing.read_2017_data_for_FL((data_dir))
     # define parameters
@@ -107,7 +101,7 @@ if __name__ == '__main__':
     test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False)
     # -------------------Create folder for model----------------------
     curr_path = os.getcwd()
-    utils.make_dir(curr_path, "results")
+    utils.make_dir(curr_path, "../results")
     # -------------- Define model ----------------------
     model = models.MLP_Mult(input_shape=X_train.shape[1], first_hidden=MLP_first_hidden,
                             second_hidden=MLP_second_hidden, num_classes=num_classes).to(DEVICE).train()

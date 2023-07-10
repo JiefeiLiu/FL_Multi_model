@@ -19,9 +19,7 @@ import sampling
 import data_preprocessing
 from data_utils import CustomDataset
 from multi_threading import CustomThread
-from aggregation_functions import FedAvg
-from sklearn.cluster import KMeans
-from sklearn.cluster import SpectralClustering
+
 
 # Set cuda
 DEVICE = torch.device("cpu")
@@ -86,18 +84,8 @@ if __name__ == '__main__':
         fraction) + "_noise_" + str(percentage_of_noise) + "_date_" + datetime.now().strftime("%m_%d_%Y_%H_%M_%S") + ".log"
     logging.basicConfig(filename=log_name, format='%(asctime)s - %(message)s', level=logging.INFO)
     # --------------------Data Loading-----------------------
-    # data_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition_attacks_2.pkl"
-    # data_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    # pickle_dir = "/home/jliu/DoD_Misra_project/jiefei_liu/DOD/MLP_model/data/partition.pkl"
     noise_label = num_classes - 1
     print("Loading data...")
-    # (x_train_un_bin, y_train_un_bin), (x_test, y_test_bin), (_, _) = data_preprocessing.read_2019_data(data_dir)
-    # partition_data_list = sampling.partition_bal_equ(x_train_un_bin, y_train_un_bin, num_clients)
-    # Load partitioned data
-    # with open(pickle_dir, 'rb') as file:
-    #     # Call load method to deserialze
-    #     partition_data_list = pickle.load(file)
     partition_data_list, testing_data, validation_data = utils.load_data(data_dir, training_data=training_data_name)
     (x_test, y_test_bin) = testing_data
     (x_val, y_val) = validation_data
@@ -191,71 +179,6 @@ if __name__ == '__main__':
                                                                                DEVICE)
             # Calculate weight similarity matrix
             similarity_matrix = utils.cosine_similarity_matrix(clients_last_layer)
-            # _____________________ Find the best K for clustering _____________________
-            # utils.find_best_k(clients_last_layer, iter)
-            # best_k = 23
-            # _____________________ Kmeans Clustering ____________________
-            # k_means = KMeans(n_clusters=best_k, random_state=0, algorithm="lloyd").fit(clients_last_layer)
-            # labels = k_means.labels_
-            # _____________________ Spectral Clustering ____________________
-            # compute the similarity matrix of clients last layer
-            # Spectral = SpectralClustering(n_clusters=best_k, affinity='precomputed').fit(similarity_matrix)
-            # labels = Spectral.labels_
-            # _____________________ matching cluster results to global model recording ____________________
-            # global_model_to_clients_recording = utils.record_clients_clustering(global_model_to_clients_recording,
-            #                                                                     temp_client_list_index, labels, best_k)
-            # ___________________ Manually Select the model with high similarity without overlapping ___________________
-            # global_model_to_clients_recording = {
-            #     1: [0, 11],
-            #     2: [1, 4],
-            #     3: [2],
-            #     4: [3, 26],
-            #     5: [5],
-            #     6: [6, 25],
-            #     7: [7, 17],
-            #     8: [8],
-            #     9: [9],
-            #     10: [10],
-            #     11: [12],
-            #     12: [13],
-            #     13: [14],
-            #     14: [15],
-            #     15: [16, 28],
-            #     16: [18],
-            #     17: [19],
-            #     18: [20],
-            #     19: [21, 23],
-            #     20: [22],
-            #     21: [24],
-            #     22: [27],
-            #     23: [29],
-            # }
-            # _____________________ Manually Select the model with high similarity with overlapping ____________________
-            # global_model_to_clients_recording_for_aggregation = {
-            #     1: [0, 11],
-            #     2: [1, 2, 7, 13, 17, 23, 29],
-            #     3: [3, 4, 9, 15, 18, 19, 25, 28],
-            #     4: [4, 9, 25, 3, 15, 18, 19, 25, 28],
-            #     5: [5],
-            #     6: [6, 24, 26],
-            #     7: [7, 1, 2, 13, 17, 23, 29],
-            #     8: [10, 22],
-            #     9: [12],
-            #     10: [13, 23, 1, 2, 7, 16, 17, 29],
-            #     11: [14],
-            #     12: [15, 18, 3, 4, 9, 17, 19, 25, 28],
-            #     13: [16, 13],
-            #     14: [17, 1, 2, 7, 13, 15, 18, 23, 29],
-            #     15: [19, 3, 4, 9, 15, 18, 25, 28],
-            #     16: [20],
-            #     17: [21],
-            #     18: [24, 6, 26],
-            #     19: [26, 6, 24],
-            #     20: [27, 16],
-            #     21: [28, 3, 4, 9, 15, 18, 19, 25],
-            #     22: [29, 1, 2, 7, 13, 17, 23],
-            #     23: [8],
-            # }
             # _____________________ Group the clients from script _____________________
             global_model_to_clients_recording = utils.group_clients_from_sim_matrix(similarity_matrix,
                                                                                     temp_client_list_index)

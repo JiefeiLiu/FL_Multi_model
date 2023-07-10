@@ -58,8 +58,3 @@ def Multi_model_FedAvg_with_attention(global_model_list, clustered_info, sim_inf
         temp_init_global_model.load_state_dict(temp_global_model_weight)
         global_model_list.append(temp_init_global_model)
     return global_model_list
-
-
-if __name__ == '__main__':
-    mydict = {1: [1, 2], 2: [2, 5], 3: [3, 5]}
-    print(list(mydict.values()))
