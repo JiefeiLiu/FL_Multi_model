@@ -18,6 +18,9 @@ Or you need to install important libraries with specific versions: <br>
 Please follow the steps shown in [link](https://github.com/JiefeiLiu/Federated_learning_env_set_up)
 
 ****
+**Dataset**
+You can download the CICIDS2017 dataset from [here](https://www.unb.ca/cic/datasets/ids-2017.html) and the CICDDoS2019 dataset from [here](https://www.unb.ca/cic/datasets/ddos-2019.html). Preprocessing (Clean data, feature selection and etc.) before partition. 
+
 **Example to Run the Experiments**
 
 1. Run static clustering using the following command:<br>
