@@ -1,46 +1,46 @@
 # Multi-Model Federated Learning (MMFL)
 **Framework Architecture**<br>
 
-![alt text](https://github.com/JiefeiLiu/FL_Multi_model/blob/main/plots/Clustering.pdf)
+![alt text](https://github.com/JiefeiLiu/FL_Multi_model/blob/main/plots/Multi_model_clustering-Clustering.jpg)
 
 ****
 **Experiments set up**<br>
 The ```requirement.txt``` contains all the libraries we need to run the program. <br>
 You can use ```pip install requirements.txt``` to install all the libraries you need. 
 
-Or you need to install important libraries with specific version: <br>
+Or you need to install important libraries with specific versions: <br>
 ```Python >= 3.8``` <br>
 ```pytorch >= 1.12```<br>
 ```flwr >= 1.0.0```<br>
 ```scikit_learn >= 1.1.2```<br>
 
-**Set up environment on NMSU CS machine** <br>
+**Set up the environment on the NMSU CS machine** <br>
 Please follow the steps shown in [link](https://github.com/JiefeiLiu/Federated_learning_env_set_up)
 
 ****
 **Example to Run the Experiments**
 
-1. Run static clustering use the following command:<br>
+1. Run static clustering using the following command:<br>
 ```python main_multi_FL_static_clustering.py```<br>
-2. Run dynamic clustering use the following command:<br>
+2. Run dynamic clustering using the following command:<br>
 ```python main_multi_FL_dynamic_clustering.py```<br>
-3. Run static random use the following command:<br>
+3. Run static random using the following command:<br>
 ```python main_multi_FL_static_random.py```<br>
-4. Run dynamic random use the following command:<br>
+4. Run dynamic random using the following command:<br>
 ```python main_multi_FL_dynamic_random.py```<br>
 
 
 ****
 **To Set Up the Different Parameters**<br>
-Following shows how you can find/modify the crucial parameters in the script. <br><br>
+The following shows how you can find/modify the crucial parameters in the script. <br><br>
 **Client side parameters setting**<br>
 client_epochs : client epoch<br>
-learning_rate : client side learning rate <br>
+learning_rate : client-side learning rate <br>
 batch_size : batch size for local training<br><br>
 **Server side parameters setting**<br>
-num_clients : require number of clients (should be same as number of partition)<br>
+num_clients : require number of clients (should be same as the number of the partition)<br>
 round : server rounds<br>
-conf_filter : confidence filtering (use for filtering the prediction in testing)<br>
+conf_filter : confidence filtering (used for filtering the prediction in testing)<br>
 percentage_of_noise : noise size based on total attack instances<br><br>
 **Dataset parameters**<br>
 dataset : dataset name <br>
