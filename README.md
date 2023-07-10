@@ -34,18 +34,21 @@ Please follow the steps shown in [link](https://github.com/JiefeiLiu/Federated_l
 **To Set Up the Different Parameters**<br>
 The following shows how you can find/modify the crucial parameters in the script. <br><br>
 **Client side parameters setting**<br>
-client_epochs : client epoch<br>
-learning_rate : client-side learning rate <br>
-batch_size : batch size for local training<br><br>
+1. client_epochs : client epoch<br>
+2. learning_rate : client-side learning rate <br>
+3. batch_size : batch size for local training<br><br>
+
 **Server side parameters setting**<br>
-num_clients : require number of clients (should be same as the number of the partition)<br>
-round : server rounds<br>
-conf_filter : confidence filtering (used for filtering the prediction in testing)<br>
-percentage_of_noise : noise size based on total attack instances<br><br>
+1. num_clients : require the number of clients (should be same as the number of the partition)<br>
+2. round : server rounds<br>
+3. conf_filter : confidence filtering (used for filtering the prediction in testing)<br>
+4. percentage_of_noise : noise size based on total attack instances<br><br>
+
 **Dataset parameters**<br>
-dataset : dataset name <br>
-num_classes : number of classes in the dataset<br>
-num_features : number of features in the dataset<br><br>
+1. dataset : dataset name <br>
+2. num_classes : number of classes in the dataset<br>
+3. num_features : number of features in the dataset<br><br>
+
 **Other parameter setting**<br>
-over_lapping_clients_selection : overlapping clients selection option<br>
+1. over_lapping_clients_selection : overlapping clients selection option<br>
 
