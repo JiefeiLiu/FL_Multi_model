@@ -19,7 +19,18 @@ Please follow the steps shown in [link](https://github.com/JiefeiLiu/Federated_l
 
 ****
 **Dataset**
+
 You can download the CICIDS2017 dataset from [here](https://www.unb.ca/cic/datasets/ids-2017.html) and the CICDDoS2019 dataset from [here](https://www.unb.ca/cic/datasets/ddos-2019.html). Preprocessing (Clean data, feature selection and etc.) before partition. 
+
+**Extreme class and data imbalanced equal partition**
+
+1. Using command: ```python sampiling.py```.<br>
+
+**Parameter setting for data partition**
+
+1. partition_num: the number of partitions you will get <br>
+2. num_attacks_range: contains the low boundary and high boundary of the number of classes per client
+****
 
 **Example to Run the Experiments**
 
