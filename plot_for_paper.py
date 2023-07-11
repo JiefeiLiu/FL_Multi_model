@@ -167,7 +167,7 @@ def noise_curve_plot():
     # plot
     font = {'family': 'Arial',
             'weight': 'normal',
-            'size': 33}
+            'size': 36}
     matplotlib.rc('font', **font)
     fig, ax = plt.subplots()
     fig.set_figheight(10)
@@ -175,15 +175,15 @@ def noise_curve_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
-    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='^', label='Static F1',
-                    markersize=15, linewidth=10)
+    line1 = ax.plot(x, accuracy_static, c='black', ls="solid", marker='o', label='Static Accuracy', markersize=20, linewidth=6)
+    line2 = ax.plot(x, F1_static, c='black', ls="solid", marker='v', label='Static F1',
+                    markersize=20, linewidth=6)
 
-    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
-    ax.set_ylabel('Accuracy / F1', **font)
-    ax.set_xlabel('Noise size', **font)
+    ax.set_yticks([0.1, 0.2, 0.4, 0.6, 0.8])
+    ax.set_ylabel('Accuracy / F1', family='Arial', weight='normal', fontsize=35)
+    ax.set_xlabel('Percentage of unknown attack traffic', **font)
     ax.set_xticks([0, 0.2, 0.4, 0.6])
-    ax.legend(line1 + line2, ['Static accuracy', 'Static F1'], loc=4, fontsize=33, ncol=1, framealpha=0.3)
+    ax.legend(line1 + line2, ['Static accuracy', 'Static F1'], loc=4, fontsize=36, ncol=1, framealpha=0.3)
 
     plt.savefig("plots/noise_plot_1.pdf", bbox_inches='tight')
     plt.show()
@@ -194,7 +194,7 @@ def noise_curve_plot():
 
     font = {'family': 'Arial',
             'weight': 'normal',
-            'size': 33}
+            'size': 36}
     matplotlib.rc('font', **font)
     fig, ax = plt.subplots()
     fig.set_figheight(10)
@@ -202,18 +202,18 @@ def noise_curve_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
-                    markersize=15, linewidth=10)
-    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='^', label='Dynamic F1',
-                    markersize=15, linewidth=10)
+    line3 = ax.plot(x, accuracy_dynamic, c='black', ls="dashed", marker='D', label='Dynamic Accuracy',
+                    markersize=20, linewidth=6)
+    line4 = ax.plot(x, F1_dynamic, c='black', ls="dashed", marker='^', label='Dynamic F1',
+                    markersize=20, linewidth=6)
 
-    ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
+    ax.set_yticks([0.1, 0.2, 0.4, 0.6, 0.8])
     # ax.set_ylabel('Accuracy / F1', **font)
     ax.set_xticks([0, 0.2, 0.4, 0.6])
-    ax.set_xlabel('Noise size', **font)
+    ax.set_xlabel('Percentage of unknown attack traffic', **font)
     # ax.yaxis.set_visible(False)
     ax.legend(line3 + line4, ['Dynamic accuracy', 'Dynamic F1'], loc=4,
-              fontsize=33, ncol=1, framealpha=0.3)
+              fontsize=36, ncol=1, framealpha=0.3)
 
     plt.savefig("plots/noise_plot_2.pdf", bbox_inches='tight')
     plt.show()
@@ -236,8 +236,8 @@ def clients_curve_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='v', label='Static Accuracy', markersize=15, linewidth=10)
-    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='^', label='Static F1',
+    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='o', label='Static Accuracy', markersize=15, linewidth=10)
+    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='v', label='Static F1',
                     markersize=15, linewidth=10)
 
     ax.set_yticks([0.4, 0.6, 0.8])
@@ -264,7 +264,7 @@ def clients_curve_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='v', label='Dynamic Accuracy',
+    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='h', label='Dynamic Accuracy',
                     markersize=15, linewidth=10)
     line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='^', label='Dynamic F1',
                     markersize=15, linewidth=10)
@@ -301,20 +301,21 @@ def clients_curve_combine_plot():
     # using rc function
     plt.rc('font', **font)
 
-    line1 = ax.plot(x, accuracy_static, c='salmon', ls="solid", marker='o', label='Static Accuracy', markersize=15,
-                    linewidth=10)
-    line2 = ax.plot(x, F1_static, c='royalblue', ls="solid", marker='o', label='Static F1',
-                    markersize=15, linewidth=10)
-    line3 = ax.plot(x, accuracy_dynamic, c='forestgreen', ls="solid", marker='s', label='Dynamic Accuracy',
-                    markersize=15, linewidth=10)
-    line4 = ax.plot(x, F1_dynamic, c='tan', ls="solid", marker='s', label='Dynamic F1',
-                    markersize=15, linewidth=10)
+    line1 = ax.plot(x, accuracy_static, c='black', ls="solid", marker='o', label='Static Accuracy', markersize=15,
+                    linewidth=5)
+    line2 = ax.plot(x, F1_static, c='black', ls="solid", marker='v', label='Static F1',
+                    markersize=15, linewidth=5)
+    line3 = ax.plot(x, accuracy_dynamic, c='black', ls="dashed", marker='D', label='Dynamic Accuracy',
+                    markersize=15, linewidth=5)
+    line4 = ax.plot(x, F1_dynamic, c='black', ls="dashed", marker='^', label='Dynamic F1',
+                    markersize=15, linewidth=5)
 
     ax.set_yticks([0.4, 0.6, 0.8])
     ax.set_ylim([0.3, 0.9])
     ax.set_ylabel('Accuracy / F1', **font)
     ax.set_xlabel('Number of clients', **font)
     ax.set_xticks([10, 15, 20, 25, 30, 50, 100])
+    # ax.set_xticklabels([10, 15, 20, 25, 30, 45, 100])
     # ax.yaxis.set_visible(False)
     ax.legend(line1 + line2 + line3 + line4, ['Static accuracy', 'Static F1', 'Dynamic accuracy', 'Dynamic F1'], loc=4,
               fontsize=25, ncol=2, framealpha=0.3)
