@@ -78,3 +78,4 @@ def read_2017_data_for_FL(path):
 if __name__ == '__main__':
     path = '../2017_data/'
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = read_2017_data_for_FL(path)
+    # print(X_val.head())
