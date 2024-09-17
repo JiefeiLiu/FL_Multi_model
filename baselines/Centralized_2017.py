@@ -85,7 +85,7 @@ if __name__ == '__main__':
     (X_train, y_train), (X_test, y_test), (X_val, y_val) = centralized_2017_test.read_2017_data_for_FL(data_dir)
     # (X_train, y_train), (X_test, y_test), (X_val, y_val) = data_preprocessing.read_2017_data_for_FL((data_dir))
     # define parameters
-    epochs = 200
+    epochs = 50
     learning_rate = 0.01
     batch_size = 64
     MLP_first_hidden = 64
@@ -110,6 +110,8 @@ if __name__ == '__main__':
     # -------------------Training model----------------------
     train_time = time.time()
     model_weights, _ = utils.train(model, optimizer, loss_fn, train_loader, epochs, neural_network, 1, device=DEVICE)
+    # save_model
+    torch.save(model_weights, "../models/centralized_2017_model.pt")
     training_time = (time.time() - train_time) / 60
     print("---Training time: %s minutes. ---" % training_time)
     # -------------------Testing model----------------------
