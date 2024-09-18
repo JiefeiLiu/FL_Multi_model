@@ -133,6 +133,9 @@ def test(model, loss_fn, test_loader, curr_path, classification_method="Multi", 
                     _, predictions = torch.max(output.cpu(), 1)
                 all_pred_values.extend(predictions)
                 loss = loss_fn(output, target).item()                   # Muti class classification
+    # # Verify
+    # unique, counts = np.unique(all_pred_values, return_counts=True)
+    # print("Predict data distribution:", dict(zip(unique, counts)))
     accuracy, f1, precision, recall = get_performance(all_pred_values, all_true_values, classification_method)
     losses = loss/len(test_loader)
     return losses, accuracy, f1, precision, recall

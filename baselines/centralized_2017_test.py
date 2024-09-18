@@ -115,18 +115,22 @@ def read_2017_data_for_FL(path):
 
 if __name__ == '__main__':
     path = '../2017_data/'
-    (X_train, y_train), (_, _), (_, _) = read_2017_data_for_FL(path)
+    (X_train, y_train), (X_test, y_test), (_, _) = read_2017_data_for_FL(path)
     # print(X_val.head())
-    # Load FLNET testing data
-    FLNET_data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/un_use_data/"
-    X_test = np.load(FLNET_data_path + "FLNET_X_test.npy")
-    y_test = np.load(FLNET_data_path + "FLNET_y_test.npy")
-    # Verify
-    unique, counts = np.unique(y_test, return_counts=True)
-    print("FLNET Testing data distribution:", dict(zip(unique, counts)))
-    print("training data shape: ", X_train.shape)
-    print("test data shape: ", X_test.shape)
-
+    #################### Testing on FLNET dataset #######################
+    # # Load FLNET testing data
+    # FLNET_data_path = "/Users/jiefeiliu/Documents/DoD_Misra_project/jiefei_liu/DOD/MILCOM/data/un_use_data/"
+    # X_test = np.load(FLNET_data_path + "FLNET_X_test.npy")
+    # y_test = np.load(FLNET_data_path + "FLNET_y_test.npy")
+    # # Replace label to match 2017 data
+    # y_test[y_test == 5] = 4
+    # y_test[y_test == 6] = 5
+    # # Verify
+    # unique, counts = np.unique(y_test, return_counts=True)
+    # print("FLNET Testing data distribution:", dict(zip(unique, counts)))
+    # print("training data shape: ", X_train.shape)
+    # print("test data shape: ", X_test.shape)
+    ###########################################
     # sys.exit()
     # define parameters
     epochs = 50
