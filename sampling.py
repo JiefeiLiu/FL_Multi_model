@@ -4,26 +4,40 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, Union, List
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import chi2
 import random
 import time
 import matplotlib.pyplot as plt
 import matplotlib
 
 
-def read_data(path):
-    X_train = np.load(path + "x_train_un_bin.npy")
-    X_test = np.load(path + "x_test.npy")
-    y_train = np.load(path + "y_train_un_bin.npy")
-    y_test = np.load(path + "y_test_bin.npy")
+# -----------------------------------
+# Read CICIDS2017 data
+def read_2017_data(path):
+    X = np.load(path + "cic17_all_X_org.npy")
+    y = np.load(path + "cic17_all_y_org.npy")
 
-    # print("X train shape: ", X_train.shape)
-    # print("y train shape: ", y_train.shape)
-    # print("X test shape: ", X_test.shape)
-    # print("y test shape: ", y_test.shape)
-    # print(len(np.unique(y_train)))
-    # print(y_train)
-    print(str(len(y_test) / (len(y_train) + len(y_test))))  # 1281797
-    return (X_train, y_train), (X_test, y_test)
+    print("X shape: ", X.shape)
+    print("y shape: ", y.shape)
+
+    unique, counts = np.unique(y, return_counts=True)
+    print("Total data shape", dict(zip(unique, counts)))
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=1, shuffle=True,
+                                                        stratify=y)
+    # validation/noise data generator
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.33, random_state=1, shuffle=True,
+                                                      stratify=y_train)
+
+    unique, counts = np.unique(y_train, return_counts=True)
+    print("Training shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_test, return_counts=True)
+    print("Testing shape", dict(zip(unique, counts)))
+    unique, counts = np.unique(y_val, return_counts=True)
+    print("Validation shape", dict(zip(unique, counts)))
+    # print(str(len(y_test) / (len(y_train) + len(y_test))))
+    return (X_train, y_train), (X_test, y_test), (X_val, y_val)
 
 
 # Read CICDDoS2019 data
@@ -418,62 +432,63 @@ def verify_class_distribution(pickle_path):
 
 
 if __name__ == "__main__":
-    # data_path = "../LR_model/CICIDS2017/"
-    data_path = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
-    pickle_saving_path = "2019_data/"
-    partition_num = 50
-    num_attacks_range = [1, 3]
+    data_path = "2017_data/old_data/"
+    # data_path = "../DoD_Misra_project/jiefei_liu/DOD/CICDDoS2019/"
+    pickle_saving_path = "2017_data/"
+    partition_num = 20
+    num_attacks_range = [2, 5]
     start_time = time.time()
     # -------------------- Normal data partition ----------------------------
     # Split train set into partitions and randomly use one for training.
-    # (X_train, y_train), _ = read_2019_data(data_path)
-    # partitioned_data = partition_bal_equ(X_train, y_train, partition_num)
-    # # Open a file and use dump()
-    # with open('partition_equal_balance.pkl', 'wb') as file:
-    #     # A new file will be created
-    #     pickle.dump(partitioned_data, file)
-    # print("The shape of partition data")
-    # print("The shape of X: ", len(X_train), len(X_train[0]))
-    # print("The shape of y: ", len(y_train))
+    # (X_train, y_train), testing, validation = read_2019_data(data_path)
+    (X_train, y_train), testing, validation = read_2017_data(data_path)
+    partitioned_data = partition_bal_equ(X_train, y_train, partition_num)
+    print("The shape of partition data")
+    print("The shape of X: ", len(X_train), len(X_train[0]))
+    print("The shape of y: ", len(y_train))
+    save_file_name = 'partition_equal_balance.pkl'
+    # ------------------------------------------------------------
     # -------------------- load data  ----------------------------
-    (X_train, y_train), testing, validation = read_2019_data(data_path)
+    # ------------------------------------------------------------
+    # (X_train, y_train), testing, validation = read_2019_data(data_path)
     # sys.exit()
     # -------------------- Extreme data partition testing ----------------------------
     # partitioned_data = partition_ex_imbal_equ_testing(X_train, y_train, partition_num, number_of_attack_classes=num_attacks_range[0])
     # save_file_name = pickle_saving_path + "partition_attacks_" + str(num_attacks_range[0]) + "_imbalance.pkl"
     # -------------------- Extreme data partition regular ----------------------------
-    partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
-                                              low_bound_of_classes=num_attacks_range[0],
-                                              high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)
-    save_file_name = "2019_data/" + str(partition_num) + "_training.pkl"
-    # -------------------- Save Extreme data partition ----------------------------
-    with open(save_file_name, 'wb') as file:
+    # partitioned_data = partition_ex_imbal_equ(X_train, y_train, partition_num,
+    #                                           low_bound_of_classes=num_attacks_range[0],
+    #                                           high_bound_of_classes=num_attacks_range[1], percentage_normal_traffic=60)
+    # save_file_name = "2019_data/" + str(partition_num) + "_training.pkl"
+    # -------------------- Save data partition ----------------------------
+    # Open a file and use dump()
+    with open(pickle_saving_path + save_file_name, 'wb') as file:
         # A new file will be created
         pickle.dump(partitioned_data, file)
     # saving testing
-    with open("2019_data/testing.pkl", 'wb') as file:
+    with open(pickle_saving_path + "testing.pkl", 'wb') as file:
         # A new file will be created
         pickle.dump(testing, file)
     # saving validation
-    with open("2019_data/validation.pkl", 'wb') as file:
+    with open(pickle_saving_path + "validation.pkl", 'wb') as file:
         # A new file will be created
         pickle.dump(validation, file)
-
     # ---------------------Verify data partition-----------------------------
-    # # Open the file in binary mode
-    # with open('partition.pkl', 'rb') as file:
-    #     # Call load method to deserialze
-    #     partitioned_data = pickle.load(file)
-    # for i in range(partition_num):
-    #     (X_train, y_train) = partitioned_data[i]
-    #     print("X train shape: ", X_train.shape)
-    #     print("y train shape: ", y_train.shape)
-    #     unique_train, counts_train = np.unique(y_train, return_counts=True)
-    #     print("train label:", unique_train)
-    #     print("train count:", counts_train)
-    #     print()
+    # Open the file in binary mode
+    with open(pickle_saving_path + 'partition_equal_balance.pkl', 'rb') as file:
+        # Call load method to deserialze
+        partitioned_data = pickle.load(file)
+    for i in range(partition_num):
+        (X_train, y_train) = partitioned_data[i]
+        print("Client", str(i), ":")
+        print("X train shape: ", X_train.shape)
+        print("y train shape: ", y_train.shape)
+        unique_train, counts_train = np.unique(y_train, return_counts=True)
+        print("train label:", unique_train)
+        print("train count:", counts_train)
+        print()
     # ---------------------Plot data partition-----------------------------
-    plot_name = "Partition_" + str(partition_num) + "_2019_ex_class_imbalanced.pdf"
+    plot_name = "Partition_" + str(partition_num) + "_2017_balance_and_equal.pdf"
     plot_stacked_bar(partitioned_data, pickle_saving_path, plot_name)
     # ---------------------verify data partition-----------------------------
     # verify_class_distribution(save_file_name)

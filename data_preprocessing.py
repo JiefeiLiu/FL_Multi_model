@@ -311,11 +311,11 @@ if __name__ == '__main__':
         # A new file will be created
         pickle.dump(partitioned_data, file)
     # saving testing
-    with open("2017_data/testing.pkl", 'wb') as file:
+    with open("2017_data/old_data/testing.pkl", 'wb') as file:
         # A new file will be created
         pickle.dump(testing, file)
     # saving validation
-    with open("2017_data/validation.pkl", 'wb') as file:
+    with open("2017_data/old_data/validation.pkl", 'wb') as file:
         # A new file will be created
         pickle.dump(validation, file)
     # ---------------------Plot data partition-----------------------------
